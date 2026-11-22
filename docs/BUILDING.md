@@ -64,7 +64,7 @@ Compress with UPX (if used) **before** signing; any change to the file after sig
 ## Publishing a release on GitHub
 
 A release consists of a *tag* (a fixed point in the source code) and a ZIP file with the signed program, the
-user guide, the license files and a checksum file. GitHub adds the source code archive of the tag
+user guide and the license files. GitHub adds the source code archive of the tag
 automatically, so the program and its source always belong together – this is what the GPL requires when the
 program is passed on.
 
@@ -95,11 +95,11 @@ when the documentation changes.
    Remove-Item release_tmp -Recurse
    ```
 
-4. Create the checksum file of the ZIP file:
+4. Calculate the SHA256 checksum of the ZIP file. It goes into the release notes (section *Verify the download*);
+   there is no separate checksum file, and GitHub shows the checksum next to the uploaded file as well:
 
    ```powershell
-   $h = (Get-FileHash ".\CCTrayTool_$v.zip" -Algorithm SHA256).Hash.ToLower()
-   "$h  CCTrayTool_$v.zip" | Set-Content -Encoding ascii ".\CCTrayTool_$v.zip.sha256"
+   (Get-FileHash ".\CCTrayTool_$v.zip" -Algorithm SHA256).Hash.ToLower()
    ```
 
 5. Create the tag and push it. The tag name is `v` plus the file version. (When you publish the release on the
@@ -112,14 +112,13 @@ when the documentation changes.
 
 6. Create the release:
    - **On the website:** *Releases > Draft a new release*, choose the tag, enter a title and release notes,
-     drag `CCTrayTool_<version>.zip` and `CCTrayTool_<version>.zip.sha256` into the *Attach binaries* area and
-     click *Publish release*.
+     drag `CCTrayTool_<version>.zip` into the *Attach binaries* area and click *Publish release*.
    - **With the GitHub CLI:**
 
      ```bat
-     gh release create v<version> CCTrayTool_<version>.zip CCTrayTool_<version>.zip.sha256 --title "CCTrayTool <version>" --notes-file RELEASE_NOTES.md
+     gh release create v<version> CCTrayTool_<version>.zip --title "CCTrayTool <version>" --notes-file RELEASE_NOTES.md
      ```
 
 To replace a faulty file of an already published release, upload the corrected file to the same release
-(`gh release upload <tag> <file> --clobber`) and update the checksum file. Do not move a tag that other people
+(`gh release upload <tag> <file> --clobber`) and update the checksum in the release notes. Do not move a tag that other people
 may already have used; publish a new version instead.

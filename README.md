@@ -26,8 +26,8 @@ repository. Download the ZIP file (for example `CCTrayTool_2026.0.0.110.zip`), u
 start `CCTrayTool.exe` – there is nothing to install. The ZIP file contains the program, the user guide
 (`README.txt`), the license (`LICENSE`, `NOTICE`) and a note about the source code.
 
-Every release also contains a `.sha256` file with the checksum of the ZIP file. To check your download,
-compare it with the result of `Get-FileHash .\CCTrayTool_2026.0.0.110.zip` in PowerShell.
+The SHA256 checksum of the ZIP file is part of the release notes (GitHub also shows it next to the file). To
+check your download, compare it with the result of `Get-FileHash .\CCTrayTool_2026.0.0.110.zip` in PowerShell.
 
 CCTrayTool keeps its settings, the log file and the ToolTime folder in `%LocalAppData%\CCTrayTool`
 (see section 8 of the user guide). The program does not write anywhere else.
