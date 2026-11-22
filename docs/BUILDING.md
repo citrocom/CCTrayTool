@@ -60,35 +60,61 @@ Compress with UPX (if used) **before** signing; any change to the file after sig
 
 ## Publishing a release on GitHub
 
-A release consists of a *tag* (a fixed point in the source code), the signed program and a checksum.
-GitHub adds the source code archive of the tag automatically, so the program and its source always belong
-together – this is what the GPL requires when the program is passed on.
+A release consists of a *tag* (a fixed point in the source code) and a ZIP file with the signed program, the
+user guide, the license files and a checksum file. GitHub adds the source code archive of the tag
+automatically, so the program and its source always belong together – this is what the GPL requires when the
+program is passed on.
 
-1. Commit and push all changes to the `main` branch. Make sure the file version in
-   `#AutoIt3Wrapper_Res_Fileversion` is the version that you want to release.
-2. Compile and sign the program (see above) and check that the signature is valid.
-3. Create the checksum file (PowerShell):
+The ZIP file is named `CCTrayTool_<version>.zip`, for example `CCTrayTool_2026.0.0.109.zip`. It contains:
+
+| File | Source |
+| --- | --- |
+| `CCTrayTool.exe` | the compiled and signed program |
+| `README.txt` | `release/README.txt` – the user guide as plain text in 8 languages |
+| `LICENSE`, `NOTICE` | the files of the same name in the repository |
+| `SOURCE.txt` | `release/SOURCE.txt` – with `<version>` replaced by the version of the release |
+
+`release/README.txt` is the plain text version of `README.md` and `docs/README.<lang>.md`. Keep them in sync
+when the documentation changes.
+
+1. Commit and push all changes to the `main` branch. Make sure the version in `#AutoIt3Wrapper_Res_Fileversion`
+   is the version that you want to release.
+2. Compile and sign the program (see above). Check that the signature is valid and that the file version of
+   `CCTrayTool.exe` (*Properties > Details*) is the version of the release.
+3. Create the ZIP file (PowerShell, in the folder of the repository):
 
    ```powershell
-   $h = (Get-FileHash .\CCTrayTool.exe -Algorithm SHA256).Hash.ToLower()
-   "$h  CCTrayTool.exe" | Set-Content -Encoding ascii .\CCTrayTool.exe.sha256
+   $v = "2026.0.0.109"    # version of the release
+   New-Item -ItemType Directory release_tmp | Out-Null
+   Copy-Item CCTrayTool.exe, LICENSE, NOTICE, release\README.txt release_tmp\
+   (Get-Content release\SOURCE.txt -Raw).Replace("<version>", $v) | Set-Content -Encoding ascii release_tmp\SOURCE.txt
+   Compress-Archive -Path release_tmp\* -DestinationPath "CCTrayTool_$v.zip" -Force
+   Remove-Item release_tmp -Recurse
    ```
 
-4. Create the tag and push it. The tag name is `v` plus the file version, for example:
+4. Create the checksum file of the ZIP file:
+
+   ```powershell
+   $h = (Get-FileHash ".\CCTrayTool_$v.zip" -Algorithm SHA256).Hash.ToLower()
+   "$h  CCTrayTool_$v.zip" | Set-Content -Encoding ascii ".\CCTrayTool_$v.zip.sha256"
+   ```
+
+5. Create the tag and push it. The tag name is `v` plus the file version. (When you publish the release on the
+   website you can also let GitHub create the tag.)
 
    ```bat
-   git tag -a v2026.0.0.110 -m "CCTrayTool 2026.0.0.110"
-   git push origin v2026.0.0.110
+   git tag -a v<version> -m "CCTrayTool <version>"
+   git push origin v<version>
    ```
 
-5. Create the release:
+6. Create the release:
    - **On the website:** *Releases > Draft a new release*, choose the tag, enter a title and release notes,
-     drag `CCTrayTool.exe` and `CCTrayTool.exe.sha256` into the *Attach binaries* area and click
-     *Publish release*.
+     drag `CCTrayTool_<version>.zip` and `CCTrayTool_<version>.zip.sha256` into the *Attach binaries* area and
+     click *Publish release*.
    - **With the GitHub CLI:**
 
      ```bat
-     gh release create v2026.0.0.110 CCTrayTool.exe CCTrayTool.exe.sha256 --title "CCTrayTool 2026.0.0.110" --notes-file RELEASE_NOTES.md
+     gh release create v<version> CCTrayTool_<version>.zip CCTrayTool_<version>.zip.sha256 --title "CCTrayTool <version>" --notes-file RELEASE_NOTES.md
      ```
 
 To replace a faulty file of an already published release, upload the corrected file to the same release

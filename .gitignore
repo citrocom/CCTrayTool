@@ -1,5 +1,6 @@
-# Compiled programs and checksums: published as GitHub Release assets, never committed
+# Compiled programs, release ZIP files and checksums: published as GitHub Release assets, never committed
 *.exe
+*.zip
 *.sha256
 
 # AutoIt / SciTE helper files

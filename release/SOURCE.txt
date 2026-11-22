@@ -1,0 +1,13 @@
+CCTrayTool <version> - source code
+==================================
+
+CCTrayTool is free software (GNU General Public License, version 3 or
+later, with the additional term and permission described in the file
+NOTICE). The complete source code of this version is available at:
+
+    https://github.com/citrocom/CCTrayTool
+
+    Version tag: v<version>
+
+The program is written in AutoIt (https://www.autoitscript.com).
+How to build it is described in docs/BUILDING.md in the repository.
