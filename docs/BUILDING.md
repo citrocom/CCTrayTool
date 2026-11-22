@@ -38,11 +38,13 @@ The program is compiled as a **64-bit** application (`#AutoIt3Wrapper_UseX64=y`)
 ToolTime tools live in `System32`, which a 32-bit program on 64-bit Windows would see as `SysWOW64`, and a 32-bit
 build has not been tested. The resulting program runs on 64-bit Windows only; 32-bit Windows is not supported.
 
-Two directives at the top of the file change the source code itself when the program is compiled:
+The version of the program is set by hand with `#AutoIt3Wrapper_Res_Fileversion` at the top of the file. The
+directive `#AutoIt3Wrapper_Res_Fileversion_AutoIncrement` is set to `n` on purpose, so that compiling does not
+change the version: the number in the source file is always the number of the compiled program. Raise the last
+number before a release; the tag of the release is `v` plus this version.
 
-- `#AutoIt3Wrapper_Res_Fileversion_AutoIncrement=y` increases the last number of `Res_Fileversion` with every
-  compilation. Check the change with `git diff` before you commit it; for a release the version must be the one
-  that you name in the tag.
+One directive at the top of the file changes the source code itself when the program is compiled:
+
 - `#AutoIt3Wrapper_Run_Tidy=y` reformats the source code. Review the result before committing, so that
   commits contain only intended changes.
 
