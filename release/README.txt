@@ -22,7 +22,7 @@ Languages in this document:
 ===================================================================
 
 CCTrayTool is a small Windows tool that runs as an icon in the
-system tray (bottom right, next to the clock). It combines three
+system tray (bottom right, next to the clock). It combines four
 useful functions in one program:
 
   1. KeepAwake         - prevents the PC from entering power-saving
@@ -31,6 +31,8 @@ useful functions in one program:
                           a keyboard shortcut
   3. Tools Quick Start  - launches frequently used programs directly
                           from the tray menu
+  4. CloseGuard         - locks the close button (X) of selected
+                          windows, by keyboard shortcut or by rules
 
 All functions are operated via a right-click menu on the tray icon.
 No installation is required; the program can be started directly.
@@ -90,9 +92,9 @@ NOT do while CCTrayTool is running:
       CCTrayTool does not intervene; normal Windows power-saving
       behavior applies.
 
-The "Save Status" menu item makes CCTrayTool remember the last
-selected KeepAwake setting and automatically restore it on the
-next start.
+The "Save Status" menu item in the "Settings" submenu of the
+KeepAwake section makes CCTrayTool remember the last selected
+KeepAwake setting and automatically restore it on the next start.
 
 When CCTrayTool is closed, normal Windows power-saving behavior is
 automatically restored.
@@ -113,14 +115,15 @@ via the "Show ToolTip" menu item.
 
 The "AlwaysOnTop" menu offers the following options:
 
-  - Hotkey Active        Turns the keyboard shortcut on or off
-                          completely
-  - Change Hotkey         Opens a dialog where a custom keyboard
-                          shortcut can be defined (a combination of
-                          Ctrl, Alt, Shift, Win plus a letter, a
-                          number, or a function key F1-F12)
-  - Show ToolTip          Turns the brief on-screen notification on
-                          or off when toggling
+  - Hotkey Active   Turns the keyboard shortcut on or off
+                    completely
+  - Settings        Submenu (gear icon) with the following entries:
+      - Change Hotkey   Opens a dialog where a custom keyboard
+                        shortcut can be defined (a combination of
+                        Ctrl, Alt, Shift, Win plus a letter, a
+                        number, or a function key F1-F12)
+      - Show ToolTip    Turns the brief on-screen notification on
+                        or off when toggling
 
 Note: The Windows desktop itself ("Program Manager") cannot be set
 to "always on top". Not every keyboard combination is available -
@@ -129,12 +132,285 @@ case, a notice appears and a different combination must be chosen.
 
 
 -------------------------------------------------------------------
- 4. Quick start menu for your own programs
+ 4. CloseGuard - locking the close button
+-------------------------------------------------------------------
+
+CloseGuard protects windows against being closed by accident. For
+the windows you choose, it locks the close button (the "X" at the
+top right of the window): the button is grayed out and a click on
+it does nothing. This is useful for programs that have to keep
+running, or for windows that keep getting closed by mistake.
+
+A window can be locked in two ways:
+
+  - By hand, with a keyboard shortcut
+      Click the window, then press CTRL + ALT + X (default). The
+      close button of this window is now locked. Pressing the
+      shortcut again releases it. A window released this way stays
+      free, even if a rule matches, until it is closed. A short
+      notification confirms each change. The lock lasts until the
+      window is closed or released.
+
+  - Automatically, with rules
+      Click the window, then press CTRL + ALT + SHIFT + X
+      (default). CCTrayTool saves a rule made of the window title
+      and the window class in the rules file and locks the window.
+      From then on, every window that matches the rule is locked
+      automatically as soon as it appears - also after the program
+      or CCTrayTool has been restarted.
+
+In the tray menu, the "CloseGuard" section offers these entries:
+
+  - Lock/unlock the close button of the active window
+      Does the same as the first shortcut. While the tray menu is
+      open it has the focus itself, so CloseGuard uses the window
+      that was active just before.
+
+  - Create rule for the active window
+      Does the same as the second shortcut.
+
+  - Show locked windows
+      Shows which windows are locked at the moment (by rule or by
+      hand, with the window class in square brackets) and how many
+      rules exist.
+
+Below them, the submenu "Settings" (gear icon) contains:
+
+  - Check new windows automatically
+      On: CloseGuard keeps watching and locks every new window that
+      matches a rule. Off: new windows are not locked
+      automatically.
+
+  - Check windows open at program start
+      On: windows that are already open when CCTrayTool starts are
+      checked against the rules right away. Off: these windows are
+      left alone; only windows opened later are checked.
+
+  - Minimize window when locked X is clicked
+      On: a click on the grayed-out close button minimizes the
+      window instead of doing nothing. As with a real button, the
+      window is minimized only if the mouse button is released on
+      the X as well; pressing the button and moving away cancels
+      the click. Off (default): a click does nothing.
+
+  - Change hotkey: lock/unlock
+    Change hotkey: create rule
+      Opens the same dialog as for AlwaysOnTop, to define another
+      keyboard shortcut. A combination that another function of
+      CCTrayTool already uses is refused.
+
+  - Edit rules...
+      Opens the rules file in Notepad (see below). After saving and
+      closing Notepad, the changed rules are applied at once:
+      windows locked by a rule that no longer matches are released,
+      and new rules are applied to the open windows.
+
+CloseGuard as a whole can be turned on and off with "Enable
+CloseGuard" in the "Settings" menu of the "CCTrayTool" section (see
+Section 7).
+
+Rules (own file CloseGuardRules.ini, section [Rules]):
+
+The rules are not kept in the settings file but in a file of their
+own: %LocalAppData%\CCTrayTool\CloseGuardRules.ini. It is created
+automatically. It is a Unicode file, so window titles with umlauts
+or other special characters work. Notepad keeps this format; if you
+edit the file with another program, save it as Unicode (UTF-16) as
+well, otherwise special characters may be lost. The rules are read
+again when Notepad is closed after "Edit rules..." and at every
+start of CCTrayTool.
+
+Each line is one rule in the form  number=title|class.  The title
+is a text that must appear somewhere in the window title. The class
+is the technical name of the window type and must match exactly.
+Upper and lower case do not matter. One of the two parts may be
+empty (the "|" must stay); if both are filled in, both must match.
+Examples:
+
+  1=Calculator|       every window with "Calculator" in its title
+  2=|Notepad          every window of the class "Notepad"
+  3=Untitled|Notepad  windows of the class "Notepad" with
+                      "Untitled" in the title
+
+The shortcut "create rule" uses the complete current title of the
+window. If the title changes (for example with the name of an open
+document), shorten it afterwards with "Edit rules..." to the part
+that stays the same, or leave the title empty and keep only the
+class. The class of a locked window is shown by "Show locked
+windows". A rule with an empty title and an empty class is ignored;
+at most 200 rules are used.
+
+Settings in the settings file (section [CloseGuard]):
+
+  [CloseGuard]
+  Enabled=1
+  HotkeyToggle=^!x
+  HotkeyAddRule=^!+x
+  ApplyOnStartup=1
+  AutoApply=1
+  PollInterval=500
+  MinimizeOnClick=0
+  ClickPollInterval=30
+  ClickGeometryFallback=1
+  ClickGeometryExtendLeft=0
+  ClickGeometryExtendDown=87
+  ClickDebugOverlay=0
+  ClickShieldClasses=Chrome_WidgetWin_1,MozillaWindowClass
+
+  Enabled                  1 = CloseGuard on, 0 = off (same as the
+                           menu item "Enable CloseGuard").
+  HotkeyToggle             Keyboard shortcut for lock/unlock.
+                           ^ = Ctrl, ! = Alt, + = Shift, # = Win,
+                           followed by the key. It is easier to
+                           change it with the menu item "Change
+                           hotkey".
+  HotkeyAddRule            Keyboard shortcut for "create rule".
+  ApplyOnStartup           1 = windows that are open at program
+                           start are checked against the rules,
+                           0 = they are left alone.
+  AutoApply                1 = new windows are checked
+                           automatically, 0 = not.
+  PollInterval             How often the windows are checked, in
+                           milliseconds: 250 to 5000 (default:
+                           500). Other values are corrected
+                           automatically.
+  MinimizeOnClick          1 = a click on the locked close button
+                           minimizes the window, 0 = it does
+                           nothing (default). Same as the menu
+                           item.
+  ClickPollInterval        How often the mouse button is checked
+                           for this, in milliseconds: 10 to 100
+                           (default: 30). A smaller value notices
+                           very short clicks more reliably, a
+                           larger one needs less computing time.
+                           Other values are corrected
+                           automatically. There is no menu item for
+                           this setting.
+  ClickGeometryFallback    1 = if a window with its own title bar
+                           (for example Outlook) does not report
+                           its X to Windows, the X is recognized by
+                           its position (default). 0 = only an X
+                           that the window reports itself is
+                           recognized.
+  ClickGeometryExtendLeft  How far the area in which the X is
+                           recognized by its position reaches to
+                           the left, in percent of the width of the
+                           X: 0 to 100 (default: 0). Some programs
+                           draw their X further left than Windows
+                           reports. A value that is too large
+                           reaches into the neighbouring maximize
+                           button.
+  ClickGeometryExtendDown  How far that area reaches downwards, in
+                           percent of the height of the X: 0 to 100
+                           (default: 87). Some programs draw their
+                           X lower than Windows reports. Same
+                           purpose and same limits as
+                           ClickGeometryExtendLeft.
+  ClickDebugOverlay        1 = shows the areas that are used to
+                           recognize the X as colored, transparent
+                           rectangles on the screen: red = the area
+                           in which a click counts as a click on
+                           the X, blue = the close button area that
+                           Windows reports (or, if Windows reports
+                           none, the X area that was found by
+                           asking the window), green = the shield
+                           over the X (see ClickShieldClasses).
+                           Only for troubleshooting. 0 = off
+                           (default).
+  ClickShieldClasses       Window classes (separated by commas) of
+                           programs that close themselves when the
+                           mouse button is released, for example
+                           Edge and Chrome (Chrome_WidgetWin_1) and
+                           Firefox (MozillaWindowClass). Default:
+                           both. The X of such a window is covered
+                           by an almost invisible window that takes
+                           the click, so the window cannot be
+                           closed with the X. Empty = none.
+
+The two CloseGuard shortcuts and the AlwaysOnTop shortcut must
+differ from each other. If they do not, the default shortcuts are
+used instead.
+
+Good to know:
+
+  - The lock protects against clicking the X by mistake. Depending
+    on the program, a window can still be closed in other ways:
+    with ALT + F4, with "Close window" in the taskbar, with an Exit
+    command in the program's own menu or with the Task Manager.
+
+  - Only windows with a normal title bar and system menu can be
+    locked. Programs that draw their own title bar (many modern
+    apps, some browsers, apps from the Microsoft Store) may keep a
+    working X even though CloseGuard reports the window as locked.
+    If a window has no system menu at all, a notice appears.
+
+  - Minimize on click: CCTrayTool checks the mouse button briefly
+    and regularly (default: every 30 ms), and only while at least
+    one locked window is visible. It does not use a mouse hook, so
+    it cannot slow down the mouse or the system. In the unlikely
+    case that a very short click falls into a moment in which
+    CCTrayTool is busy, it is simply not noticed: the window stays
+    as it is and its X stays locked.
+
+  - Minimize on click reacts to the primary mouse button (the right
+    one if the buttons are swapped in Windows) and only to the X of
+    locked windows. Touch and pen input are not detected. If a
+    program ignores the minimize command, CCTrayTool minimizes the
+    window directly.
+
+  - Some programs draw their own title bar (for example Outlook).
+    They do not tell Windows where their X is, so for the click
+    detection CCTrayTool works out the position of the X in the top
+    right corner of the window (INI key ClickGeometryFallback). The
+    log file then says "recognized by its position".
+
+  - Edge, Chrome and other Chromium programs and Firefox draw their
+    own X and close the window themselves when the mouse button is
+    released, so the locked system menu cannot stop them. For such
+    windows (INI key ClickShieldClasses, default
+    Chrome_WidgetWin_1,MozillaWindowClass) CCTrayTool puts an
+    almost invisible window, a shield, over the X. The click lands
+    on the shield and the program never sees it: nothing happens,
+    or the window is minimized if minimizing on click is on. The
+    shield follows the window and is gone while the window is
+    minimized, unlocked, fullscreen or covered by another window at
+    its X. With ClickDebugOverlay=1 it is shown in green. While a
+    window of such a class is visible, the mouse button is checked
+    every 10 ms, even if minimizing on click is off. Firefox draws
+    its title bar itself and Windows reports no position for its X,
+    so CCTrayTool finds the X by asking the window (log file:
+    "found by asking the window"). The position fallback
+    (ClickGeometryFallback) is only used for windows that do not
+    report their X to Windows, such as Outlook and Word; CCTrayTool
+    asks each window once and writes the result to the log file
+    ("probe of the X").
+
+  - Windows of programs that run as administrator cannot be locked
+    as long as CCTrayTool does not run as administrator itself (a
+    Windows security rule). A notice appears.
+
+  - The desktop, the taskbar and the windows of CCTrayTool itself
+    are never locked.
+
+  - When a window is released, its system menu is reset to the
+    Windows default. Entries that the program itself added to this
+    menu may be missing until the program is restarted.
+
+  - A lock lasts only while CCTrayTool is running: when the program
+    is closed or CloseGuard is turned off, all windows get their
+    close button back. If CCTrayTool is ended forcibly (for example
+    with the Task Manager), locked windows stay locked. Then press
+    the lock/unlock shortcut in such a window (CCTrayTool must be
+    running again), or close the window and open it again.
+
+
+-------------------------------------------------------------------
+ 5. Quick start menu for your own programs
 -------------------------------------------------------------------
 
 Above KeepAwake, the tray menu shows the "ToolTime" section: a list
 of programs that can be started with a single click. The entries
-come from a folder on your PC (see Section 5): every shortcut
+come from a folder on your PC (see Section 6): every shortcut
 (.lnk file) in this folder becomes a menu entry and every sub folder
 becomes a submenu.
 
@@ -157,7 +433,7 @@ Windows asks for confirmation via User Account Control).
 
 
 -------------------------------------------------------------------
- 5. Adding your own tools and folders
+ 6. Adding your own tools and folders
 -------------------------------------------------------------------
 
 The tools in the quick start menu are simply shortcuts in a folder.
@@ -255,19 +531,19 @@ information file are created anew.
 
 
 -------------------------------------------------------------------
- 6. Additional settings
+ 7. Additional settings
 -------------------------------------------------------------------
 
 The "Settings" submenu also offers:
 
   - Enable ToolTime
-      Turns the entire tool quick-start section (see Section 4) on
+      Turns the entire tool quick-start section (see Section 5) on
       or off. When turned off, none of its entries appear in the
       tray menu, no matter what is in the ToolTime folder.
 
   - Open ToolTime Folder
       Opens the ToolTime folder in Windows Explorer, so that
-      shortcuts can be added, renamed or removed (see Section 5).
+      shortcuts can be added, renamed or removed (see Section 6).
 
   - Reload Tools
       Reads the ToolTime folder again and rebuilds the menu.
@@ -283,6 +559,12 @@ The "Settings" submenu also offers:
       Turns the entire AlwaysOnTop section (see Section 3) on or
       off. When turned off, its entries disappear from the tray
       menu and the keyboard shortcut is deactivated.
+
+  - Enable CloseGuard
+      Turns the entire CloseGuard section (see Section 4) on or
+      off. When turned off, its entries disappear from the tray
+      menu, its keyboard shortcuts are deactivated and all locked
+      windows get their close button back.
 
   - Start Automatically
       CCTrayTool will start automatically at Windows logon in the
@@ -304,11 +586,11 @@ The "Settings" submenu also offers:
 
   - Edit Settings File
       Opens the configuration file directly for editing (see
-      Section 5).
+      Section 6).
 
 
 -------------------------------------------------------------------
- 7. Storage locations
+ 8. Storage locations
 -------------------------------------------------------------------
 
 CCTrayTool stores its files in the user profile:
@@ -317,21 +599,28 @@ CCTrayTool stores its files in the user profile:
   Logfile:          %LocalAppData%\CCTrayTool\CCTrayTool.log
   ToolTime folder:  %LocalAppData%\CCTrayTool\ToolTime\
 
+The CloseGuard rules are kept in a file of their own:
+
+  %LocalAppData%\CCTrayTool\CloseGuardRules.ini
+
 (The path can be pasted into Windows Explorer's address bar to go
 directly to the folder.)
 
 
 -------------------------------------------------------------------
- 8. Closing the program
+ 9. Closing the program
 -------------------------------------------------------------------
 
 CCTrayTool is closed via the "Exit" menu item. This automatically
 restores normal Windows power-saving behavior and saves the current
 configuration.
 
+All windows whose close button is locked by CloseGuard get their
+close button back when the program is closed.
+
 
 -------------------------------------------------------------------
- 9. About / Contact
+ 10. About / Contact
 -------------------------------------------------------------------
 
 The currently installed version can be viewed at any time via the
@@ -350,7 +639,7 @@ files LICENSE and NOTICE.
 ===================================================================
 
 CCTrayTool ist ein kleines Windows-Tool, das als Symbol im
-System-Tray (unten rechts neben der Uhr) läuft. Es vereint drei
+System-Tray (unten rechts neben der Uhr) läuft. Es vereint vier
 nützliche Funktionen in einem Programm:
 
   1. KeepAwake        - verhindert, dass der PC in den Energiesparmodus
@@ -359,6 +648,9 @@ nützliche Funktionen in einem Programm:
                          Fenster im Vordergrund
   3. Tools-Schnellstart - startet häufig genutzte Programme direkt
                          über das Traymenü
+  4. CloseGuard        - sperrt den Schließen-Button (X)
+                         ausgewählter Fenster, per
+                         Tastenkombination oder über Regeln
 
 Alle Funktionen werden über ein Rechtsklick-Menü auf das Tray-Symbol
 bedient. Eine Installation ist nicht nötig, das Programm kann direkt
@@ -423,9 +715,10 @@ tun soll, während CCTrayTool läuft:
       CCTrayTool greift nicht ein, es gilt das normale
       Energiespar-Verhalten von Windows.
 
-Über den Menüpunkt "Status speichern" merkt sich CCTrayTool die
-zuletzt gewählte KeepAwake-Einstellung und stellt sie beim
-nächsten Start automatisch wieder her.
+Über den Menüpunkt "Status speichern" im Untermenü "Einstellungen"
+des KeepAwake-Bereichs merkt sich CCTrayTool die zuletzt gewählte
+KeepAwake-Einstellung und stellt sie beim nächsten Start
+automatisch wieder her.
 
 Beim Beenden von CCTrayTool wird das normale Energiesparverhalten
 von Windows automatisch wiederhergestellt.
@@ -447,15 +740,17 @@ den Menüpunkt "ToolTip anzeigen" ein- oder ausschalten.
 
 Im Menü "AlwaysOnTop" stehen folgende Optionen zur Verfügung:
 
-  - Hotkey aktiv        Schaltet die Tastenkombination komplett
-                         ein oder aus
-  - Hotkey ändern        Öffnet einen Dialog, in dem eine eigene
-                         Tastenkombination festgelegt werden kann
-                         (Kombination aus Strg/Ctrl, Alt, Shift,
-                         Win + einem Buchstaben, einer Zahl oder
-                         einer Funktionstaste F1-F12)
-  - ToolTip anzeigen      Schaltet den kurzen Bildschirmhinweis
-                         beim Umschalten ein oder aus
+  - Hotkey aktiv    Schaltet die Tastenkombination komplett ein
+                    oder aus
+  - Einstellungen   Untermenü (Zahnrad-Symbol) mit folgenden
+                    Einträgen:
+      - Hotkey ändern      Öffnet einen Dialog, in dem eine eigene
+                           Tastenkombination festgelegt werden kann
+                           (Kombination aus Strg/Ctrl, Alt, Shift,
+                           Win + einem Buchstaben, einer Zahl oder
+                           einer Funktionstaste F1-F12)
+      - ToolTip anzeigen   Schaltet den kurzen Bildschirmhinweis
+                           beim Umschalten ein oder aus
 
 Hinweis: Der Windows-Desktop selbst ("Program Manager") kann nicht
 auf "immer im Vordergrund" gesetzt werden. Nicht jede Tastenkombi-
@@ -465,13 +760,308 @@ muss eine andere Kombination gewählt werden.
 
 
 -------------------------------------------------------------------
- 4. Schnellstart-Menü für eigene Programme
+ 4. CloseGuard - Schließen-Button sperren
+-------------------------------------------------------------------
+
+CloseGuard schützt Fenster davor, versehentlich geschlossen zu
+werden. Bei den Fenstern, die Sie auswählen, sperrt es den
+Schließen-Button (das "X" oben rechts im Fenster): Der Button wird
+ausgegraut, und ein Klick darauf bewirkt nichts. Das ist nützlich
+für Programme, die dauerhaft laufen müssen, oder für Fenster, die
+immer wieder aus Versehen geschlossen werden.
+
+Ein Fenster lässt sich auf zwei Arten sperren:
+
+  - Von Hand, per Tastenkombination
+      Das Fenster anklicken und dann STRG + ALT + X
+      (Standardbelegung) drücken. Der Schließen-Button dieses
+      Fensters ist nun gesperrt. Erneutes Drücken gibt ihn wieder
+      frei. Ein so freigegebenes Fenster bleibt frei, auch wenn
+      eine Regel passt, bis es geschlossen wird. Ein kurzer Hinweis
+      bestätigt jede Änderung. Die Sperre gilt, bis das Fenster
+      geschlossen oder freigegeben wird.
+
+  - Automatisch, über Regeln
+      Das Fenster anklicken und dann STRG + ALT + UMSCHALT + X
+      (Standardbelegung) drücken. CCTrayTool speichert eine Regel
+      aus Fenstertitel und Fensterklasse in der Regeldatei und
+      sperrt das Fenster. Ab dann wird jedes Fenster, auf das die
+      Regel passt, automatisch gesperrt, sobald es erscheint - auch
+      nach einem Neustart des Programms oder von CCTrayTool.
+
+Im Traymenü bietet der Bereich "CloseGuard" diese Einträge:
+
+  - Schließen-Button des aktiven Fensters sperren/freigeben
+      Macht dasselbe wie die erste Tastenkombination. Solange das
+      Traymenü offen ist, hat es selbst den Fokus; CloseGuard
+      verwendet daher das Fenster, das unmittelbar davor aktiv war.
+
+  - Regel für aktives Fenster anlegen
+      Macht dasselbe wie die zweite Tastenkombination.
+
+  - Gesperrte Fenster anzeigen
+      Zeigt, welche Fenster gerade gesperrt sind (per Regel oder
+      von Hand, mit der Fensterklasse in eckigen Klammern) und wie
+      viele Regeln es gibt.
+
+Darunter enthält das Untermenü "Einstellungen" (Zahnrad-Symbol):
+
+  - Neue Fenster automatisch prüfen
+      Ein: CloseGuard beobachtet dauerhaft und sperrt jedes neue
+      Fenster, auf das eine Regel passt. Aus: Neue Fenster werden
+      nicht automatisch gesperrt.
+
+  - Beim Start offene Fenster prüfen
+      Ein: Fenster, die beim Start von CCTrayTool schon offen sind,
+      werden sofort mit den Regeln verglichen. Aus: Diese Fenster
+      bleiben unberührt; nur später geöffnete Fenster werden
+      geprüft.
+
+  - Fenster minimieren bei Klick auf gesperrtes X
+      Ein: Ein Klick auf den ausgegrauten Schließen-Button
+      minimiert das Fenster, statt nichts zu bewirken. Wie bei
+      einem echten Button wird das Fenster nur minimiert, wenn die
+      Maustaste ebenfalls auf dem X losgelassen wird; wer die Taste
+      drückt und wegzieht, bricht den Klick ab. Aus (Standard): Ein
+      Klick bewirkt nichts.
+
+  - Hotkey ändern: Sperren/Freigeben
+    Hotkey ändern: Regel anlegen
+      Öffnet denselben Dialog wie bei AlwaysOnTop, um eine andere
+      Tastenkombination festzulegen. Eine Kombination, die eine
+      andere Funktion von CCTrayTool bereits verwendet, wird
+      abgelehnt.
+
+  - Regeln bearbeiten...
+      Öffnet die Regeldatei in Notepad (siehe unten). Nach dem
+      Speichern und Schließen von Notepad werden die geänderten
+      Regeln sofort angewendet: Fenster, die wegen einer nicht mehr
+      passenden Regel gesperrt waren, werden freigegeben, neue
+      Regeln gelten sofort für die offenen Fenster.
+
+CloseGuard insgesamt lässt sich mit "CloseGuard aktivieren" im Menü
+"Einstellungen" des Bereichs "CCTrayTool" ein- und ausschalten
+(siehe Abschnitt 7).
+
+Regeln (eigene Datei CloseGuardRules.ini, Abschnitt [Rules]):
+
+Die Regeln stehen nicht in der Einstellungsdatei, sondern in einer
+eigenen Datei: %LocalAppData%\CCTrayTool\CloseGuardRules.ini. Sie
+wird automatisch angelegt. Es ist eine Unicode-Datei, daher
+funktionieren auch Fenstertitel mit Umlauten oder anderen
+Sonderzeichen. Notepad behält dieses Format bei; wird die Datei mit
+einem anderen Programm bearbeitet, bitte ebenfalls als Unicode
+(UTF-16) speichern, sonst können Sonderzeichen verloren gehen. Die
+Regeln werden neu eingelesen, wenn Notepad nach "Regeln
+bearbeiten..." geschlossen wird, und bei jedem Start von
+CCTrayTool.
+
+Jede Zeile ist eine Regel in der Form  Nummer=Titel|Klasse.  Der
+Titel ist ein Text, der irgendwo im Fenstertitel vorkommen muss.
+Die Klasse ist der technische Name des Fenstertyps und muss genau
+übereinstimmen. Groß- und Kleinschreibung spielen keine Rolle.
+Einer der beiden Teile darf leer sein (das "|" muss bleiben); sind
+beide ausgefüllt, müssen beide passen. Beispiele:
+
+  1=Calculator|       jedes Fenster mit "Calculator" im Titel
+  2=|Notepad          jedes Fenster der Klasse "Notepad"
+  3=Untitled|Notepad  Fenster der Klasse "Notepad" mit "Untitled"
+                      im Titel
+
+Die Tastenkombination "Regel anlegen" verwendet den vollständigen
+aktuellen Titel des Fensters. Ändert sich der Titel (zum Beispiel
+durch den Namen eines geöffneten Dokuments), über "Regeln
+bearbeiten..." auf den gleichbleibenden Teil kürzen oder den Titel
+leer lassen und nur die Klasse behalten. Die Klasse eines
+gesperrten Fensters zeigt "Gesperrte Fenster anzeigen". Eine Regel
+mit leerem Titel und leerer Klasse wird ignoriert; höchstens 200
+Regeln werden verwendet.
+
+Einstellungen in der Einstellungsdatei (Abschnitt [CloseGuard]):
+
+  [CloseGuard]
+  Enabled=1
+  HotkeyToggle=^!x
+  HotkeyAddRule=^!+x
+  ApplyOnStartup=1
+  AutoApply=1
+  PollInterval=500
+  MinimizeOnClick=0
+  ClickPollInterval=30
+  ClickGeometryFallback=1
+  ClickGeometryExtendLeft=0
+  ClickGeometryExtendDown=87
+  ClickDebugOverlay=0
+  ClickShieldClasses=Chrome_WidgetWin_1,MozillaWindowClass
+
+  Enabled                  1 = CloseGuard ein, 0 = aus (wie der
+                           Menüpunkt "CloseGuard aktivieren").
+  HotkeyToggle             Tastenkombination für Sperren/Freigeben.
+                           ^ = Strg, ! = Alt, + = Umschalt,
+                           # = Win, danach die Taste. Einfacher
+                           geht es mit dem Menüpunkt "Hotkey
+                           ändern".
+  HotkeyAddRule            Tastenkombination für "Regel anlegen".
+  ApplyOnStartup           1 = Fenster, die beim Programmstart
+                           offen sind, werden mit den Regeln
+                           verglichen, 0 = sie bleiben unberührt.
+  AutoApply                1 = neue Fenster werden automatisch
+                           geprüft, 0 = nicht.
+  PollInterval             Wie oft die Fenster geprüft werden, in
+                           Millisekunden: 250 bis 5000 (Standard:
+                           500). Andere Werte werden automatisch
+                           korrigiert.
+  MinimizeOnClick          1 = Ein Klick auf den gesperrten
+                           Schließen-Button minimiert das Fenster,
+                           0 = er bewirkt nichts (Standard).
+                           Entspricht dem Menüpunkt.
+  ClickPollInterval        Wie oft die Maustaste dafür geprüft
+                           wird, in Millisekunden: 10 bis 100
+                           (Standard: 30). Ein kleinerer Wert
+                           erkennt auch sehr kurze Klicks sicherer,
+                           ein größerer braucht weniger Rechenzeit.
+                           Andere Werte werden automatisch
+                           korrigiert. Für diese Einstellung gibt
+                           es keinen Menüpunkt.
+  ClickGeometryFallback    1 = Meldet ein Fenster mit eigener
+                           Titelleiste (zum Beispiel Outlook) sein
+                           X nicht an Windows, wird das X an seiner
+                           Position erkannt (Standard). 0 = Es wird
+                           nur ein X erkannt, das das Fenster
+                           selbst meldet.
+  ClickGeometryExtendLeft  Wie weit der Bereich, in dem das X an
+                           seiner Position erkannt wird, nach links
+                           reicht, in Prozent der Breite des X: 0
+                           bis 100 (Standard: 0). Manche Programme
+                           zeichnen ihr X weiter links, als Windows
+                           meldet. Ein zu großer Wert reicht in den
+                           benachbarten Maximieren-Button hinein.
+  ClickGeometryExtendDown  Wie weit dieser Bereich nach unten
+                           reicht, in Prozent der Höhe des X: 0 bis
+                           100 (Standard: 87). Manche Programme
+                           zeichnen ihr X tiefer, als Windows
+                           meldet. Gleicher Zweck und gleiche
+                           Grenzen wie ClickGeometryExtendLeft.
+  ClickDebugOverlay        1 = zeigt die Bereiche, in denen das X
+                           erkannt wird, als farbige, durchsichtige
+                           Rechtecke auf dem Bildschirm: rot = der
+                           Bereich, in dem ein Klick als Klick auf
+                           das X zählt, blau = der Button-Bereich,
+                           den Windows meldet (oder, wenn Windows
+                           keinen meldet, der beim Fragen des
+                           Fensters gefundene Bereich des X),
+                           grün = das Schutzfenster über dem X
+                           (siehe ClickShieldClasses). Nur zur
+                           Fehlersuche. 0 = aus (Standard).
+  ClickShieldClasses       Fensterklassen (durch Komma getrennt)
+                           von Programmen, die sich selbst
+                           schließen, sobald die Maustaste
+                           losgelassen wird, zum Beispiel Edge und
+                           Chrome (Chrome_WidgetWin_1) und Firefox
+                           (MozillaWindowClass); Standard sind
+                           beide. Das X eines solchen Fensters wird
+                           von einem fast unsichtbaren Fenster
+                           abgedeckt, das den Klick abfängt; das
+                           Fenster lässt sich dann nicht mehr mit
+                           dem X schließen. Leer = keine.
+
+Die beiden CloseGuard-Tastenkombinationen und die
+AlwaysOnTop-Tastenkombination müssen sich voneinander
+unterscheiden. Andernfalls werden stattdessen die
+Standardkombinationen verwendet.
+
+Wissenswertes:
+
+  - Die Sperre schützt vor einem versehentlichen Klick auf das X.
+    Je nach Programm lässt sich ein Fenster weiterhin auf anderen
+    Wegen schließen: mit ALT + F4, mit "Fenster schließen" in der
+    Taskleiste, mit einem Beenden-Befehl im Menü des Programms oder
+    über den Task-Manager.
+
+  - Gesperrt werden können nur Fenster mit normaler Titelleiste und
+    Systemmenü. Programme, die ihre Titelleiste selbst zeichnen
+    (viele moderne Apps, einige Browser, Apps aus dem Microsoft
+    Store), behalten unter Umständen ein funktionierendes X, obwohl
+    CloseGuard das Fenster als gesperrt meldet. Hat ein Fenster gar
+    kein Systemmenü, erscheint ein Hinweis.
+
+  - Minimieren per Klick: CCTrayTool prüft die Maustaste kurz und
+    regelmäßig (Standard: alle 30 ms), und nur, solange mindestens
+    ein gesperrtes Fenster sichtbar ist. Es wird kein Maus-Hook
+    verwendet, die Maus und das System können dadurch nicht
+    ausgebremst werden. Fällt ein sehr kurzer Klick ausnahmsweise
+    in einen Moment, in dem CCTrayTool beschäftigt ist, wird er
+    einfach nicht bemerkt: Das Fenster bleibt unverändert und sein
+    X gesperrt.
+
+  - Minimieren per Klick reagiert auf die primäre Maustaste (die
+    rechte, wenn die Tasten in Windows vertauscht sind) und nur auf
+    das X gesperrter Fenster. Eingaben per Touch und Stift werden
+    nicht erkannt. Ignoriert ein Programm den Minimieren-Befehl,
+    minimiert CCTrayTool das Fenster direkt.
+
+  - Manche Programme zeichnen ihre Titelleiste selbst (zum Beispiel
+    Outlook). Sie sagen Windows nicht, wo ihr X liegt; deshalb
+    berechnet CCTrayTool für die Klick-Erkennung die Position des X
+    in der oberen rechten Ecke des Fensters (INI-Schlüssel
+    ClickGeometryFallback). In der Log-Datei steht dann "recognized
+    by its position".
+
+  - Edge, Chrome und andere Chromium-Programme sowie Firefox
+    zeichnen ihr X selbst und schließen das Fenster von sich aus,
+    sobald die Maustaste losgelassen wird. Das gesperrte Systemmenü
+    hält sie deshalb nicht auf. Über dem X solcher Fenster
+    (INI-Schlüssel ClickShieldClasses, Standard
+    Chrome_WidgetWin_1,MozillaWindowClass) legt CCTrayTool darum
+    ein fast unsichtbares Schutzfenster. Der Klick landet auf dem
+    Schutzfenster, das Programm bekommt ihn nie zu sehen: Es
+    passiert nichts, oder das Fenster wird minimiert, wenn das
+    Minimieren beim Klick eingeschaltet ist. Das Schutzfenster
+    folgt dem Fenster und ist weg, solange das Fenster minimiert,
+    entsperrt, im Vollbild oder an seinem X von einem anderen
+    Fenster überdeckt ist. Mit ClickDebugOverlay=1 wird es grün
+    angezeigt. Solange ein Fenster einer solchen Klasse sichtbar
+    ist, wird die Maustaste alle 10 ms geprüft, auch wenn das
+    Minimieren beim Klick ausgeschaltet ist. Firefox zeichnet seine
+    Titelleiste selbst, Windows meldet keine Position für sein X;
+    CCTrayTool findet das X dann, indem es das Fenster fragt
+    (Logdatei: "found by asking the window"). Der Positions-Ersatz
+    (ClickGeometryFallback) wird nur für Fenster verwendet, die ihr
+    X nicht an Windows melden, etwa Outlook und Word; CCTrayTool
+    fragt dazu jedes Fenster einmal und schreibt das Ergebnis in
+    die Logdatei ("probe of the X").
+
+  - Fenster von Programmen, die als Administrator laufen, lassen
+    sich nicht sperren, solange CCTrayTool nicht selbst als
+    Administrator läuft (eine Sicherheitsregel von Windows). Es
+    erscheint ein Hinweis.
+
+  - Der Desktop, die Taskleiste und die Fenster von CCTrayTool
+    selbst werden nie gesperrt.
+
+  - Beim Freigeben wird das Systemmenü des Fensters auf den
+    Windows-Standard zurückgesetzt. Einträge, die das Programm
+    selbst zu diesem Menü hinzugefügt hat, fehlen unter Umständen,
+    bis das Programm neu gestartet wird.
+
+  - Eine Sperre gilt nur, solange CCTrayTool läuft: Beim Beenden
+    des Programms oder beim Ausschalten von CloseGuard erhalten
+    alle Fenster ihren Schließen-Button zurück. Wird CCTrayTool
+    zwangsweise beendet (zum Beispiel über den Task-Manager),
+    bleiben gesperrte Fenster gesperrt. Dann in einem solchen
+    Fenster die Tastenkombination zum Sperren/Freigeben drücken
+    (CCTrayTool muss wieder laufen) oder das Fenster schließen und
+    neu öffnen.
+
+
+-------------------------------------------------------------------
+ 5. Schnellstart-Menü für eigene Programme
 -------------------------------------------------------------------
 
 Oberhalb von KeepAwake zeigt das Traymenü den Bereich "ToolTime":
 eine Liste von Programmen, die sich mit einem Klick starten lassen.
 Die Einträge stammen aus einem Ordner auf Ihrem PC (siehe
-Abschnitt 5): Jede Verknüpfung (.lnk-Datei) in diesem Ordner wird
+Abschnitt 6): Jede Verknüpfung (.lnk-Datei) in diesem Ordner wird
 zu einem Menüeintrag, jeder Unterordner zu einem Untermenü.
 
 Im Auslieferungszustand sind bereits einige Windows-Bordmittel
@@ -495,7 +1085,7 @@ Benutzerkontensteuerung nach Bestätigung).
 
 
 -------------------------------------------------------------------
- 5. Eigene Tools und Ordner hinzufügen
+ 6. Eigene Tools und Ordner hinzufügen
 -------------------------------------------------------------------
 
 Die Tools im Schnellstart-Menü sind einfach Verknüpfungen in einem
@@ -607,21 +1197,21 @@ Standard-Tools und die Infodatei werden neu angelegt.
 
 
 -------------------------------------------------------------------
- 6. Weitere Einstellungen
+ 7. Weitere Einstellungen
 -------------------------------------------------------------------
 
 Im Untermenü "Einstellungen" stehen zusätzlich zur Verfügung:
 
   - ToolTime aktivieren
       Schaltet den gesamten Tools-Schnellstart-Bereich (siehe
-      Abschnitt 4) komplett ein oder aus. Bei Deaktivierung
+      Abschnitt 5) komplett ein oder aus. Bei Deaktivierung
       erscheinen keine seiner Einträge im Traymenü, unabhängig
       davon, was sich im ToolTime-Ordner befindet.
 
   - ToolTime-Ordner öffnen
       Öffnet den ToolTime-Ordner im Windows-Explorer, damit
       Verknüpfungen hinzugefügt, umbenannt oder entfernt werden
-      können (siehe Abschnitt 5).
+      können (siehe Abschnitt 6).
 
   - Tools neu laden
       Liest den ToolTime-Ordner erneut ein und baut das Menü neu
@@ -639,6 +1229,13 @@ Im Untermenü "Einstellungen" stehen zusätzlich zur Verfügung:
       komplett ein oder aus. Bei Deaktivierung verschwinden seine
       Einträge aus dem Traymenü, und die Tastenkombination wird
       deaktiviert.
+
+  - CloseGuard aktivieren
+      Schaltet den gesamten CloseGuard-Bereich (siehe Abschnitt 4)
+      komplett ein oder aus. Bei Deaktivierung verschwinden seine
+      Einträge aus dem Traymenü, die Tastenkombinationen werden
+      deaktiviert, und alle gesperrten Fenster erhalten ihren
+      Schließen-Button zurück.
 
   - Automatisch starten
       CCTrayTool startet künftig automatisch bei der Windows-
@@ -660,11 +1257,11 @@ Im Untermenü "Einstellungen" stehen zusätzlich zur Verfügung:
 
   - Einstellungsdatei bearbeiten
       Öffnet die Konfigurationsdatei direkt zur Bearbeitung (siehe
-      Abschnitt 5).
+      Abschnitt 6).
 
 
 -------------------------------------------------------------------
- 7. Speicherorte
+ 8. Speicherorte
 -------------------------------------------------------------------
 
 CCTrayTool legt seine Dateien im Benutzerprofil ab:
@@ -673,21 +1270,28 @@ CCTrayTool legt seine Dateien im Benutzerprofil ab:
   Logfile:          %LocalAppData%\CCTrayTool\CCTrayTool.log
   ToolTime-Ordner:  %LocalAppData%\CCTrayTool\ToolTime\
 
+Die CloseGuard-Regeln liegen in einer eigenen Datei:
+
+  %LocalAppData%\CCTrayTool\CloseGuardRules.ini
+
 (Der Pfad lässt sich in die Windows-Adressleiste des Explorers
 einfügen, um direkt zum Ordner zu gelangen.)
 
 
 -------------------------------------------------------------------
- 8. Programm beenden
+ 9. Programm beenden
 -------------------------------------------------------------------
 
 Über den Menüpunkt "Beenden" wird CCTrayTool geschlossen. Dabei
 wird automatisch das normale Energiesparverhalten von Windows
 wiederhergestellt und die aktuelle Konfiguration gespeichert.
 
+Alle Fenster, deren Schließen-Button von CloseGuard gesperrt ist,
+erhalten dabei ihren Schließen-Button zurück.
+
 
 -------------------------------------------------------------------
- 9. Über / Kontakt
+ 10. Über / Kontakt
 -------------------------------------------------------------------
 
 Die aktuell installierte Version lässt sich jederzeit über den
@@ -707,7 +1311,8 @@ Namensnennungs-Bedingung; siehe die Dateien LICENSE und NOTICE.
 
 CCTrayTool è un piccolo strumento per Windows che viene eseguito
 come icona nell'area di notifica (in basso a destra, accanto
-all'orologio). Riunisce tre funzioni utili in un unico programma:
+all'orologio). Riunisce quattro funzioni utili in un unico
+programma:
 
   1. KeepAwake          - impedisce che il PC entri in modalità di
                            risparmio energetico o che lo schermo si
@@ -718,6 +1323,9 @@ all'orologio). Riunisce tre funzioni utili in un unico programma:
   3. Avvio rapido strumenti - avvia i programmi usati più spesso
                            direttamente dal menu dell'area di
                            notifica
+  4. CloseGuard          - blocca il pulsante di chiusura (X) di
+                           finestre selezionate, con una
+                           combinazione di tasti o con regole
 
 Tutte le funzioni si utilizzano tramite un clic destro sull'icona
 nell'area di notifica. Non è necessaria alcuna installazione, il
@@ -782,9 +1390,10 @@ PC NON deve fare mentre CCTrayTool è in esecuzione:
       CCTrayTool non interviene; si applica il normale
       comportamento di risparmio energetico di Windows.
 
-La voce di menu "Salva stato" fa sì che CCTrayTool memorizzi
-l'ultima impostazione KeepAwake selezionata e la ripristini
-automaticamente al successivo avvio.
+La voce di menu "Salva stato" nel sottomenu "Impostazioni" della
+sezione KeepAwake fa sì che CCTrayTool memorizzi l'ultima
+impostazione KeepAwake selezionata e la ripristini automaticamente
+al successivo avvio.
 
 Alla chiusura di CCTrayTool, il normale comportamento di risparmio
 energetico di Windows viene ripristinato automaticamente.
@@ -807,15 +1416,17 @@ ToolTip".
 
 Nel menu "AlwaysOnTop" sono disponibili le seguenti opzioni:
 
-  - Hotkey attivo         Attiva o disattiva completamente la
-                           combinazione di tasti
-  - Cambia hotkey          Apre una finestra di dialogo in cui è
-                           possibile impostare una combinazione di
-                           tasti personalizzata (combinazione di
-                           Ctrl, Alt, Maiusc, Win più una lettera,
-                           un numero o un tasto funzione F1-F12)
-  - Mostra ToolTip          Attiva o disattiva il breve avviso a
-                           schermo al momento del cambio
+  - Hotkey attivo   Attiva o disattiva completamente la
+                    combinazione di tasti
+  - Impostazioni    Sottomenu (icona a forma di ingranaggio) con le
+                    voci seguenti:
+      - Cambia hotkey    Apre una finestra di dialogo in cui è
+                         possibile impostare una combinazione di
+                         tasti personalizzata (combinazione di
+                         Ctrl, Alt, Maiusc, Win più una lettera, un
+                         numero o un tasto funzione F1-F12)
+      - Mostra ToolTip   Attiva o disattiva il breve avviso a
+                         schermo al momento del cambio
 
 Nota: Il desktop di Windows stesso ("Program Manager") non può
 essere impostato su "sempre in primo piano". Non tutte le
@@ -825,12 +1436,316 @@ avviso ed è necessario scegliere un'altra combinazione.
 
 
 -------------------------------------------------------------------
- 4. Menu di avvio rapido per programmi personalizzati
+ 4. CloseGuard - bloccare il pulsante di chiusura
+-------------------------------------------------------------------
+
+CloseGuard protegge le finestre dalla chiusura accidentale. Per le
+finestre scelte blocca il pulsante di chiusura (la "X" in alto a
+destra nella finestra): il pulsante appare disattivato e un clic su
+di esso non ha alcun effetto. È utile per i programmi che devono
+rimanere in esecuzione o per le finestre che vengono chiuse per
+errore di continuo.
+
+Una finestra può essere bloccata in due modi:
+
+  - A mano, con una combinazione di tasti
+      Fare clic sulla finestra e premere CTRL + ALT + X
+      (predefinita). Il pulsante di chiusura di questa finestra è
+      ora bloccato. Premendo di nuovo la combinazione lo si
+      sblocca. Una finestra sbloccata in questo modo resta libera,
+      anche se una regola corrisponde, finché non viene chiusa. Una
+      breve notifica conferma ogni modifica. Il blocco dura finché
+      la finestra non viene chiusa o sbloccata.
+
+  - Automaticamente, con regole
+      Fare clic sulla finestra e premere CTRL + ALT + MAIUSC + X
+      (predefinita). CCTrayTool salva nel file delle regole una
+      regola composta dal titolo e dalla classe della finestra e
+      blocca la finestra. Da quel momento ogni finestra che
+      corrisponde alla regola viene bloccata automaticamente non
+      appena compare - anche dopo il riavvio del programma o di
+      CCTrayTool.
+
+Nel menu dell'area di notifica, la sezione "CloseGuard" offre
+queste voci:
+
+  - Blocca/sblocca il pulsante di chiusura della finestra attiva
+      Fa la stessa cosa della prima combinazione di tasti. Finché
+      il menu dell'area di notifica è aperto, il focus è sul menu
+      stesso; CloseGuard usa quindi la finestra che era attiva
+      subito prima.
+
+  - Crea regola per la finestra attiva
+      Fa la stessa cosa della seconda combinazione di tasti.
+
+  - Mostra finestre bloccate
+      Mostra quali finestre sono bloccate al momento (da una regola
+      o a mano, con la classe della finestra tra parentesi quadre)
+      e quante regole esistono.
+
+Sotto di esse, il sottomenu "Impostazioni" (icona a forma di
+ingranaggio) contiene:
+
+  - Controlla automaticamente le nuove finestre
+      Attivo: CloseGuard resta in osservazione e blocca ogni nuova
+      finestra che corrisponde a una regola. Disattivo: le nuove
+      finestre non vengono bloccate automaticamente.
+
+  - Controlla le finestre aperte all'avvio
+      Attivo: le finestre già aperte all'avvio di CCTrayTool
+      vengono confrontate subito con le regole. Disattivo: queste
+      finestre restano intatte; vengono controllate solo quelle
+      aperte in seguito.
+
+  - Riduci a icona la finestra al clic sulla X bloccata
+      Attivo: un clic sul pulsante di chiusura disattivato riduce a
+      icona la finestra invece di non fare nulla. Come con un
+      pulsante vero, la finestra viene ridotta a icona solo se il
+      pulsante del mouse viene rilasciato anch'esso sulla X;
+      premere il pulsante e spostarsi altrove annulla il clic.
+      Disattivo (predefinito): un clic non fa nulla.
+
+  - Cambia hotkey: blocca/sblocca
+    Cambia hotkey: crea regola
+      Apre la stessa finestra di dialogo di AlwaysOnTop per
+      definire un'altra combinazione di tasti. Una combinazione già
+      usata da un'altra funzione di CCTrayTool viene rifiutata.
+
+  - Modifica regole...
+      Apre il file delle regole in Blocco note (vedi sotto). Dopo
+      aver salvato e chiuso Blocco note, le regole modificate
+      vengono applicate subito: le finestre bloccate da una regola
+      che non corrisponde più vengono sbloccate e le nuove regole
+      valgono subito per le finestre aperte.
+
+CloseGuard nel suo complesso si attiva e si disattiva con "Attiva
+CloseGuard" nel menu "Impostazioni" della sezione "CCTrayTool"
+(vedi sezione 7).
+
+Regole (file dedicato CloseGuardRules.ini, sezione [Rules]):
+
+Le regole non sono nel file di configurazione, ma in un file
+dedicato: %LocalAppData%\CCTrayTool\CloseGuardRules.ini. Viene
+creato automaticamente. È un file Unicode, quindi funzionano anche
+i titoli di finestra con lettere accentate o altri caratteri
+speciali. Blocco note mantiene questo formato; se il file viene
+modificato con un altro programma, salvarlo ugualmente come Unicode
+(UTF-16), altrimenti i caratteri speciali possono andare persi. Le
+regole vengono rilette quando si chiude Blocco note dopo "Modifica
+regole..." e a ogni avvio di CCTrayTool.
+
+Ogni riga è una regola nella forma  numero=titolo|classe.  Il
+titolo è un testo che deve comparire in un punto qualsiasi del
+titolo della finestra. La classe è il nome tecnico del tipo di
+finestra e deve corrispondere esattamente. Maiuscole e minuscole
+non contano. Una delle due parti può essere vuota (il "|" deve
+restare); se sono compilate entrambe, devono corrispondere
+entrambe. Esempi:
+
+  1=Calculator|       ogni finestra con "Calculator" nel titolo
+  2=|Notepad          ogni finestra della classe "Notepad"
+  3=Untitled|Notepad  finestre della classe "Notepad" con
+                      "Untitled" nel titolo
+
+La combinazione di tasti "crea regola" usa il titolo attuale
+completo della finestra. Se il titolo cambia (ad esempio con il
+nome di un documento aperto), accorciarlo in seguito con "Modifica
+regole..." alla parte che rimane uguale, oppure lasciare vuoto il
+titolo e tenere solo la classe. La classe di una finestra bloccata
+è mostrata da "Mostra finestre bloccate". Una regola con titolo e
+classe vuoti viene ignorata; vengono usate al massimo 200 regole.
+
+Impostazioni nel file di configurazione (sezione [CloseGuard]):
+
+  [CloseGuard]
+  Enabled=1
+  HotkeyToggle=^!x
+  HotkeyAddRule=^!+x
+  ApplyOnStartup=1
+  AutoApply=1
+  PollInterval=500
+  MinimizeOnClick=0
+  ClickPollInterval=30
+  ClickGeometryFallback=1
+  ClickGeometryExtendLeft=0
+  ClickGeometryExtendDown=87
+  ClickDebugOverlay=0
+  ClickShieldClasses=Chrome_WidgetWin_1,MozillaWindowClass
+
+  Enabled                  1 = CloseGuard attivo, 0 = disattivo
+                           (come la voce di menu "Attiva
+                           CloseGuard").
+  HotkeyToggle             Combinazione di tasti per
+                           bloccare/sbloccare. ^ = Ctrl, ! = Alt,
+                           + = Maiusc, # = Win, seguito dal tasto.
+                           È più semplice cambiarla con la voce di
+                           menu "Cambia hotkey".
+  HotkeyAddRule            Combinazione di tasti per "crea regola".
+  ApplyOnStartup           1 = le finestre aperte all'avvio del
+                           programma vengono confrontate con le
+                           regole, 0 = restano intatte.
+  AutoApply                1 = le nuove finestre vengono
+                           controllate automaticamente, 0 = no.
+  PollInterval             Ogni quanto vengono controllate le
+                           finestre, in millisecondi: da 250 a 5000
+                           (predefinito: 500). Gli altri valori
+                           vengono corretti automaticamente.
+  MinimizeOnClick          1 = un clic sul pulsante di chiusura
+                           bloccato riduce a icona la finestra,
+                           0 = non fa nulla (predefinito). Equivale
+                           alla voce di menu.
+  ClickPollInterval        Ogni quanto viene controllato a tale
+                           scopo il pulsante del mouse, in
+                           millisecondi: da 10 a 100 (predefinito:
+                           30). Un valore minore riconosce con più
+                           sicurezza anche i clic molto brevi, uno
+                           maggiore richiede meno tempo di calcolo.
+                           Gli altri valori vengono corretti
+                           automaticamente. Per questa impostazione
+                           non esiste una voce di menu.
+  ClickGeometryFallback    1 = se una finestra con barra del titolo
+                           propria (per esempio Outlook) non
+                           comunica a Windows la sua X, la X viene
+                           riconosciuta in base alla posizione
+                           (predefinito). 0 = viene riconosciuta
+                           solo una X che la finestra comunica da
+                           sé.
+  ClickGeometryExtendLeft  Quanto si estende verso sinistra l'area
+                           in cui la X viene riconosciuta in base
+                           alla posizione, in percentuale della
+                           larghezza della X: da 0 a 100
+                           (predefinito: 0). Alcuni programmi
+                           disegnano la loro X più a sinistra di
+                           quanto indica Windows. Un valore troppo
+                           grande arriva fino al pulsante di
+                           ingrandimento vicino.
+  ClickGeometryExtendDown  Quanto si estende verso il basso
+                           quest'area, in percentuale dell'altezza
+                           della X: da 0 a 100 (predefinito: 87).
+                           Alcuni programmi disegnano la loro X più
+                           in basso di quanto indica Windows.
+                           Stesso scopo e stessi limiti di
+                           ClickGeometryExtendLeft.
+  ClickDebugOverlay        1 = mostra sullo schermo, come
+                           rettangoli colorati e trasparenti, le
+                           aree usate per riconoscere la X:
+                           rosso = l'area in cui un clic vale come
+                           clic sulla X, blu = l'area del pulsante
+                           di chiusura indicata da Windows (o, se
+                           Windows non ne indica una, l'area della
+                           X trovata interrogando la finestra),
+                           verde = lo scudo sopra la X (vedi
+                           ClickShieldClasses). Solo per la ricerca
+                           di errori. 0 = disattivato
+                           (predefinito).
+  ClickShieldClasses       Classi di finestre (separate da virgole)
+                           di programmi che si chiudono da soli
+                           quando il pulsante del mouse viene
+                           rilasciato, ad esempio Edge e Chrome
+                           (Chrome_WidgetWin_1) e Firefox
+                           (MozillaWindowClass); per impostazione
+                           predefinita entrambe. La X di tale
+                           finestra viene coperta da una finestra
+                           quasi invisibile che intercetta il clic,
+                           così la finestra non può più essere
+                           chiusa con la X. Vuoto = nessuna.
+
+Le due combinazioni di tasti di CloseGuard e quella di AlwaysOnTop
+devono essere diverse tra loro. In caso contrario vengono usate
+quelle predefinite.
+
+Da sapere:
+
+  - Il blocco protegge da un clic accidentale sulla X. A seconda
+    del programma, una finestra può comunque essere chiusa in altri
+    modi: con ALT + F4, con "Chiudi finestra" nella barra delle
+    applicazioni, con un comando Esci nel menu del programma o con
+    Gestione attività.
+
+  - Si possono bloccare solo le finestre con una normale barra del
+    titolo e un menu di sistema. I programmi che disegnano da soli
+    la barra del titolo (molte app moderne, alcuni browser, app del
+    Microsoft Store) possono mantenere una X funzionante anche se
+    CloseGuard segnala la finestra come bloccata. Se una finestra
+    non ha affatto un menu di sistema, compare un avviso.
+
+  - Riduzione a icona con un clic: CCTrayTool controlla il pulsante
+    del mouse brevemente e a intervalli regolari (predefinito: ogni
+    30 ms), e solo finché è visibile almeno una finestra bloccata.
+    Non usa alcun hook del mouse, quindi non può rallentare né il
+    mouse né il sistema. Nel caso improbabile in cui un clic molto
+    breve cada in un momento in cui CCTrayTool è occupato,
+    semplicemente non viene rilevato: la finestra resta com'è e la
+    sua X resta bloccata.
+
+  - La riduzione a icona con un clic reagisce al pulsante primario
+    del mouse (quello destro, se in Windows i pulsanti sono
+    invertiti) e solo alla X delle finestre bloccate. L'input
+    tattile e con penna non viene rilevato. Se un programma ignora
+    il comando di riduzione a icona, CCTrayTool riduce a icona la
+    finestra direttamente.
+
+  - Alcuni programmi disegnano da sé la propria barra del titolo
+    (per esempio Outlook). Non comunicano a Windows dove si trova
+    la loro X, quindi per il rilevamento del clic CCTrayTool
+    calcola la posizione della X nell'angolo in alto a destra della
+    finestra (chiave INI ClickGeometryFallback). Nel file di log
+    compare allora "recognized by its position".
+
+  - Edge, Chrome e altri programmi basati su Chromium, così come
+    Firefox, disegnano da soli la X e chiudono la finestra da soli
+    quando il pulsante del mouse viene rilasciato, quindi il menu
+    di sistema bloccato non li ferma. Sopra la X di tali finestre
+    (chiave INI ClickShieldClasses, predefinita
+    Chrome_WidgetWin_1,MozillaWindowClass) CCTrayTool pone una
+    finestra quasi invisibile, uno scudo. Il clic finisce sullo
+    scudo e il programma non lo vede mai: non succede nulla, oppure
+    la finestra viene ridotta a icona se la riduzione a icona al
+    clic è attiva. Lo scudo segue la finestra e scompare finché la
+    finestra è ridotta a icona, sbloccata, a schermo intero o
+    coperta da un'altra finestra sopra la X. Con
+    ClickDebugOverlay=1 viene mostrato in verde. Finché una
+    finestra di tale classe è visibile, il pulsante del mouse viene
+    controllato ogni 10 ms, anche se la riduzione a icona al clic è
+    disattivata. Firefox disegna da solo la barra del titolo e
+    Windows non comunica la posizione della sua X; CCTrayTool trova
+    allora la X interrogando la finestra (file di log:
+    "found by asking the window"). Il riconoscimento di riserva in
+    base alla posizione (ClickGeometryFallback) viene usato solo
+    per le finestre che non comunicano la loro X a Windows, come
+    Outlook e Word; CCTrayTool interroga ogni finestra una volta e
+    scrive il risultato nel file di log ("probe of the X").
+
+  - Le finestre dei programmi eseguiti come amministratore non
+    possono essere bloccate finché CCTrayTool non è a sua volta
+    eseguito come amministratore (una regola di sicurezza di
+    Windows). Compare un avviso.
+
+  - Il desktop, la barra delle applicazioni e le finestre di
+    CCTrayTool stesso non vengono mai bloccati.
+
+  - Quando una finestra viene sbloccata, il suo menu di sistema
+    viene riportato allo standard di Windows. Le voci che il
+    programma stesso ha aggiunto a questo menu possono mancare
+    finché il programma non viene riavviato.
+
+  - Un blocco dura solo finché CCTrayTool è in esecuzione: alla
+    chiusura del programma o alla disattivazione di CloseGuard
+    tutte le finestre riottengono il pulsante di chiusura. Se
+    CCTrayTool viene terminato forzatamente (ad esempio con
+    Gestione attività), le finestre bloccate restano bloccate. In
+    tal caso premere in una di esse la combinazione per
+    bloccare/sbloccare (CCTrayTool deve essere di nuovo in
+    esecuzione) oppure chiudere la finestra e riaprirla.
+
+
+-------------------------------------------------------------------
+ 5. Menu di avvio rapido per programmi personalizzati
 -------------------------------------------------------------------
 
 Sopra KeepAwake, il menu dell'area di notifica mostra la sezione
 "ToolTime": un elenco di programmi che si avviano con un solo clic.
-Le voci provengono da una cartella del PC (vedi sezione 5): ogni
+Le voci provengono da una cartella del PC (vedi sezione 6): ogni
 collegamento (file .lnk) in questa cartella diventa una voce di
 menu e ogni sottocartella diventa un sottomenu.
 
@@ -856,7 +1771,7 @@ conferma tramite il Controllo account utente).
 
 
 -------------------------------------------------------------------
- 5. Aggiungere strumenti e cartelle personalizzati
+ 6. Aggiungere strumenti e cartelle personalizzati
 -------------------------------------------------------------------
 
 Gli strumenti del menu di avvio rapido sono semplici collegamenti
@@ -965,20 +1880,20 @@ strumenti predefiniti e il file informativo vengono ricreati.
 
 
 -------------------------------------------------------------------
- 6. Altre impostazioni
+ 7. Altre impostazioni
 -------------------------------------------------------------------
 
 Nel sottomenu "Impostazioni" sono inoltre disponibili:
 
   - Attiva ToolTime
       Attiva o disattiva completamente l'intera sezione di avvio
-      rapido degli strumenti (vedi sezione 4). Se disattivata,
+      rapido degli strumenti (vedi sezione 5). Se disattivata,
       nessuna delle sue voci compare nel menu dell'area di notifica,
       indipendentemente da ciò che si trova nella cartella ToolTime.
 
   - Apri cartella ToolTime
       Apre la cartella ToolTime in Esplora file, per aggiungere,
-      rinominare o rimuovere collegamenti (vedi sezione 5).
+      rinominare o rimuovere collegamenti (vedi sezione 6).
 
   - Ricarica strumenti
       Rilegge la cartella ToolTime e ricostruisce il menu.
@@ -996,6 +1911,13 @@ Nel sottomenu "Impostazioni" sono inoltre disponibili:
       (vedi sezione 3). Se disattivata, le sue voci scompaiono dal
       menu dell'area di notifica e la combinazione di tasti viene
       disattivata.
+
+  - Attiva CloseGuard
+      Attiva o disattiva completamente l'intera sezione CloseGuard
+      (vedi sezione 4). Se disattivata, le sue voci scompaiono dal
+      menu dell'area di notifica, le combinazioni di tasti vengono
+      disattivate e tutte le finestre bloccate riottengono il
+      pulsante di chiusura.
 
   - Avvio automatico
       CCTrayTool si avvierà automaticamente in futuro all'accesso a
@@ -1018,11 +1940,11 @@ Nel sottomenu "Impostazioni" sono inoltre disponibili:
 
   - Modifica file di configurazione
       Apre direttamente il file di configurazione per la modifica
-      (vedi sezione 5).
+      (vedi sezione 6).
 
 
 -------------------------------------------------------------------
- 7. Percorsi di archiviazione
+ 8. Percorsi di archiviazione
 -------------------------------------------------------------------
 
 CCTrayTool salva i propri file nel profilo utente:
@@ -1031,12 +1953,16 @@ CCTrayTool salva i propri file nel profilo utente:
   File di log:        %LocalAppData%\CCTrayTool\CCTrayTool.log
   Cartella ToolTime:  %LocalAppData%\CCTrayTool\ToolTime\
 
+Le regole di CloseGuard sono in un file dedicato:
+
+  %LocalAppData%\CCTrayTool\CloseGuardRules.ini
+
 (Il percorso può essere incollato nella barra degli indirizzi di
 Esplora risorse per accedere direttamente alla cartella.)
 
 
 -------------------------------------------------------------------
- 8. Chiudere il programma
+ 9. Chiudere il programma
 -------------------------------------------------------------------
 
 CCTrayTool viene chiuso tramite la voce di menu "Esci". In questo
@@ -1044,9 +1970,12 @@ modo viene ripristinato automaticamente il normale comportamento
 di risparmio energetico di Windows e viene salvata la
 configurazione attuale.
 
+Tutte le finestre il cui pulsante di chiusura è bloccato da
+CloseGuard riottengono così il proprio pulsante di chiusura.
+
 
 -------------------------------------------------------------------
- 9. Informazioni / Contatti
+ 10. Informazioni / Contatti
 -------------------------------------------------------------------
 
 La versione attualmente installata può essere consultata in
@@ -1066,7 +1995,7 @@ vedi i file LICENSE e NOTICE.
 
 CCTrayTool es una pequeña herramienta para Windows que se ejecuta
 como un icono en la bandeja del sistema (abajo a la derecha, junto
-al reloj). Combina tres funciones útiles en un solo programa:
+al reloj). Combina cuatro funciones útiles en un solo programa:
 
   1. KeepAwake            - evita que el PC entre en modo de ahorro
                              de energía o que la pantalla se apague
@@ -1076,6 +2005,10 @@ al reloj). Combina tres funciones útiles en un solo programa:
   3. Inicio rápido de herramientas - inicia programas de uso
                              frecuente directamente desde el menú
                              de la bandeja del sistema
+  4. CloseGuard            - bloquea el botón de cerrar (X) de
+                             ventanas seleccionadas, con una
+                             combinación de teclas o mediante
+                             reglas
 
 Todas las funciones se manejan mediante un menú de clic derecho
 sobre el icono de la bandeja. No es necesaria ninguna instalación,
@@ -1141,8 +2074,9 @@ que el PC NO debe hacer mientras CCTrayTool está en ejecución:
       CCTrayTool no interviene; se aplica el comportamiento normal
       de ahorro de energía de Windows.
 
-La opción de menú "Guardar estado" hace que CCTrayTool recuerde la
-última configuración de KeepAwake seleccionada y la restaure
+La opción de menú "Guardar estado" del submenú "Configuración" de
+la sección KeepAwake hace que CCTrayTool recuerde la última
+configuración de KeepAwake seleccionada y la restaure
 automáticamente en el siguiente inicio.
 
 Al cerrar CCTrayTool, el comportamiento normal de ahorro de energía
@@ -1165,15 +2099,17 @@ activar o desactivar mediante la opción de menú "Mostrar ToolTip".
 
 En el menú "AlwaysOnTop" están disponibles las siguientes opciones:
 
-  - Hotkey activo          Activa o desactiva por completo la
-                            combinación de teclas
-  - Cambiar hotkey          Abre un cuadro de diálogo en el que se
-                            puede definir una combinación de teclas
-                            personalizada (combinación de Ctrl,
-                            Alt, Mayús, Win más una letra, un
-                            número o una tecla de función F1-F12)
-  - Mostrar ToolTip          Activa o desactiva el breve aviso en
-                            pantalla al cambiar el estado
+  - Hotkey activo   Activa o desactiva por completo la combinación
+                    de teclas
+  - Configuración   Submenú (icono de engranaje) con las siguientes
+                    entradas:
+      - Cambiar hotkey    Abre un cuadro de diálogo en el que se
+                          puede definir una combinación de teclas
+                          personalizada (combinación de Ctrl, Alt,
+                          Mayús, Win más una letra, un número o una
+                          tecla de función F1-F12)
+      - Mostrar ToolTip   Activa o desactiva el breve aviso en
+                          pantalla al cambiar el estado
 
 Nota: El propio escritorio de Windows ("Program Manager") no se
 puede configurar como "siempre en primer plano". No todas las
@@ -1183,13 +2119,314 @@ debe elegirse otra combinación.
 
 
 -------------------------------------------------------------------
- 4. Menú de inicio rápido para programas propios
+ 4. CloseGuard - bloquear el botón de cerrar
+-------------------------------------------------------------------
+
+CloseGuard protege las ventanas contra un cierre accidental. En las
+ventanas que usted elija, bloquea el botón de cerrar (la "X" de la
+esquina superior derecha de la ventana): el botón aparece
+desactivado y hacer clic en él no hace nada. Es útil para programas
+que tienen que seguir ejecutándose o para ventanas que se cierran
+por error una y otra vez.
+
+Una ventana se puede bloquear de dos maneras:
+
+  - A mano, con una combinación de teclas
+      Haga clic en la ventana y pulse CTRL + ALT + X
+      (predeterminada). El botón de cerrar de esta ventana queda
+      bloqueado. Si vuelve a pulsar la combinación, se desbloquea.
+      Una ventana desbloqueada de este modo sigue libre, aunque
+      coincida con una regla, hasta que se cierre. Un breve aviso
+      confirma cada cambio. El bloqueo dura hasta que la ventana se
+      cierra o se desbloquea.
+
+  - Automáticamente, con reglas
+      Haga clic en la ventana y pulse CTRL + ALT + MAYÚS + X
+      (predeterminada). CCTrayTool guarda en el archivo de reglas
+      una regla formada por el título y la clase de la ventana y
+      bloquea la ventana. A partir de ese momento, cada ventana que
+      coincida con la regla se bloquea automáticamente en cuanto
+      aparece, también después de reiniciar el programa o
+      CCTrayTool.
+
+En el menú de la bandeja, la sección "CloseGuard" ofrece estas
+entradas:
+
+  - Bloquear/desbloquear el botón de cerrar de la ventana activa
+      Hace lo mismo que la primera combinación de teclas. Mientras
+      el menú de la bandeja está abierto, el foco lo tiene el
+      propio menú; por eso CloseGuard usa la ventana que estaba
+      activa justo antes.
+
+  - Crear regla para la ventana activa
+      Hace lo mismo que la segunda combinación de teclas.
+
+  - Mostrar ventanas bloqueadas
+      Muestra qué ventanas están bloqueadas en este momento (por
+      regla o a mano, con la clase de la ventana entre corchetes) y
+      cuántas reglas hay.
+
+Debajo, el submenú "Configuración" (icono de engranaje) contiene:
+
+  - Comprobar automáticamente las ventanas nuevas
+      Activado: CloseGuard vigila de forma continua y bloquea cada
+      ventana nueva que coincida con una regla. Desactivado: las
+      ventanas nuevas no se bloquean automáticamente.
+
+  - Comprobar las ventanas abiertas al iniciar
+      Activado: las ventanas que ya están abiertas cuando se inicia
+      CCTrayTool se comparan de inmediato con las reglas.
+      Desactivado: estas ventanas no se tocan; solo se comprueban
+      las que se abran más tarde.
+
+  - Minimizar la ventana al hacer clic en la X bloqueada
+      Activado: un clic en el botón de cerrar atenuado minimiza la
+      ventana en lugar de no hacer nada. Como con un botón real, la
+      ventana solo se minimiza si el botón del ratón se suelta
+      también sobre la X; pulsar el botón y desplazarse fuera
+      cancela el clic. Desactivado (predeterminado): un clic no
+      hace nada.
+
+  - Cambiar hotkey: bloquear/desbloquear
+    Cambiar hotkey: crear regla
+      Abre el mismo cuadro de diálogo que en AlwaysOnTop para
+      definir otra combinación de teclas. Se rechaza una
+      combinación que ya use otra función de CCTrayTool.
+
+  - Editar reglas...
+      Abre el archivo de reglas en el Bloc de notas (véase más
+      abajo). Tras guardar y cerrar el Bloc de notas, las reglas
+      modificadas se aplican de inmediato: las ventanas bloqueadas
+      por una regla que ya no coincide se desbloquean y las reglas
+      nuevas se aplican enseguida a las ventanas abiertas.
+
+CloseGuard en su conjunto se activa y desactiva con "Activar
+CloseGuard" en el menú "Configuración" de la sección "CCTrayTool"
+(véase la sección 7).
+
+Reglas (archivo propio CloseGuardRules.ini, sección [Rules]):
+
+Las reglas no están en el archivo de configuración, sino en un
+archivo propio: %LocalAppData%\CCTrayTool\CloseGuardRules.ini. Se
+crea automáticamente. Es un archivo Unicode, por lo que también
+funcionan los títulos de ventana con diéresis, tildes u otros
+caracteres especiales. El Bloc de notas conserva este formato; si
+el archivo se edita con otro programa, guárdelo también como
+Unicode (UTF-16); de lo contrario, los caracteres especiales
+podrían perderse. Las reglas se vuelven a leer al cerrar el Bloc de
+notas tras "Editar reglas..." y en cada inicio de CCTrayTool.
+
+Cada línea es una regla con la forma  número=título|clase.  El
+título es un texto que debe aparecer en algún lugar del título de
+la ventana. La clase es el nombre técnico del tipo de ventana y
+debe coincidir exactamente. Las mayúsculas y minúsculas no
+importan. Una de las dos partes puede estar vacía (el "|" debe
+permanecer); si ambas están rellenas, deben coincidir las dos.
+Ejemplos:
+
+  1=Calculator|       cada ventana con "Calculator" en el título
+  2=|Notepad          cada ventana de la clase "Notepad"
+  3=Untitled|Notepad  ventanas de la clase "Notepad" con "Untitled"
+                      en el título
+
+La combinación de teclas "crear regla" usa el título actual
+completo de la ventana. Si el título cambia (por ejemplo, con el
+nombre de un documento abierto), acórtelo después con "Editar
+reglas..." a la parte que no cambia, o deje el título vacío y
+conserve solo la clase. La clase de una ventana bloqueada se
+muestra con "Mostrar ventanas bloqueadas". Una regla con título y
+clase vacíos se ignora; se usan como máximo 200 reglas.
+
+Ajustes en el archivo de configuración (sección [CloseGuard]):
+
+  [CloseGuard]
+  Enabled=1
+  HotkeyToggle=^!x
+  HotkeyAddRule=^!+x
+  ApplyOnStartup=1
+  AutoApply=1
+  PollInterval=500
+  MinimizeOnClick=0
+  ClickPollInterval=30
+  ClickGeometryFallback=1
+  ClickGeometryExtendLeft=0
+  ClickGeometryExtendDown=87
+  ClickDebugOverlay=0
+  ClickShieldClasses=Chrome_WidgetWin_1,MozillaWindowClass
+
+  Enabled                  1 = CloseGuard activado, 0 = desactivado
+                           (igual que la opción de menú "Activar
+                           CloseGuard").
+  HotkeyToggle             Combinación de teclas para
+                           bloquear/desbloquear. ^ = Ctrl, ! = Alt,
+                           + = Mayús, # = Win, seguido de la tecla.
+                           Es más fácil cambiarla con la opción de
+                           menú "Cambiar hotkey".
+  HotkeyAddRule            Combinación de teclas para "crear
+                           regla".
+  ApplyOnStartup           1 = las ventanas abiertas al iniciar el
+                           programa se comparan con las reglas,
+                           0 = no se tocan.
+  AutoApply                1 = las ventanas nuevas se comprueban
+                           automáticamente, 0 = no.
+  PollInterval             Con qué frecuencia se comprueban las
+                           ventanas, en milisegundos: de 250 a 5000
+                           (predeterminado: 500). Los demás valores
+                           se corrigen automáticamente.
+  MinimizeOnClick          1 = un clic en el botón de cerrar
+                           bloqueado minimiza la ventana, 0 = no
+                           hace nada (predeterminado). Equivale a
+                           la opción de menú.
+  ClickPollInterval        Con qué frecuencia se comprueba para
+                           ello el botón del ratón, en
+                           milisegundos: de 10 a 100
+                           (predeterminado: 30). Un valor menor
+                           detecta con más seguridad los clics muy
+                           breves; uno mayor necesita menos tiempo
+                           de cálculo. Los demás valores se
+                           corrigen automáticamente. Para este
+                           ajuste no hay opción de menú.
+  ClickGeometryFallback    1 = si una ventana con barra de título
+                           propia (por ejemplo, Outlook) no
+                           comunica su X a Windows, la X se
+                           reconoce por su posición
+                           (predeterminado). 0 = solo se reconoce
+                           una X que la propia ventana comunica.
+  ClickGeometryExtendLeft  Hasta dónde llega hacia la izquierda el
+                           área en la que la X se reconoce por su
+                           posición, en porcentaje del ancho de la
+                           X: de 0 a 100 (predeterminado: 0).
+                           Algunos programas dibujan su X más a la
+                           izquierda de lo que indica Windows. Un
+                           valor demasiado grande llega hasta el
+                           botón de maximizar contiguo.
+  ClickGeometryExtendDown  Hasta dónde llega hacia abajo esa área,
+                           en porcentaje de la altura de la X: de 0
+                           a 100 (predeterminado: 87). Algunos
+                           programas dibujan su X más abajo de lo
+                           que indica Windows. Misma finalidad y
+                           mismos límites que
+                           ClickGeometryExtendLeft.
+  ClickDebugOverlay        1 = muestra en pantalla, como
+                           rectángulos de colores y transparentes,
+                           las áreas que se usan para reconocer la
+                           X: rojo = el área en la que un clic
+                           cuenta como clic en la X, azul = el área
+                           del botón de cerrar que indica Windows
+                           (o, si Windows no indica ninguna, el
+                           área de la X que se encontró preguntando
+                           a la ventana), verde = el escudo sobre
+                           la X (véase ClickShieldClasses). Solo
+                           para la búsqueda de errores.
+                           0 = desactivado (predeterminado).
+  ClickShieldClasses       Clases de ventana (separadas por comas)
+                           de programas que se cierran solos cuando
+                           se suelta el botón del ratón, por
+                           ejemplo Edge y Chrome
+                           (Chrome_WidgetWin_1) y Firefox
+                           (MozillaWindowClass); ambas son el valor
+                           predeterminado. La X de esa ventana se
+                           cubre con una ventana casi invisible que
+                           recoge el clic, de modo que la ventana
+                           ya no se puede cerrar con la X.
+                           Vacío = ninguna.
+
+Las dos combinaciones de teclas de CloseGuard y la de AlwaysOnTop
+deben ser distintas entre sí. De lo contrario, se usan las
+predeterminadas.
+
+Conviene saber:
+
+  - El bloqueo protege de un clic accidental en la X. Según el
+    programa, una ventana aún puede cerrarse por otras vías: con
+    ALT + F4, con "Cerrar ventana" en la barra de tareas, con una
+    orden Salir del menú del propio programa o con el Administrador
+    de tareas.
+
+  - Solo se pueden bloquear ventanas con una barra de título normal
+    y menú del sistema. Los programas que dibujan su propia barra
+    de título (muchas aplicaciones modernas, algunos navegadores,
+    aplicaciones de Microsoft Store) pueden conservar una X que
+    funciona aunque CloseGuard indique que la ventana está
+    bloqueada. Si una ventana no tiene menú del sistema, aparece un
+    aviso.
+
+  - Minimizar con un clic: CCTrayTool comprueba el botón del ratón
+    de forma breve y regular (predeterminado: cada 30 ms), y solo
+    mientras haya al menos una ventana bloqueada visible. No
+    utiliza ningún gancho (hook) del ratón, por lo que no puede
+    ralentizar el ratón ni el sistema. En el improbable caso de que
+    un clic muy breve coincida con un momento en que CCTrayTool
+    está ocupado, simplemente no se detecta: la ventana queda como
+    está y su X sigue bloqueada.
+
+  - Minimizar con un clic responde al botón principal del ratón (el
+    derecho, si los botones están intercambiados en Windows) y solo
+    a la X de las ventanas bloqueadas. La entrada táctil y con
+    lápiz no se detecta. Si un programa ignora la orden de
+    minimizar, CCTrayTool minimiza la ventana directamente.
+
+  - Algunos programas dibujan su propia barra de título (por
+    ejemplo, Outlook). No le indican a Windows dónde está su X, por
+    lo que, para detectar el clic, CCTrayTool calcula la posición
+    de la X en la esquina superior derecha de la ventana (clave INI
+    ClickGeometryFallback). En el archivo de registro aparece
+    entonces "recognized by its position".
+
+  - Edge, Chrome y otros programas basados en Chromium, así como
+    Firefox, dibujan su propia X y cierran la ventana por sí mismos
+    cuando se suelta el botón del ratón, por lo que el menú de
+    sistema bloqueado no los detiene. Sobre la X de esas ventanas
+    (clave INI ClickShieldClasses, valor predeterminado
+    Chrome_WidgetWin_1,MozillaWindowClass) CCTrayTool coloca una
+    ventana casi invisible, un escudo. El clic cae en el escudo y
+    el programa nunca lo ve: no ocurre nada, o la ventana se
+    minimiza si minimizar al hacer clic está activado. El escudo
+    sigue a la ventana y desaparece mientras la ventana está
+    minimizada, desbloqueada, a pantalla completa o cubierta por
+    otra ventana sobre su X. Con ClickDebugOverlay=1 se muestra en
+    verde. Mientras una ventana de esa clase esté visible, el botón
+    del ratón se comprueba cada 10 ms, incluso si minimizar al
+    hacer clic está desactivado. Firefox dibuja su propia barra de
+    título y Windows no comunica la posición de su X; CCTrayTool
+    encuentra entonces la X preguntando a la ventana (archivo de
+    registro: "found by asking the window"). El método alternativo
+    por posición (ClickGeometryFallback) solo se usa para ventanas
+    que no comunican su X a Windows, como Outlook y Word;
+    CCTrayTool consulta cada ventana una vez y escribe el resultado
+    en el archivo de registro ("probe of the X").
+
+  - Las ventanas de programas que se ejecutan como administrador no
+    se pueden bloquear mientras CCTrayTool no se ejecute también
+    como administrador (una regla de seguridad de Windows). Aparece
+    un aviso.
+
+  - El escritorio, la barra de tareas y las ventanas del propio
+    CCTrayTool nunca se bloquean.
+
+  - Al desbloquear una ventana, su menú del sistema se restablece
+    al estándar de Windows. Las entradas que el propio programa
+    haya añadido a este menú pueden faltar hasta que se reinicie el
+    programa.
+
+  - Un bloqueo dura solo mientras CCTrayTool se está ejecutando: al
+    cerrar el programa o al desactivar CloseGuard, todas las
+    ventanas recuperan su botón de cerrar. Si CCTrayTool se termina
+    a la fuerza (por ejemplo con el Administrador de tareas), las
+    ventanas bloqueadas siguen bloqueadas. En ese caso, pulse en
+    una de ellas la combinación para bloquear/desbloquear
+    (CCTrayTool debe estar de nuevo en ejecución) o cierre la
+    ventana y vuelva a abrirla.
+
+
+-------------------------------------------------------------------
+ 5. Menú de inicio rápido para programas propios
 -------------------------------------------------------------------
 
 Encima de KeepAwake, el menú de la bandeja muestra la sección
 "ToolTime": una lista de programas que se pueden iniciar con un
 solo clic. Las entradas proceden de una carpeta de su PC (véase la
-sección 5): cada acceso directo (archivo .lnk) de esta carpeta se
+sección 6): cada acceso directo (archivo .lnk) de esta carpeta se
 convierte en una entrada de menú y cada subcarpeta en un submenú.
 
 De forma predeterminada ya hay varias herramientas integradas de
@@ -1214,7 +2451,7 @@ el Control de cuentas de usuario).
 
 
 -------------------------------------------------------------------
- 5. Añadir herramientas y carpetas propias
+ 6. Añadir herramientas y carpetas propias
 -------------------------------------------------------------------
 
 Las herramientas del menú de inicio rápido son simplemente accesos
@@ -1326,21 +2563,21 @@ nuevo.
 
 
 -------------------------------------------------------------------
- 6. Configuración adicional
+ 7. Configuración adicional
 -------------------------------------------------------------------
 
 En el submenú "Configuración" también están disponibles:
 
   - Activar ToolTime
       Activa o desactiva por completo toda la sección de inicio
-      rápido de herramientas (véase la sección 4). Si se desactiva,
+      rápido de herramientas (véase la sección 5). Si se desactiva,
       ninguna de sus entradas aparece en el menú de la bandeja,
       independientemente de lo que haya en la carpeta ToolTime.
 
   - Abrir carpeta ToolTime
       Abre la carpeta ToolTime en el Explorador de Windows para
       añadir, renombrar o eliminar accesos directos (véase la
-      sección 5).
+      sección 6).
 
   - Recargar herramientas
       Vuelve a leer la carpeta ToolTime y reconstruye el menú.
@@ -1358,6 +2595,13 @@ En el submenú "Configuración" también están disponibles:
       (véase la sección 3). Si se desactiva, sus entradas
       desaparecen del menú de la bandeja y la combinación de teclas
       se desactiva.
+
+  - Activar CloseGuard
+      Activa o desactiva por completo toda la sección CloseGuard
+      (véase la sección 4). Si se desactiva, sus entradas
+      desaparecen del menú de la bandeja, las combinaciones de
+      teclas se desactivan y todas las ventanas bloqueadas
+      recuperan su botón de cerrar.
 
   - Iniciar automáticamente
       CCTrayTool se iniciará automáticamente al iniciar sesión en
@@ -1380,11 +2624,11 @@ En el submenú "Configuración" también están disponibles:
 
   - Editar archivo de configuración
       Abre el archivo de configuración directamente para su edición
-      (véase la sección 5).
+      (véase la sección 6).
 
 
 -------------------------------------------------------------------
- 7. Ubicaciones de almacenamiento
+ 8. Ubicaciones de almacenamiento
 -------------------------------------------------------------------
 
 CCTrayTool guarda sus archivos en el perfil de usuario:
@@ -1393,21 +2637,28 @@ CCTrayTool guarda sus archivos en el perfil de usuario:
   Archivo de registro:  %LocalAppData%\CCTrayTool\CCTrayTool.log
   Carpeta ToolTime:     %LocalAppData%\CCTrayTool\ToolTime\
 
+Las reglas de CloseGuard están en un archivo propio:
+
+  %LocalAppData%\CCTrayTool\CloseGuardRules.ini
+
 (La ruta se puede pegar en la barra de direcciones del Explorador
 de Windows para ir directamente a la carpeta.)
 
 
 -------------------------------------------------------------------
- 8. Cerrar el programa
+ 9. Cerrar el programa
 -------------------------------------------------------------------
 
 CCTrayTool se cierra mediante la opción de menú "Salir". Esto
 restaura automáticamente el comportamiento normal de ahorro de
 energía de Windows y guarda la configuración actual.
 
+Todas las ventanas cuyo botón de cerrar está bloqueado por
+CloseGuard recuperan así su botón de cerrar.
+
 
 -------------------------------------------------------------------
- 9. Acerca de / Contacto
+ 10. Acerca de / Contacto
 -------------------------------------------------------------------
 
 La versión actualmente instalada se puede consultar en cualquier
@@ -1427,7 +2678,7 @@ véanse los archivos LICENSE y NOTICE.
 
 CCTrayTool est un petit outil Windows qui s'exécute sous forme
 d'icône dans la zone de notification (en bas à droite, à côté de
-l'horloge). Il regroupe trois fonctions utiles en un seul
+l'horloge). Il regroupe quatre fonctions utiles en un seul
 programme :
 
   1. KeepAwake             - empêche le PC de passer en mode
@@ -1438,6 +2689,9 @@ programme :
   3. Démarrage rapide d'outils - lance directement les programmes
                               fréquemment utilisés depuis le menu
                               de la zone de notification
+  4. CloseGuard             - verrouille le bouton de fermeture (X)
+                              de fenêtres choisies, par raccourci
+                              clavier ou par des règles
 
 Toutes les fonctions se gèrent via un menu accessible par clic
 droit sur l'icône de la zone de notification. Aucune installation
@@ -1502,9 +2756,10 @@ d'exécution :
       CCTrayTool n'intervient pas ; le comportement normal
       d'économie d'énergie de Windows s'applique.
 
-L'option de menu "Enregistrer l'état" permet à CCTrayTool de
-mémoriser le dernier réglage KeepAwake sélectionné et de le
-restaurer automatiquement au prochain démarrage.
+L'option de menu "Enregistrer l'état" du sous-menu "Paramètres" de
+la section KeepAwake permet à CCTrayTool de mémoriser le dernier
+réglage KeepAwake sélectionné et de le restaurer automatiquement au
+prochain démarrage.
 
 À la fermeture de CCTrayTool, le comportement normal d'économie
 d'énergie de Windows est automatiquement rétabli.
@@ -1527,17 +2782,19 @@ l'infobulle".
 
 Le menu "AlwaysOnTop" propose les options suivantes :
 
-  - Raccourci actif         Active ou désactive complètement le
-                             raccourci clavier
-  - Modifier le raccourci    Ouvre une boîte de dialogue permettant
-                             de définir un raccourci clavier
-                             personnalisé (combinaison de Ctrl,
-                             Alt, Maj, Win plus une lettre, un
-                             chiffre ou une touche de fonction
-                             F1-F12)
-  - Afficher l'infobulle     Active ou désactive la brève
-                             notification à l'écran lors du
-                             basculement
+  - Raccourci actif   Active ou désactive complètement le raccourci
+                      clavier
+  - Paramètres        Sous-menu (icône d'engrenage) avec les
+                      entrées suivantes :
+      - Modifier le raccourci   Ouvre une boîte de dialogue
+                                permettant de définir un raccourci
+                                clavier personnalisé (combinaison
+                                de Ctrl, Alt, Maj, Win plus une
+                                lettre, un chiffre ou une touche de
+                                fonction F1-F12)
+      - Afficher l'infobulle    Active ou désactive la brève
+                                notification à l'écran lors du
+                                basculement
 
 Remarque : Le bureau Windows lui-même ("Program Manager") ne peut
 pas être défini sur "toujours au premier plan". Toutes les
@@ -1547,13 +2804,325 @@ message apparaît et une autre combinaison doit être choisie.
 
 
 -------------------------------------------------------------------
- 4. Menu de démarrage rapide pour vos propres programmes
+ 4. CloseGuard - verrouiller le bouton de fermeture
+-------------------------------------------------------------------
+
+CloseGuard protège les fenêtres contre une fermeture accidentelle.
+Pour les fenêtres que vous choisissez, il verrouille le bouton de
+fermeture (le "X" en haut à droite de la fenêtre) : le bouton est
+grisé et un clic dessus ne fait rien. C'est utile pour les
+programmes qui doivent rester en cours d'exécution ou pour les
+fenêtres qui sont sans cesse fermées par erreur.
+
+Une fenêtre peut être verrouillée de deux façons :
+
+  - À la main, avec un raccourci clavier
+      Cliquez sur la fenêtre, puis appuyez sur CTRL + ALT + X (par
+      défaut). Le bouton de fermeture de cette fenêtre est alors
+      verrouillé. Un nouvel appui sur le raccourci le déverrouille.
+      Une fenêtre déverrouillée ainsi reste libre, même si une
+      règle correspond, jusqu'à sa fermeture. Une brève
+      notification confirme chaque changement. Le verrouillage dure
+      jusqu'à ce que la fenêtre soit fermée ou déverrouillée.
+
+  - Automatiquement, avec des règles
+      Cliquez sur la fenêtre, puis appuyez sur CTRL + ALT + MAJ + X
+      (par défaut). CCTrayTool enregistre dans le fichier de règles
+      une règle composée du titre et de la classe de la fenêtre, et
+      verrouille la fenêtre. Dès lors, chaque fenêtre correspondant
+      à la règle est verrouillée automatiquement dès qu'elle
+      apparaît - même après un redémarrage du programme ou de
+      CCTrayTool.
+
+Dans le menu de la zone de notification, la section "CloseGuard"
+propose ces entrées :
+
+  - Verrouiller/déverrouiller le bouton de fermeture de la fenêtre
+    active
+      Fait la même chose que le premier raccourci clavier. Tant que
+      le menu de la zone de notification est ouvert, c'est lui qui
+      a le focus ; CloseGuard utilise donc la fenêtre qui était
+      active juste avant.
+
+  - Créer une règle pour la fenêtre active
+      Fait la même chose que le deuxième raccourci clavier.
+
+  - Afficher les fenêtres verrouillées
+      Indique quelles fenêtres sont verrouillées en ce moment (par
+      règle ou à la main, avec la classe de la fenêtre entre
+      crochets) et combien de règles existent.
+
+En dessous, le sous-menu "Paramètres" (icône d'engrenage) contient
+:
+
+  - Vérifier automatiquement les nouvelles fenêtres
+      Activé : CloseGuard surveille en permanence et verrouille
+      chaque nouvelle fenêtre correspondant à une règle. Désactivé
+      : les nouvelles fenêtres ne sont pas verrouillées
+      automatiquement.
+
+  - Vérifier les fenêtres ouvertes au démarrage
+      Activé : les fenêtres déjà ouvertes au démarrage de
+      CCTrayTool sont comparées immédiatement aux règles. Désactivé
+      : ces fenêtres sont laissées telles quelles ; seules les
+      fenêtres ouvertes plus tard sont vérifiées.
+
+  - Réduire la fenêtre au clic sur le X verrouillé
+      Activé : un clic sur le bouton de fermeture grisé réduit la
+      fenêtre au lieu de ne rien faire. Comme avec un vrai bouton,
+      la fenêtre n'est réduite que si le bouton de la souris est
+      aussi relâché sur le X ; appuyer sur le bouton puis
+      s'éloigner annule le clic. Désactivé (par défaut) : un clic
+      ne fait rien.
+
+  - Modifier le raccourci : verrouiller/déverrouiller
+    Modifier le raccourci : créer une règle
+      Ouvre la même boîte de dialogue que pour AlwaysOnTop afin de
+      définir un autre raccourci clavier. Une combinaison déjà
+      utilisée par une autre fonction de CCTrayTool est refusée.
+
+  - Modifier les règles...
+      Ouvre le fichier de règles dans le Bloc-notes (voir
+      ci-dessous). Après l'enregistrement et la fermeture du
+      Bloc-notes, les règles modifiées sont appliquées aussitôt :
+      les fenêtres verrouillées par une règle qui ne correspond
+      plus sont déverrouillées, et les nouvelles règles
+      s'appliquent tout de suite aux fenêtres ouvertes.
+
+CloseGuard dans son ensemble s'active et se désactive avec "Activer
+CloseGuard" dans le menu "Paramètres" de la section "CCTrayTool"
+(voir section 7).
+
+Règles (fichier dédié CloseGuardRules.ini, section [Rules]) :
+
+Les règles ne sont pas dans le fichier de configuration, mais dans
+un fichier dédié : %LocalAppData%\CCTrayTool\CloseGuardRules.ini.
+Il est créé automatiquement. C'est un fichier Unicode ; les titres
+de fenêtre contenant des accents ou d'autres caractères spéciaux
+fonctionnent donc aussi. Le Bloc-notes conserve ce format ; si le
+fichier est modifié avec un autre programme, enregistrez-le
+également en Unicode (UTF-16), sinon des caractères spéciaux
+peuvent être perdus. Les règles sont relues à la fermeture du
+Bloc-notes après "Modifier les règles..." et à chaque démarrage de
+CCTrayTool.
+
+Chaque ligne est une règle de la forme  numéro=titre|classe.  Le
+titre est un texte qui doit apparaître quelque part dans le titre
+de la fenêtre. La classe est le nom technique du type de fenêtre et
+doit correspondre exactement. La casse n'a pas d'importance. L'une
+des deux parties peut être vide (le "|" doit rester) ; si les deux
+sont renseignées, les deux doivent correspondre. Exemples :
+
+  1=Calculator|       chaque fenêtre dont le titre contient
+                      "Calculator"
+  2=|Notepad          chaque fenêtre de la classe "Notepad"
+  3=Untitled|Notepad  fenêtres de la classe "Notepad" dont le titre
+                      contient "Untitled"
+
+Le raccourci "créer une règle" utilise le titre actuel complet de
+la fenêtre. Si le titre change (par exemple avec le nom d'un
+document ouvert), raccourcissez-le ensuite avec "Modifier les
+règles..." à la partie qui reste identique, ou laissez le titre
+vide et ne gardez que la classe. La classe d'une fenêtre
+verrouillée est indiquée par "Afficher les fenêtres verrouillées".
+Une règle dont le titre et la classe sont vides est ignorée ; 200
+règles au maximum sont utilisées.
+
+Paramètres dans le fichier de configuration (section [CloseGuard])
+:
+
+  [CloseGuard]
+  Enabled=1
+  HotkeyToggle=^!x
+  HotkeyAddRule=^!+x
+  ApplyOnStartup=1
+  AutoApply=1
+  PollInterval=500
+  MinimizeOnClick=0
+  ClickPollInterval=30
+  ClickGeometryFallback=1
+  ClickGeometryExtendLeft=0
+  ClickGeometryExtendDown=87
+  ClickDebugOverlay=0
+  ClickShieldClasses=Chrome_WidgetWin_1,MozillaWindowClass
+
+  Enabled                  1 = CloseGuard activé, 0 = désactivé
+                           (comme l'option de menu "Activer
+                           CloseGuard").
+  HotkeyToggle             Raccourci clavier pour
+                           verrouiller/déverrouiller. ^ = Ctrl,
+                           ! = Alt, + = Maj, # = Win, suivi de la
+                           touche. Il est plus simple de le
+                           modifier avec l'option de menu "Modifier
+                           le raccourci".
+  HotkeyAddRule            Raccourci clavier pour "créer une
+                           règle".
+  ApplyOnStartup           1 = les fenêtres ouvertes au démarrage
+                           du programme sont comparées aux règles,
+                           0 = elles sont laissées telles quelles.
+  AutoApply                1 = les nouvelles fenêtres sont
+                           vérifiées automatiquement, 0 = non.
+  PollInterval             Fréquence de vérification des fenêtres,
+                           en millisecondes : de 250 à 5000 (par
+                           défaut : 500). Les autres valeurs sont
+                           corrigées automatiquement.
+  MinimizeOnClick          1 = un clic sur le bouton de fermeture
+                           verrouillé réduit la fenêtre, 0 = il ne
+                           fait rien (par défaut). Équivaut à
+                           l'option de menu.
+  ClickPollInterval        Fréquence à laquelle le bouton de la
+                           souris est vérifié pour cela, en
+                           millisecondes : de 10 à 100 (par défaut
+                           : 30). Une valeur plus petite détecte
+                           plus sûrement les clics très brefs, une
+                           valeur plus grande demande moins de
+                           temps de calcul. Les autres valeurs sont
+                           corrigées automatiquement. Ce réglage
+                           n'a pas d'option de menu.
+  ClickGeometryFallback    1 = si une fenêtre avec sa propre barre
+                           de titre (par exemple Outlook) ne
+                           signale pas son X à Windows, le X est
+                           reconnu d'après sa position (par
+                           défaut). 0 = seul un X que la fenêtre
+                           signale elle-même est reconnu.
+  ClickGeometryExtendLeft  Jusqu'où la zone dans laquelle le X est
+                           reconnu d'après sa position s'étend vers
+                           la gauche, en pourcentage de la largeur
+                           du X : de 0 à 100 (par défaut : 0).
+                           Certains programmes dessinent leur X
+                           plus à gauche que ne l'indique Windows.
+                           Une valeur trop grande empiète sur le
+                           bouton d'agrandissement voisin.
+  ClickGeometryExtendDown  Jusqu'où cette zone s'étend vers le bas,
+                           en pourcentage de la hauteur du X : de 0
+                           à 100 (par défaut : 87). Certains
+                           programmes dessinent leur X plus bas que
+                           ne l'indique Windows. Même objet et
+                           mêmes limites que
+                           ClickGeometryExtendLeft.
+  ClickDebugOverlay        1 = affiche à l'écran, sous forme de
+                           rectangles colorés et transparents, les
+                           zones utilisées pour reconnaître le X :
+                           rouge = la zone dans laquelle un clic
+                           compte comme un clic sur le X, bleu = la
+                           zone du bouton de fermeture indiquée par
+                           Windows (ou, si Windows n'en indique
+                           aucune, la zone du X trouvée en
+                           interrogeant la fenêtre), vert = le
+                           bouclier au-dessus du X (voir
+                           ClickShieldClasses). Uniquement pour le
+                           dépannage. 0 = désactivé (par défaut).
+  ClickShieldClasses       Classes de fenêtres (séparées par des
+                           virgules) de programmes qui se ferment
+                           eux-mêmes lorsque le bouton de la souris
+                           est relâché, par exemple Edge et Chrome
+                           (Chrome_WidgetWin_1) et Firefox
+                           (MozillaWindowClass) ; les deux sont la
+                           valeur par défaut. Le X d'une telle
+                           fenêtre est recouvert par une fenêtre
+                           presque invisible qui intercepte le clic
+                           ; la fenêtre ne peut alors plus être
+                           fermée avec le X. Vide = aucune.
+
+Les deux raccourcis de CloseGuard et celui d'AlwaysOnTop doivent
+être différents les uns des autres. Sinon, les raccourcis par
+défaut sont utilisés à la place.
+
+Bon à savoir :
+
+  - Le verrouillage protège contre un clic accidentel sur le X.
+    Selon le programme, une fenêtre peut encore être fermée
+    d'autres façons : avec ALT + F4, avec "Fermer la fenêtre" dans
+    la barre des tâches, avec une commande Quitter dans le menu du
+    programme ou avec le Gestionnaire des tâches.
+
+  - Seules les fenêtres dotées d'une barre de titre normale et d'un
+    menu système peuvent être verrouillées. Les programmes qui
+    dessinent eux-mêmes leur barre de titre (de nombreuses
+    applications modernes, certains navigateurs, les applications
+    du Microsoft Store) peuvent conserver un X fonctionnel même si
+    CloseGuard signale la fenêtre comme verrouillée. Si une fenêtre
+    n'a aucun menu système, un avis s'affiche.
+
+  - Réduction par clic : CCTrayTool vérifie brièvement et
+    régulièrement le bouton de la souris (par défaut : toutes les
+    30 ms), et seulement tant qu'au moins une fenêtre verrouillée
+    est visible. Il n'utilise aucun hook de souris et ne peut donc
+    ralentir ni la souris ni le système. Dans le cas improbable où
+    un clic très bref tombe à un moment où CCTrayTool est occupé,
+    il n'est simplement pas détecté : la fenêtre reste telle quelle
+    et son X reste verrouillé.
+
+  - La réduction par clic réagit au bouton principal de la souris
+    (le droit si les boutons sont inversés dans Windows) et
+    uniquement au X des fenêtres verrouillées. La saisie tactile et
+    au stylet n'est pas détectée. Si un programme ignore la
+    commande de réduction, CCTrayTool réduit la fenêtre
+    directement.
+
+  - Certains programmes dessinent eux-mêmes leur barre de titre
+    (par exemple Outlook). Ils n'indiquent pas à Windows où se
+    trouve leur X ; pour la détection du clic, CCTrayTool calcule
+    donc la position du X dans le coin supérieur droit de la
+    fenêtre (clé INI ClickGeometryFallback). Le fichier journal
+    indique alors "recognized by its position".
+
+  - Edge, Chrome et d'autres programmes basés sur Chromium ainsi
+    que Firefox dessinent eux-mêmes leur X et ferment la fenêtre
+    eux-mêmes lorsque le bouton de la souris est relâché ; le menu
+    système verrouillé ne les arrête donc pas. Au-dessus du X de
+    ces fenêtres (clé INI ClickShieldClasses, valeur par défaut
+    Chrome_WidgetWin_1,MozillaWindowClass), CCTrayTool place une
+    fenêtre presque invisible, un bouclier. Le clic tombe sur le
+    bouclier et le programme ne le voit jamais : rien ne se passe,
+    ou la fenêtre est réduite si la réduction au clic est activée.
+    Le bouclier suit la fenêtre et disparaît tant que la fenêtre
+    est réduite, déverrouillée, en plein écran ou recouverte par
+    une autre fenêtre au niveau de son X. Avec ClickDebugOverlay=1,
+    il s'affiche en vert. Tant qu'une fenêtre de cette classe est
+    visible, le bouton de la souris est vérifié toutes les 10 ms,
+    même si la réduction au clic est désactivée. Firefox dessine
+    lui-même sa barre de titre et Windows ne signale pas la
+    position de son X ; CCTrayTool trouve alors le X en
+    interrogeant la fenêtre (fichier journal :
+    "found by asking the window"). La reconnaissance de secours par
+    la position (ClickGeometryFallback) n'est utilisée que pour les
+    fenêtres qui ne signalent pas leur X à Windows, comme Outlook
+    et Word ; CCTrayTool interroge chaque fenêtre une fois et
+    inscrit le résultat dans le fichier journal ("probe of the X").
+
+  - Les fenêtres des programmes exécutés en tant qu'administrateur
+    ne peuvent pas être verrouillées tant que CCTrayTool ne
+    s'exécute pas lui-même en tant qu'administrateur (une règle de
+    sécurité de Windows). Un avis s'affiche.
+
+  - Le bureau, la barre des tâches et les fenêtres de CCTrayTool
+    lui-même ne sont jamais verrouillés.
+
+  - Lorsqu'une fenêtre est déverrouillée, son menu système est
+    rétabli au standard de Windows. Les entrées que le programme
+    avait lui-même ajoutées à ce menu peuvent manquer jusqu'au
+    redémarrage du programme.
+
+  - Un verrouillage ne dure que tant que CCTrayTool est en cours
+    d'exécution : à la fermeture du programme ou à la désactivation
+    de CloseGuard, toutes les fenêtres retrouvent leur bouton de
+    fermeture. Si CCTrayTool est arrêté de force (par exemple avec
+    le Gestionnaire des tâches), les fenêtres verrouillées restent
+    verrouillées. Dans ce cas, appuyez dans une telle fenêtre sur
+    le raccourci verrouiller/déverrouiller (CCTrayTool doit de
+    nouveau être en cours d'exécution) ou fermez la fenêtre et
+    rouvrez-la.
+
+
+-------------------------------------------------------------------
+ 5. Menu de démarrage rapide pour vos propres programmes
 -------------------------------------------------------------------
 
 Au-dessus de KeepAwake, le menu de la zone de notification affiche
 la section "ToolTime" : une liste de programmes que l'on peut
 démarrer d'un simple clic. Les entrées proviennent d'un dossier de
-votre PC (voir section 5) : chaque raccourci (fichier .lnk) de ce
+votre PC (voir section 6) : chaque raccourci (fichier .lnk) de ce
 dossier devient une entrée de menu et chaque sous-dossier devient
 un sous-menu.
 
@@ -1578,7 +3147,7 @@ le Contrôle de compte d'utilisateur).
 
 
 -------------------------------------------------------------------
- 5. Ajouter ses propres outils et dossiers
+ 6. Ajouter ses propres outils et dossiers
 -------------------------------------------------------------------
 
 Les outils du menu de démarrage rapide sont de simples raccourcis
@@ -1687,21 +3256,21 @@ et le fichier d'information sont recréés.
 
 
 -------------------------------------------------------------------
- 6. Autres paramètres
+ 7. Autres paramètres
 -------------------------------------------------------------------
 
 Le sous-menu "Paramètres" propose également :
 
   - Activer ToolTime
       Active ou désactive entièrement la section de démarrage
-      rapide des outils (voir section 4). Si désactivée, aucune de
+      rapide des outils (voir section 5). Si désactivée, aucune de
       ses entrées n'apparaît dans le menu de la zone de
       notification, quel que soit le contenu du dossier ToolTime.
 
   - Ouvrir le dossier ToolTime
       Ouvre le dossier ToolTime dans l'Explorateur Windows afin
       d'ajouter, de renommer ou de supprimer des raccourcis (voir
-      section 5).
+      section 6).
 
   - Recharger les outils
       Relit le dossier ToolTime et reconstruit le menu. Normalement
@@ -1719,6 +3288,13 @@ Le sous-menu "Paramètres" propose également :
       section 3). Si désactivée, ses entrées disparaissent du menu
       de la zone de notification et le raccourci clavier est
       désactivé.
+
+  - Activer CloseGuard
+      Active ou désactive entièrement toute la section CloseGuard
+      (voir section 4). Si elle est désactivée, ses entrées
+      disparaissent du menu de la zone de notification, les
+      raccourcis clavier sont désactivés et toutes les fenêtres
+      verrouillées retrouvent leur bouton de fermeture.
 
   - Démarrage automatique
       CCTrayTool démarrera désormais automatiquement à l'ouverture
@@ -1741,11 +3317,11 @@ Le sous-menu "Paramètres" propose également :
 
   - Modifier le fichier de paramètres
       Ouvre directement le fichier de configuration pour
-      modification (voir section 5).
+      modification (voir section 6).
 
 
 -------------------------------------------------------------------
- 7. Emplacements de stockage
+ 8. Emplacements de stockage
 -------------------------------------------------------------------
 
 CCTrayTool enregistre ses fichiers dans le profil utilisateur :
@@ -1754,21 +3330,28 @@ CCTrayTool enregistre ses fichiers dans le profil utilisateur :
   Fichier journal :   %LocalAppData%\CCTrayTool\CCTrayTool.log
   Dossier ToolTime :  %LocalAppData%\CCTrayTool\ToolTime\
 
+Les règles de CloseGuard se trouvent dans un fichier dédié :
+
+  %LocalAppData%\CCTrayTool\CloseGuardRules.ini
+
 (Le chemin peut être collé dans la barre d'adresse de l'Explorateur
 Windows pour accéder directement au dossier.)
 
 
 -------------------------------------------------------------------
- 8. Fermer le programme
+ 9. Fermer le programme
 -------------------------------------------------------------------
 
 CCTrayTool se ferme via l'option de menu "Quitter". Cela restaure
 automatiquement le comportement normal d'économie d'énergie de
 Windows et enregistre la configuration actuelle.
 
+Toutes les fenêtres dont le bouton de fermeture est verrouillé par
+CloseGuard retrouvent ainsi leur bouton de fermeture.
+
 
 -------------------------------------------------------------------
- 9. À propos / Contact
+ 10. À propos / Contact
 -------------------------------------------------------------------
 
 La version actuellement installée peut être consultée à tout
@@ -1788,7 +3371,7 @@ Licence : GNU General Public License, version 3 ou ultérieure
 
 CCTrayTool to małe narzędzie dla systemu Windows, które działa jako
 ikona w zasobniku systemowym (w prawym dolnym rogu, obok zegara).
-Łączy trzy przydatne funkcje w jednym programie:
+Łączy cztery przydatne funkcje w jednym programie:
 
   1. KeepAwake           - zapobiega przechodzeniu komputera w tryb
                             oszczędzania energii lub wyłączaniu się
@@ -1797,6 +3380,9 @@ ikona w zasobniku systemowym (w prawym dolnym rogu, obok zegara).
                             planie za pomocą skrótu klawiszowego
   3. Szybkie uruchamianie narzędzi - uruchamia często używane
                             programy bezpośrednio z menu zasobnika
+  4. CloseGuard           - blokuje przycisk zamykania (X)
+                            wybranych okien za pomocą skrótu
+                            klawiszowego lub reguł
 
 Wszystkie funkcje obsługuje się za pomocą menu wywoływanego
 kliknięciem prawym przyciskiem myszy na ikonie w zasobniku.
@@ -1858,9 +3444,9 @@ robić, gdy CCTrayTool jest uruchomiony:
       CCTrayTool nie ingeruje; obowiązuje normalne zachowanie
       oszczędzania energii Windows.
 
-Opcja menu "Zapisz stan" powoduje, że CCTrayTool zapamiętuje
-ostatnio wybrane ustawienie KeepAwake i przywraca je automatycznie
-przy następnym uruchomieniu.
+Opcja menu "Zapisz stan" w podmenu "Ustawienia" sekcji KeepAwake
+powoduje, że CCTrayTool zapamiętuje ostatnio wybrane ustawienie
+KeepAwake i przywraca je automatycznie przy następnym uruchomieniu.
 
 Po zamknięciu CCTrayTool automatycznie przywracane jest normalne
 zachowanie oszczędzania energii Windows.
@@ -1881,15 +3467,15 @@ włączyć lub wyłączyć za pomocą opcji menu "Pokaż dymek".
 
 W menu "AlwaysOnTop" dostępne są następujące opcje:
 
-  - Skrót aktywny            Całkowicie włącza lub wyłącza skrót
-                              klawiszowy
-  - Zmień skrót               Otwiera okno dialogowe, w którym
-                              można ustawić własny skrót klawiszowy
-                              (kombinacja Ctrl, Alt, Shift, Win oraz
-                              litery, cyfry lub klawisza funkcyjnego
-                              F1-F12)
-  - Pokaż dymek                Włącza lub wyłącza krótki komunikat
-                              na ekranie podczas przełączania
+  - Skrót aktywny   Całkowicie włącza lub wyłącza skrót klawiszowy
+  - Ustawienia      Podmenu (ikona zębatki) z następującymi
+                    pozycjami:
+      - Zmień skrót   Otwiera okno dialogowe, w którym można
+                      ustawić własny skrót klawiszowy (kombinacja
+                      Ctrl, Alt, Shift, Win oraz litery, cyfry lub
+                      klawisza funkcyjnego F1-F12)
+      - Pokaż dymek   Włącza lub wyłącza krótki komunikat na
+                      ekranie podczas przełączania
 
 Uwaga: Samego pulpitu Windows ("Program Manager") nie można ustawić
 na "zawsze na wierzchu". Nie każda kombinacja klawiszy jest wolna -
@@ -1898,12 +3484,296 @@ przypadku pojawia się komunikat i należy wybrać inną kombinację.
 
 
 -------------------------------------------------------------------
- 4. Menu szybkiego uruchamiania własnych programów
+ 4. CloseGuard - blokowanie przycisku zamykania
+-------------------------------------------------------------------
+
+CloseGuard chroni okna przed przypadkowym zamknięciem. Dla
+wybranych okien blokuje przycisk zamykania (znak "X" w prawym
+górnym rogu okna): przycisk jest wyszarzony, a kliknięcie go nic
+nie daje. Jest to przydatne w przypadku programów, które muszą
+stale działać, oraz okien, które wciąż są zamykane przez pomyłkę.
+
+Okno można zablokować na dwa sposoby:
+
+  - Ręcznie, za pomocą skrótu klawiszowego
+      Kliknij okno, a następnie naciśnij CTRL + ALT + X (ustawienie
+      domyślne). Przycisk zamykania tego okna zostaje zablokowany.
+      Ponowne naciśnięcie skrótu odblokowuje go. Okno odblokowane w
+      ten sposób pozostaje wolne, nawet jeśli pasuje do reguły, aż
+      do zamknięcia. Krótki komunikat potwierdza każdą zmianę.
+      Blokada trwa do zamknięcia lub odblokowania okna.
+
+  - Automatycznie, za pomocą reguł
+      Kliknij okno, a następnie naciśnij CTRL + ALT + SHIFT + X
+      (ustawienie domyślne). CCTrayTool zapisuje w pliku reguł
+      regułę składającą się z tytułu i klasy okna i blokuje okno.
+      Od tej chwili każde okno pasujące do reguły jest blokowane
+      automatycznie, gdy tylko się pojawi - także po ponownym
+      uruchomieniu programu lub CCTrayTool.
+
+W menu zasobnika sekcja "CloseGuard" oferuje następujące pozycje:
+
+  - Zablokuj/odblokuj przycisk zamykania aktywnego okna
+      Robi to samo co pierwszy skrót klawiszowy. Dopóki menu
+      zasobnika jest otwarte, to ono ma fokus; dlatego CloseGuard
+      używa okna, które było aktywne tuż przed tym.
+
+  - Utwórz regułę dla aktywnego okna
+      Robi to samo co drugi skrót klawiszowy.
+
+  - Pokaż zablokowane okna
+      Pokazuje, które okna są obecnie zablokowane (przez regułę lub
+      ręcznie, z klasą okna w nawiasach kwadratowych) oraz ile jest
+      reguł.
+
+Pod nimi znajduje się podmenu "Ustawienia" (ikona zębatki), które
+zawiera:
+
+  - Automatycznie sprawdzaj nowe okna
+      Włączone: CloseGuard stale obserwuje i blokuje każde nowe
+      okno pasujące do reguły. Wyłączone: nowe okna nie są
+      blokowane automatycznie.
+
+  - Sprawdzaj okna otwarte przy uruchomieniu
+      Włączone: okna, które są już otwarte w chwili uruchomienia
+      CCTrayTool, są od razu porównywane z regułami. Wyłączone: te
+      okna pozostają nietknięte; sprawdzane są tylko okna otwarte
+      później.
+
+  - Minimalizuj okno po kliknięciu zablokowanego X
+      Włączone: kliknięcie wyszarzonego przycisku zamykania
+      minimalizuje okno zamiast nie robić nic. Tak jak przy
+      prawdziwym przycisku, okno jest minimalizowane tylko wtedy,
+      gdy przycisk myszy zostanie zwolniony również nad X;
+      naciśnięcie przycisku i odsunięcie kursora anuluje
+      kliknięcie. Wyłączone (domyślnie): kliknięcie nic nie robi.
+
+  - Zmień skrót: zablokuj/odblokuj
+    Zmień skrót: utwórz regułę
+      Otwiera to samo okno dialogowe co w AlwaysOnTop, aby ustawić
+      inny skrót klawiszowy. Kombinacja, której używa już inna
+      funkcja CCTrayTool, zostaje odrzucona.
+
+  - Edytuj reguły...
+      Otwiera plik reguł w Notatniku (patrz niżej). Po zapisaniu i
+      zamknięciu Notatnika zmienione reguły są stosowane od razu:
+      okna zablokowane przez regułę, która już nie pasuje, zostają
+      odblokowane, a nowe reguły obowiązują natychmiast dla
+      otwartych okien.
+
+CloseGuard jako całość włącza się i wyłącza pozycją "Włącz
+CloseGuard" w menu "Ustawienia" sekcji "CCTrayTool" (patrz punkt
+7).
+
+Reguły (osobny plik CloseGuardRules.ini, sekcja [Rules]):
+
+Reguły nie są zapisane w pliku ustawień, lecz w osobnym pliku:
+%LocalAppData%\CCTrayTool\CloseGuardRules.ini. Jest on tworzony
+automatycznie. To plik Unicode, więc działają także tytuły okien ze
+znakami diakrytycznymi i innymi znakami specjalnymi. Notatnik
+zachowuje ten format; jeśli plik jest edytowany innym programem,
+zapisz go również jako Unicode (UTF-16), w przeciwnym razie znaki
+specjalne mogą zostać utracone. Reguły są wczytywane ponownie po
+zamknięciu Notatnika otwartego przez "Edytuj reguły..." oraz przy
+każdym uruchomieniu CCTrayTool.
+
+Każdy wiersz to jedna reguła w postaci  numer=tytuł|klasa.  Tytuł
+to tekst, który musi występować gdziekolwiek w tytule okna. Klasa
+to techniczna nazwa typu okna i musi się dokładnie zgadzać.
+Wielkość liter nie ma znaczenia. Jedna z dwóch części może być
+pusta (znak "|" musi pozostać); jeśli wypełnione są obie, muszą
+pasować obie. Przykłady:
+
+  1=Calculator|       każde okno z "Calculator" w tytule
+  2=|Notepad          każde okno klasy "Notepad"
+  3=Untitled|Notepad  okna klasy "Notepad" z "Untitled" w tytule
+
+Skrót "utwórz regułę" używa pełnego, aktualnego tytułu okna. Jeśli
+tytuł się zmienia (na przykład o nazwę otwartego dokumentu), skróć
+go później przez "Edytuj reguły..." do części, która się nie
+zmienia, albo zostaw tytuł pusty i zachowaj tylko klasę. Klasę
+zablokowanego okna pokazuje "Pokaż zablokowane okna". Reguła z
+pustym tytułem i pustą klasą jest ignorowana; używanych jest
+najwyżej 200 reguł.
+
+Ustawienia w pliku ustawień (sekcja [CloseGuard]):
+
+  [CloseGuard]
+  Enabled=1
+  HotkeyToggle=^!x
+  HotkeyAddRule=^!+x
+  ApplyOnStartup=1
+  AutoApply=1
+  PollInterval=500
+  MinimizeOnClick=0
+  ClickPollInterval=30
+  ClickGeometryFallback=1
+  ClickGeometryExtendLeft=0
+  ClickGeometryExtendDown=87
+  ClickDebugOverlay=0
+  ClickShieldClasses=Chrome_WidgetWin_1,MozillaWindowClass
+
+  Enabled                  1 = CloseGuard włączony, 0 = wyłączony
+                           (tak jak pozycja menu "Włącz
+                           CloseGuard").
+  HotkeyToggle             Skrót klawiszowy
+                           blokowania/odblokowywania. ^ = Ctrl,
+                           ! = Alt, + = Shift, # = Win, a po nich
+                           klawisz. Łatwiej zmienić go pozycją menu
+                           "Zmień skrót".
+  HotkeyAddRule            Skrót klawiszowy dla "utwórz regułę".
+  ApplyOnStartup           1 = okna otwarte przy uruchomieniu
+                           programu są porównywane z regułami,
+                           0 = pozostają nietknięte.
+  AutoApply                1 = nowe okna są sprawdzane
+                           automatycznie, 0 = nie.
+  PollInterval             Jak często okna są sprawdzane, w
+                           milisekundach: od 250 do 5000
+                           (domyślnie: 500). Inne wartości są
+                           korygowane automatycznie.
+  MinimizeOnClick          1 = kliknięcie zablokowanego przycisku
+                           zamykania minimalizuje okno, 0 = nic nie
+                           robi (domyślnie). Odpowiada opcji menu.
+  ClickPollInterval        Jak często przycisk myszy jest w tym
+                           celu sprawdzany, w milisekundach: od 10
+                           do 100 (domyślnie: 30). Mniejsza wartość
+                           pewniej wykrywa bardzo krótkie
+                           kliknięcia, większa wymaga mniej czasu
+                           obliczeniowego. Inne wartości są
+                           korygowane automatycznie. Dla tego
+                           ustawienia nie ma opcji menu.
+  ClickGeometryFallback    1 = jeśli okno z własnym paskiem tytułu
+                           (na przykład Outlook) nie zgłasza
+                           systemowi Windows swojego X, X jest
+                           rozpoznawany na podstawie położenia
+                           (domyślnie). 0 = rozpoznawany jest tylko
+                           X, który okno zgłasza samo.
+  ClickGeometryExtendLeft  Jak daleko w lewo sięga obszar, w którym
+                           X jest rozpoznawany na podstawie
+                           położenia, w procentach szerokości X: od
+                           0 do 100 (domyślnie: 0). Niektóre
+                           programy rysują swój X bardziej na lewo,
+                           niż zgłasza Windows. Zbyt duża wartość
+                           sięga do sąsiedniego przycisku
+                           maksymalizacji.
+  ClickGeometryExtendDown  Jak daleko w dół sięga ten obszar, w
+                           procentach wysokości X: od 0 do 100
+                           (domyślnie: 87). Niektóre programy
+                           rysują swój X niżej, niż zgłasza
+                           Windows. Ten sam cel i te same granice
+                           co ClickGeometryExtendLeft.
+  ClickDebugOverlay        1 = pokazuje na ekranie, jako kolorowe,
+                           przezroczyste prostokąty, obszary
+                           używane do rozpoznawania X:
+                           czerwony = obszar, w którym kliknięcie
+                           liczy się jako kliknięcie X,
+                           niebieski = obszar przycisku zamykania
+                           zgłaszany przez Windows (lub, jeśli
+                           Windows żadnego nie zgłasza, obszar X
+                           znaleziony przez zapytanie okna),
+                           zielony = tarcza nad X (zob.
+                           ClickShieldClasses). Tylko do
+                           diagnostyki. 0 = wyłączone (domyślnie).
+  ClickShieldClasses       Klasy okien (rozdzielone przecinkami)
+                           programów, które same się zamykają po
+                           zwolnieniu przycisku myszy, na przykład
+                           Edge i Chrome (Chrome_WidgetWin_1) oraz
+                           Firefox (MozillaWindowClass); domyślnie
+                           obie. X takiego okna jest przykryty
+                           prawie niewidocznym oknem, które
+                           przejmuje kliknięcie, więc okna nie
+                           można już zamknąć przyciskiem X.
+                           Puste = brak.
+
+Oba skróty CloseGuard i skrót AlwaysOnTop muszą się od siebie
+różnić. W przeciwnym razie używane są skróty domyślne.
+
+Warto wiedzieć:
+
+  - Blokada chroni przed przypadkowym kliknięciem X. W zależności
+    od programu okno nadal można zamknąć w inny sposób: za pomocą
+    ALT + F4, poleceniem "Zamknij okno" na pasku zadań, poleceniem
+    Zakończ w menu samego programu lub w Menedżerze zadań.
+
+  - Zablokować można tylko okna ze zwykłym paskiem tytułu i menu
+    systemowym. Programy rysujące własny pasek tytułu (wiele
+    nowoczesnych aplikacji, niektóre przeglądarki, aplikacje ze
+    sklepu Microsoft Store) mogą zachować działający przycisk X,
+    mimo że CloseGuard zgłasza okno jako zablokowane. Jeśli okno w
+    ogóle nie ma menu systemowego, pojawia się komunikat.
+
+  - Minimalizowanie kliknięciem: CCTrayTool sprawdza przycisk myszy
+    krótko i regularnie (domyślnie co 30 ms), i tylko wtedy, gdy
+    widoczne jest co najmniej jedno zablokowane okno. Nie używa
+    haka myszy, więc nie może spowolnić myszy ani systemu. W mało
+    prawdopodobnym przypadku, gdy bardzo krótkie kliknięcie
+    przypadnie na moment, w którym CCTrayTool jest zajęty, po
+    prostu nie zostanie zauważone: okno pozostaje bez zmian, a jego
+    X nadal jest zablokowany.
+
+  - Minimalizowanie kliknięciem reaguje na główny przycisk myszy
+    (prawy, jeśli w Windows zamieniono przyciski) i tylko na X
+    zablokowanych okien. Dotyk i pióro nie są wykrywane. Jeśli
+    program ignoruje polecenie minimalizacji, CCTrayTool
+    minimalizuje okno bezpośrednio.
+
+  - Niektóre programy rysują własny pasek tytułu (na przykład
+    Outlook). Nie informują systemu Windows, gdzie znajduje się ich
+    X, dlatego do wykrywania kliknięcia CCTrayTool oblicza
+    położenie X w prawym górnym rogu okna (klucz INI
+    ClickGeometryFallback). W pliku dziennika pojawia się wtedy
+    "recognized by its position".
+
+  - Edge, Chrome i inne programy oparte na Chromium oraz Firefox
+    same rysują swój przycisk X i same zamykają okno, gdy przycisk
+    myszy zostanie zwolniony, więc zablokowane menu systemowe ich
+    nie powstrzymuje. Nad X takich okien (klucz INI
+    ClickShieldClasses, domyślnie
+    Chrome_WidgetWin_1,MozillaWindowClass) CCTrayTool umieszcza
+    prawie niewidoczne okno, czyli tarczę. Kliknięcie trafia w
+    tarczę, a program nigdy go nie widzi: nic się nie dzieje albo
+    okno jest minimalizowane, jeśli minimalizowanie po kliknięciu
+    jest włączone. Tarcza podąża za oknem i znika, dopóki okno jest
+    zminimalizowane, odblokowane, na pełnym ekranie lub przykryte
+    innym oknem w miejscu X. Przy ClickDebugOverlay=1 jest
+    pokazywana na zielono. Dopóki okno takiej klasy jest widoczne,
+    przycisk myszy jest sprawdzany co 10 ms, nawet gdy
+    minimalizowanie po kliknięciu jest wyłączone. Firefox sam
+    rysuje pasek tytułu i Windows nie zgłasza położenia jego X;
+    CCTrayTool znajduje wtedy X, pytając okno (plik dziennika:
+    "found by asking the window"). Rozpoznawanie zastępcze według
+    położenia (ClickGeometryFallback) jest stosowane tylko dla
+    okien, które nie zgłaszają swojego X do Windows, takich jak
+    Outlook i Word; CCTrayTool pyta każde okno jeden raz i zapisuje
+    wynik w pliku dziennika ("probe of the X").
+
+  - Okien programów uruchomionych jako administrator nie można
+    blokować, dopóki CCTrayTool sam nie działa jako administrator
+    (reguła bezpieczeństwa systemu Windows). Pojawia się komunikat.
+
+  - Pulpit, pasek zadań i okna samego CCTrayTool nigdy nie są
+    blokowane.
+
+  - Po odblokowaniu okna jego menu systemowe jest przywracane do
+    standardu Windows. Pozycje, które program sam dodał do tego
+    menu, mogą zniknąć do czasu ponownego uruchomienia programu.
+
+  - Blokada trwa tylko wtedy, gdy działa CCTrayTool: po zamknięciu
+    programu lub wyłączeniu CloseGuard wszystkie okna odzyskują
+    przycisk zamykania. Jeśli CCTrayTool zostanie zakończony siłowo
+    (na przykład w Menedżerze zadań), zablokowane okna pozostają
+    zablokowane. Wtedy naciśnij w takim oknie skrót
+    blokowania/odblokowywania (CCTrayTool musi znów działać) albo
+    zamknij okno i otwórz je ponownie.
+
+
+-------------------------------------------------------------------
+ 5. Menu szybkiego uruchamiania własnych programów
 -------------------------------------------------------------------
 
 Nad KeepAwake menu zasobnika pokazuje sekcję "ToolTime": listę
 programów, które można uruchomić jednym kliknięciem. Pozycje
-pochodzą z folderu na komputerze (patrz punkt 5): każdy skrót (plik
+pochodzą z folderu na komputerze (patrz punkt 6): każdy skrót (plik
 .lnk) w tym folderze staje się pozycją menu, a każdy podfolder -
 podmenu.
 
@@ -1928,7 +3798,7 @@ prosi o potwierdzenie za pomocą Kontroli konta użytkownika).
 
 
 -------------------------------------------------------------------
- 5. Dodawanie własnych narzędzi i folderów
+ 6. Dodawanie własnych narzędzi i folderów
 -------------------------------------------------------------------
 
 Narzędzia w menu szybkiego uruchamiania to po prostu skróty w
@@ -2028,20 +3898,20 @@ informacyjny zostaną utworzone od nowa.
 
 
 -------------------------------------------------------------------
- 6. Dodatkowe ustawienia
+ 7. Dodatkowe ustawienia
 -------------------------------------------------------------------
 
 W podmenu "Ustawienia" dostępne są dodatkowo:
 
   - Włącz ToolTime
       Całkowicie włącza lub wyłącza sekcję szybkiego uruchamiania
-      narzędzi (patrz punkt 4). Po wyłączeniu żadna z jej pozycji
+      narzędzi (patrz punkt 5). Po wyłączeniu żadna z jej pozycji
       nie pojawia się w menu zasobnika, niezależnie od zawartości
       folderu ToolTime.
 
   - Otwórz folder ToolTime
       Otwiera folder ToolTime w Eksploratorze Windows, aby dodawać,
-      zmieniać nazwy lub usuwać skróty (patrz punkt 5).
+      zmieniać nazwy lub usuwać skróty (patrz punkt 6).
 
   - Wczytaj narzędzia ponownie
       Ponownie odczytuje folder ToolTime i odbudowuje menu.
@@ -2057,6 +3927,12 @@ W podmenu "Ustawienia" dostępne są dodatkowo:
       Całkowicie włącza lub wyłącza sekcję AlwaysOnTop (patrz punkt
       3). Po wyłączeniu jej pozycje znikają z menu zasobnika, a
       skrót klawiszowy zostaje dezaktywowany.
+
+  - Włącz CloseGuard
+      Całkowicie włącza lub wyłącza sekcję CloseGuard (patrz punkt
+      4). Po wyłączeniu jej pozycje znikają z menu zasobnika,
+      skróty klawiszowe zostają dezaktywowane, a wszystkie
+      zablokowane okna odzyskują przycisk zamykania.
 
   - Uruchamiaj automatycznie
       CCTrayTool będzie odtąd uruchamiał się automatycznie przy
@@ -2079,11 +3955,11 @@ W podmenu "Ustawienia" dostępne są dodatkowo:
 
   - Edytuj plik ustawień
       Otwiera plik konfiguracyjny bezpośrednio do edycji (patrz
-      punkt 5).
+      punkt 6).
 
 
 -------------------------------------------------------------------
- 7. Lokalizacje przechowywania
+ 8. Lokalizacje przechowywania
 -------------------------------------------------------------------
 
 CCTrayTool przechowuje swoje pliki w profilu użytkownika:
@@ -2092,21 +3968,28 @@ CCTrayTool przechowuje swoje pliki w profilu użytkownika:
   Plik dziennika:   %LocalAppData%\CCTrayTool\CCTrayTool.log
   Folder ToolTime:  %LocalAppData%\CCTrayTool\ToolTime\
 
+Reguły CloseGuard znajdują się w osobnym pliku:
+
+  %LocalAppData%\CCTrayTool\CloseGuardRules.ini
+
 (Ścieżkę można wkleić do paska adresu Eksploratora Windows, aby
 przejść bezpośrednio do folderu.)
 
 
 -------------------------------------------------------------------
- 8. Zamykanie programu
+ 9. Zamykanie programu
 -------------------------------------------------------------------
 
 CCTrayTool zamyka się za pomocą opcji menu "Zakończ". Powoduje to
 automatyczne przywrócenie normalnego zachowania oszczędzania
 energii Windows oraz zapisanie bieżącej konfiguracji.
 
+Wszystkie okna, których przycisk zamykania jest zablokowany przez
+CloseGuard, odzyskują przy tym swój przycisk zamykania.
+
 
 -------------------------------------------------------------------
- 9. Informacje / Kontakt
+ 10. Informacje / Kontakt
 -------------------------------------------------------------------
 
 Aktualnie zainstalowaną wersję można w każdej chwili sprawdzić za
@@ -2125,7 +4008,7 @@ pliki LICENSE i NOTICE.
 ===================================================================
 
 A CCTrayTool egy kis Windows-eszköz, amely ikonként fut a
-tálcán (jobbra lent, az óra mellett). Három hasznos funkciót
+tálcán (jobbra lent, az óra mellett). Négy hasznos funkciót
 egyesít egyetlen programban:
 
   1. KeepAwake             - megakadályozza, hogy a számítógép
@@ -2136,6 +4019,10 @@ egyesít egyetlen programban:
   3. Eszközök gyorsindítása - egy kattintással indítja a gyakran
                               használt programokat közvetlenül a
                               tálcamenüből
+  4. CloseGuard             - zárolja a kiválasztott ablakok
+                              bezárás gombját (X)
+                              billentyűkombinációval vagy
+                              szabályokkal
 
 Minden funkció a tálcaikonra kattintva, jobb egérgombbal
 elérhető menün keresztül működtethető. Telepítés nem szükséges, a
@@ -2197,9 +4084,10 @@ tegyen, amíg a CCTrayTool fut:
       A CCTrayTool nem avatkozik be; a Windows normál
       energiatakarékossági viselkedése érvényes.
 
-Az "Állapot mentése" menüpont hatására a CCTrayTool megjegyzi az
-utoljára kiválasztott KeepAwake-beállítást, és a következő
-induláskor automatikusan visszaállítja.
+A KeepAwake szakasz "Beállítások" almenüjének "Állapot mentése"
+menüpontja hatására a CCTrayTool megjegyzi az utoljára kiválasztott
+KeepAwake-beállítást, és a következő induláskor automatikusan
+visszaállítja.
 
 A CCTrayTool bezárásakor a Windows normál energiatakarékossági
 viselkedése automatikusan visszaáll.
@@ -2221,16 +4109,19 @@ megjelenítése" menüponttal ki- és bekapcsolható.
 
 Az "AlwaysOnTop" menüben a következő beállítások érhetők el:
 
-  - Gyorsbillentyű aktív      Teljesen be- vagy kikapcsolja a
-                               billentyűkombinációt
-  - Gyorsbillentyű módosítása  Megnyit egy párbeszédablakot, ahol
-                               saját billentyűkombináció adható meg
-                               (Ctrl, Alt, Shift, Win kombinációja
-                               egy betűvel, számmal vagy F1-F12
-                               funkcióbillentyűvel)
-  - ToolTip megjelenítése      Be- vagy kikapcsolja a rövid
-                               képernyőn megjelenő értesítést
-                               váltáskor
+  - Gyorsbillentyű aktív   Teljesen be- vagy kikapcsolja a
+                           billentyűkombinációt
+  - Beállítások            Almenü (fogaskerék ikon) a következő
+                           bejegyzésekkel:
+      - Gyorsbillentyű módosítása   Megnyit egy párbeszédablakot,
+                                    ahol saját billentyűkombináció
+                                    adható meg (Ctrl, Alt, Shift,
+                                    Win kombinációja egy betűvel,
+                                    számmal vagy F1-F12
+                                    funkcióbillentyűvel)
+      - ToolTip megjelenítése       Be- vagy kikapcsolja a rövid
+                                    képernyőn megjelenő értesítést
+                                    váltáskor
 
 Megjegyzés: Maga a Windows asztal ("Program Manager") nem
 állítható be "mindig az előtérben" módra. Nem minden
@@ -2240,12 +4131,314 @@ kombinációt kell választani.
 
 
 -------------------------------------------------------------------
- 4. Gyorsindító menü saját programokhoz
+ 4. CloseGuard - a bezárás gomb zárolása
+-------------------------------------------------------------------
+
+A CloseGuard megvédi az ablakokat a véletlen bezárástól. A
+kiválasztott ablakoknál zárolja a bezárás gombot (az ablak jobb
+felső sarkában lévő "X"-et): a gomb szürkén jelenik meg, és a
+rákattintás nem csinál semmit. Ez hasznos azoknál a programoknál,
+amelyeknek folyamatosan futniuk kell, vagy azoknál az ablakoknál,
+amelyeket újra és újra véletlenül bezárnak.
+
+Egy ablakot kétféleképpen lehet zárolni:
+
+  - Kézzel, billentyűkombinációval
+      Kattintson az ablakra, majd nyomja meg a CTRL + ALT + X
+      kombinációt (alapértelmezett). Az ablak bezárás gombja ezzel
+      zárolva lesz. A kombináció ismételt megnyomása feloldja. Az
+      így feloldott ablak akkor is feloldva marad, ha illik rá egy
+      szabály, amíg be nem zárják. Egy rövid értesítés megerősít
+      minden változást. A zárolás addig tart, amíg az ablakot be
+      nem zárják vagy fel nem oldják.
+
+  - Automatikusan, szabályokkal
+      Kattintson az ablakra, majd nyomja meg a
+      CTRL + ALT + SHIFT + X kombinációt (alapértelmezett). A
+      CCTrayTool a szabályfájlba menti az ablak címéből és
+      osztályából álló szabályt, és zárolja az ablakot. Ettől
+      kezdve minden olyan ablak, amelyre a szabály illik,
+      automatikusan zárolva lesz, amint megjelenik - a program vagy
+      a CCTrayTool újraindítása után is.
+
+A tálcamenüben a "CloseGuard" szakasz a következő bejegyzéseket
+kínálja:
+
+  - Az aktív ablak bezárás gombjának zárolása/feloldása
+      Ugyanazt teszi, mint az első billentyűkombináció. Amíg a
+      tálcamenü nyitva van, az kapja a fókuszt; ezért a CloseGuard
+      azt az ablakot használja, amely közvetlenül előtte aktív
+      volt.
+
+  - Szabály létrehozása az aktív ablakhoz
+      Ugyanazt teszi, mint a második billentyűkombináció.
+
+  - Zárolt ablakok megjelenítése
+      Megmutatja, mely ablakok vannak éppen zárolva (szabály
+      alapján vagy kézzel, az ablak osztályával szögletes
+      zárójelben), és hány szabály létezik.
+
+Alattuk a "Beállítások" almenü (fogaskerék ikon) található, amely a
+következőket tartalmazza:
+
+  - Új ablakok automatikus ellenőrzése
+      Bekapcsolva: a CloseGuard folyamatosan figyel, és zárol
+      minden új ablakot, amelyre illik valamelyik szabály.
+      Kikapcsolva: az új ablakok nem lesznek automatikusan zárolva.
+
+  - Induláskor nyitott ablakok ellenőrzése
+      Bekapcsolva: a CCTrayTool indulásakor már nyitott ablakokat
+      azonnal összeveti a szabályokkal. Kikapcsolva: ezeket az
+      ablakokat békén hagyja; csak a később megnyitottakat
+      ellenőrzi.
+
+  - Ablak minimalizálása a zárolt X-re kattintáskor
+      Bekapcsolva: a szürkített bezárás gombra kattintva az ablak
+      minimalizálódik ahelyett, hogy semmi sem történne. Mint egy
+      valódi gombnál, az ablak csak akkor minimalizálódik, ha az
+      egérgombot is az X-en engedik fel; ha lenyomják a gombot,
+      majd elhúzzák az egeret, a kattintás megszakad. Kikapcsolva
+      (alapértelmezés): a kattintás semmit sem tesz.
+
+  - Gyorsbillentyű módosítása: zárolás/feloldás
+    Gyorsbillentyű módosítása: szabály létrehozása
+      Ugyanazt a párbeszédablakot nyitja meg, mint az AlwaysOnTop,
+      egy másik billentyűkombináció megadásához. Az olyan
+      kombinációt, amelyet a CCTrayTool egy másik funkciója már
+      használ, elutasítja.
+
+  - Szabályok szerkesztése...
+      Megnyitja a szabályfájlt a Jegyzettömbben (lásd alább). A
+      Jegyzettömb mentése és bezárása után a módosított szabályok
+      azonnal érvénybe lépnek: azok az ablakok, amelyeket egy már
+      nem illő szabály zárolt, feloldódnak, az új szabályok pedig
+      azonnal vonatkoznak a megnyitott ablakokra.
+
+A CloseGuard egésze a "CCTrayTool" szakasz "Beállítások" menüjének
+"CloseGuard bekapcsolása" pontjával ki- és bekapcsolható (lásd a 7.
+pontot).
+
+Szabályok (külön fájl: CloseGuardRules.ini, [Rules] szakasz):
+
+A szabályok nem a beállításfájlban vannak, hanem egy külön fájlban:
+%LocalAppData%\CCTrayTool\CloseGuardRules.ini. A program
+automatikusan létrehozza. Unicode fájl, ezért az ékezetes vagy más
+különleges karaktereket tartalmazó ablakcímek is működnek. A
+Jegyzettömb megtartja ezt a formátumot; ha a fájlt más programmal
+szerkeszti, azt is Unicode (UTF-16) formátumban mentse, különben a
+különleges karakterek elveszhetnek. A szabályokat a program újra
+beolvassa, amikor a "Szabályok szerkesztése..." paranccsal
+megnyitott Jegyzettömböt bezárja, valamint a CCTrayTool minden
+indításakor.
+
+Minden sor egy szabály  szám=cím|osztály  alakban. A cím olyan
+szöveg, amelynek szerepelnie kell valahol az ablak címében. Az
+osztály az ablaktípus technikai neve, és pontosan egyeznie kell. A
+kis- és nagybetűk nem számítanak. A két rész egyike üres lehet (a
+"|" jelnek maradnia kell); ha mindkettő ki van töltve, mindkettőnek
+illeszkednie kell. Példák:
+
+  1=Calculator|       minden ablak, amelynek címében szerepel a
+                      "Calculator"
+  2=|Notepad          minden "Notepad" osztályú ablak
+  3=Untitled|Notepad  a "Notepad" osztályú ablakok, amelyek címében
+                      szerepel az "Untitled"
+
+A "szabály létrehozása" billentyűkombináció az ablak teljes,
+aktuális címét használja. Ha a cím változik (például egy megnyitott
+dokumentum nevével), utólag rövidítse le a "Szabályok
+szerkesztése..." paranccsal az állandó részre, vagy hagyja üresen a
+címet, és csak az osztályt tartsa meg. A zárolt ablak osztályát a
+"Zárolt ablakok megjelenítése" mutatja. Az üres című és üres
+osztályú szabályt figyelmen kívül hagyja; legfeljebb 200 szabályt
+használ.
+
+Beállítások a beállításfájlban ([CloseGuard] szakasz):
+
+  [CloseGuard]
+  Enabled=1
+  HotkeyToggle=^!x
+  HotkeyAddRule=^!+x
+  ApplyOnStartup=1
+  AutoApply=1
+  PollInterval=500
+  MinimizeOnClick=0
+  ClickPollInterval=30
+  ClickGeometryFallback=1
+  ClickGeometryExtendLeft=0
+  ClickGeometryExtendDown=87
+  ClickDebugOverlay=0
+  ClickShieldClasses=Chrome_WidgetWin_1,MozillaWindowClass
+
+  Enabled                  1 = a CloseGuard be van kapcsolva,
+                           0 = ki van kapcsolva (megegyezik a
+                           "CloseGuard bekapcsolása" menüponttal).
+  HotkeyToggle             A zárolás/feloldás
+                           billentyűkombinációja. ^ = Ctrl,
+                           ! = Alt, + = Shift, # = Win, utána a
+                           billentyű. Egyszerűbb a "Gyorsbillentyű
+                           módosítása" menüponttal megváltoztatni.
+  HotkeyAddRule            A "szabály létrehozása"
+                           billentyűkombinációja.
+  ApplyOnStartup           1 = a program indulásakor nyitott
+                           ablakokat összeveti a szabályokkal,
+                           0 = békén hagyja őket.
+  AutoApply                1 = az új ablakokat automatikusan
+                           ellenőrzi, 0 = nem.
+  PollInterval             Milyen gyakran ellenőrzi az ablakokat,
+                           ezredmásodpercben: 250 és 5000 között
+                           (alapértelmezés: 500). A többi értéket
+                           automatikusan kijavítja.
+  MinimizeOnClick          1 = a zárolt bezárás gombra kattintva az
+                           ablak minimalizálódik, 0 = a kattintás
+                           semmit sem tesz (alapértelmezés).
+                           Megfelel a menüpontnak.
+  ClickPollInterval        Milyen gyakran ellenőrzi ehhez az
+                           egérgombot, ezredmásodpercben: 10 és 100
+                           között (alapértelmezés: 30). A kisebb
+                           érték a nagyon rövid kattintásokat is
+                           megbízhatóbban észleli, a nagyobb
+                           kevesebb számítási időt igényel. A többi
+                           értéket automatikusan kijavítja. Ehhez a
+                           beállításhoz nincs menüpont.
+  ClickGeometryFallback    1 = ha egy saját címsorral rendelkező
+                           ablak (például az Outlook) nem jelzi a
+                           Windowsnak az X-ét, az X-et a pozíciója
+                           alapján ismeri fel (alapértelmezés).
+                           0 = csak olyan X-et ismer fel, amelyet
+                           az ablak maga jelez.
+  ClickGeometryExtendLeft  Milyen messzire nyúlik balra az a
+                           terület, amelyben az X-et a pozíciója
+                           alapján ismeri fel, az X szélességének
+                           százalékában: 0 és 100 között
+                           (alapértelmezés: 0). Néhány program az
+                           X-ét távolabb balra rajzolja, mint amit
+                           a Windows jelez. Túl nagy érték belelóg
+                           a szomszédos maximalizálás gombba.
+  ClickGeometryExtendDown  Milyen messzire nyúlik lefelé ez a
+                           terület, az X magasságának százalékában:
+                           0 és 100 között (alapértelmezés: 87).
+                           Néhány program az X-ét lejjebb rajzolja,
+                           mint amit a Windows jelez. Ugyanaz a cél
+                           és ugyanazok a határok, mint a
+                           ClickGeometryExtendLeft esetében.
+  ClickDebugOverlay        1 = színes, átlátszó téglalapokként
+                           megjeleníti a képernyőn az X
+                           felismeréséhez használt területeket:
+                           piros = az a terület, ahol a kattintás
+                           X-re kattintásnak számít, kék = a
+                           bezárás gomb Windows által jelzett
+                           területe (vagy, ha a Windows nem jelez
+                           ilyet, az ablak megkérdezésével
+                           megtalált X-terület), zöld = az X
+                           fölötti pajzs (lásd:
+                           ClickShieldClasses). Csak
+                           hibakereséshez. 0 = kikapcsolva
+                           (alapértelmezés).
+  ClickShieldClasses       Olyan programok ablakosztályai
+                           (vesszővel elválasztva), amelyek az
+                           egérgomb felengedésekor maguktól
+                           bezáródnak, például az Edge és a Chrome
+                           (Chrome_WidgetWin_1), valamint a Firefox
+                           (MozillaWindowClass); alapértelmezés:
+                           mindkettő. Az ilyen ablak X gombját egy
+                           szinte láthatatlan ablak takarja, amely
+                           felfogja a kattintást, így az ablak az
+                           X-szel már nem zárható be. Üres = nincs.
+
+A két CloseGuard-billentyűkombinációnak és az AlwaysOnTop
+kombinációnak különbözniük kell egymástól. Ha nem így van,
+helyettük az alapértelmezett kombinációk lesznek használatban.
+
+Tudnivalók:
+
+  - A zárolás a véletlen X-kattintástól véd. A programtól függően
+    az ablak más módon továbbra is bezárható: az ALT + F4
+    kombinációval, a tálca "Ablak bezárása" parancsával, a program
+    saját menüjének Kilépés parancsával vagy a Feladatkezelővel.
+
+  - Csak a hagyományos címsorú és rendszermenüs ablakok zárolhatók.
+    Azok a programok, amelyek saját címsort rajzolnak (sok modern
+    alkalmazás, egyes böngészők, a Microsoft Store alkalmazásai),
+    működő X-et tarthatnak meg akkor is, ha a CloseGuard zároltnak
+    jelzi az ablakot. Ha egy ablaknak egyáltalán nincs
+    rendszermenüje, értesítés jelenik meg.
+
+  - Minimalizálás kattintásra: a CCTrayTool röviden és rendszeresen
+    ellenőrzi az egérgombot (alapértelmezés: 30 ms-onként), és csak
+    akkor, amíg legalább egy zárolt ablak látható. Nem használ
+    egérhookot, ezért nem lassíthatja le az egeret vagy a
+    rendszert. Abban a valószínűtlen esetben, ha egy nagyon rövid
+    kattintás éppen akkor történik, amikor a CCTrayTool elfoglalt,
+    a program egyszerűen nem veszi észre: az ablak változatlan
+    marad, az X-e pedig zárolt.
+
+  - A kattintásra történő minimalizálás az elsődleges egérgombra
+    reagál (a jobbra, ha a Windowsban felcserélték a gombokat), és
+    csak a zárolt ablakok X-ére. Az érintéses és tollas bevitelt
+    nem érzékeli. Ha egy program figyelmen kívül hagyja a
+    minimalizálási parancsot, a CCTrayTool közvetlenül
+    minimalizálja az ablakot.
+
+  - Néhány program saját maga rajzolja a címsorát (például az
+    Outlook). Ezek nem mondják meg a Windowsnak, hol van az X-ük,
+    ezért a kattintás felismeréséhez a CCTrayTool kiszámítja az X
+    helyét az ablak jobb felső sarkában (ClickGeometryFallback
+    INI-kulcs). A naplófájlban ilyenkor a "recognized by its
+    position" szöveg jelenik meg.
+
+  - Az Edge, a Chrome és más Chromium-alapú programok, valamint a
+    Firefox maguk rajzolják az X gombot, és az egérgomb
+    felengedésekor maguk zárják be az ablakot, ezért a zárolt
+    rendszermenü nem állítja meg őket. Az ilyen ablakok X gombja
+    fölé (ClickShieldClasses INI-kulcs, alapértelmezés:
+    Chrome_WidgetWin_1,MozillaWindowClass) a CCTrayTool egy szinte
+    láthatatlan ablakot, egy pajzsot helyez. A kattintás a pajzsra
+    érkezik, a program sosem látja: nem történik semmi, vagy az
+    ablak minimalizálódik, ha a kattintásra történő minimalizálás
+    be van kapcsolva. A pajzs követi az ablakot, és eltűnik, amíg
+    az ablak minimalizált, feloldott, teljes képernyős, vagy az
+    X-énél egy másik ablak takarja. A ClickDebugOverlay=1
+    beállításnál zölden látszik. Amíg egy ilyen osztályú ablak
+    látható, az egérgombot 10 ms-onként ellenőrzi a program, akkor
+    is, ha a kattintásra történő minimalizálás ki van kapcsolva. A
+    Firefox maga rajzolja a címsorát, és a Windows nem jelenti az X
+    gombjának helyét; a CCTrayTool ilyenkor úgy találja meg az X
+    gombot, hogy megkérdezi az ablakot (naplófájl:
+    "found by asking the window"). A helyzet alapján történő
+    tartalék felismerést (ClickGeometryFallback) csak azoknál az
+    ablakoknál használja a program, amelyek nem jelentik az X
+    gombjukat a Windowsnak, például az Outlooknál és a Wordnél; a
+    CCTrayTool minden ablakot egyszer megkérdez, és az eredményt a
+    naplófájlba írja ("probe of the X").
+
+  - A rendszergazdaként futó programok ablakai nem zárolhatók, amíg
+    a CCTrayTool maga nem fut rendszergazdaként (ez egy
+    Windows-biztonsági szabály). Értesítés jelenik meg.
+
+  - Az asztalt, a tálcát és magának a CCTrayTool-nak az ablakait a
+    program soha nem zárolja.
+
+  - Feloldáskor az ablak rendszermenüje visszaáll a Windows
+    alapértelmezésére. Azok a bejegyzések, amelyeket a program maga
+    adott ehhez a menühöz, a program újraindításáig hiányozhatnak.
+
+  - A zárolás csak addig tart, amíg a CCTrayTool fut: a program
+    bezárásakor vagy a CloseGuard kikapcsolásakor minden ablak
+    visszakapja a bezárás gombját. Ha a CCTrayTool-t erőszakkal
+    fejezik be (például a Feladatkezelővel), a zárolt ablakok
+    zárolva maradnak. Ilyenkor nyomja meg egy ilyen ablakban a
+    zárolás/feloldás billentyűkombinációt (a CCTrayTool-nak ismét
+    futnia kell), vagy zárja be az ablakot, és nyissa meg újra.
+
+
+-------------------------------------------------------------------
+ 5. Gyorsindító menü saját programokhoz
 -------------------------------------------------------------------
 
 A KeepAwake fölött a tálcamenü megjeleníti a "ToolTime" szakaszt:
 egy kattintással indítható programok listáját. A bejegyzések a
-számítógép egyik mappájából származnak (lásd 5. pont): a mappában
+számítógép egyik mappájából származnak (lásd 6. pont): a mappában
 lévő minden parancsikon (.lnk fájl) menübejegyzéssé, minden almappa
 almenüvé válik.
 
@@ -2270,7 +4463,7 @@ Felhasználói fiókok felügyeletén keresztül megerősítést kér).
 
 
 -------------------------------------------------------------------
- 5. Saját eszközök és mappák hozzáadása
+ 6. Saját eszközök és mappák hozzáadása
 -------------------------------------------------------------------
 
 A gyorsindító menü eszközei egyszerűen egy mappában lévő
@@ -2375,21 +4568,21 @@ létrejön.
 
 
 -------------------------------------------------------------------
- 6. További beállítások
+ 7. További beállítások
 -------------------------------------------------------------------
 
 A "Beállítások" almenüben ezenkívül elérhető:
 
   - ToolTime bekapcsolása
       Teljesen be- vagy kikapcsolja az eszközök gyorsindító
-      szakaszát (lásd 4. pont). Kikapcsolt állapotban egyik
+      szakaszát (lásd 5. pont). Kikapcsolt állapotban egyik
       bejegyzése sem jelenik meg a tálcamenüben, függetlenül attól,
       hogy mi van a ToolTime mappában.
 
   - ToolTime mappa megnyitása
       Megnyitja a ToolTime mappát a Windows Intézőben, hogy
       parancsikonokat lehessen hozzáadni, átnevezni vagy törölni
-      (lásd 5. pont).
+      (lásd 6. pont).
 
   - Eszközök újratöltése
       Újra beolvassa a ToolTime mappát, és újraépíti a menüt.
@@ -2406,6 +4599,12 @@ A "Beállítások" almenüben ezenkívül elérhető:
       Teljesen be- vagy kikapcsolja az AlwaysOnTop szakaszt (lásd 3.
       pont). Kikapcsolt állapotban bejegyzései eltűnnek a
       tálcamenüből, és a billentyűkombináció letiltásra kerül.
+
+  - CloseGuard bekapcsolása
+      Teljesen be- vagy kikapcsolja a CloseGuard egész szakaszát
+      (lásd 4. pont). Kikapcsolt állapotban bejegyzései eltűnnek a
+      tálcamenüből, a billentyűkombinációk letiltásra kerülnek, és
+      minden zárolt ablak visszakapja a bezárás gombját.
 
   - Automatikus indítás
       A CCTrayTool ezentúl automatikusan elindul a Windows
@@ -2427,11 +4626,11 @@ A "Beállítások" almenüben ezenkívül elérhető:
 
   - Beállításfájl szerkesztése
       Közvetlenül megnyitja a konfigurációs fájlt szerkesztésre
-      (lásd az 5. pontot).
+      (lásd a 6. pontot).
 
 
 -------------------------------------------------------------------
- 7. Tárolási helyek
+ 8. Tárolási helyek
 -------------------------------------------------------------------
 
 A CCTrayTool a saját fájljait a felhasználói profilban tárolja:
@@ -2440,21 +4639,28 @@ A CCTrayTool a saját fájljait a felhasználói profilban tárolja:
   Naplófájl:       %LocalAppData%\CCTrayTool\CCTrayTool.log
   ToolTime mappa:  %LocalAppData%\CCTrayTool\ToolTime\
 
+A CloseGuard szabályai egy külön fájlban vannak:
+
+  %LocalAppData%\CCTrayTool\CloseGuardRules.ini
+
 (Az elérési út beilleszthető a Windows Intéző címsorába, hogy
 közvetlenül a mappához jusson.)
 
 
 -------------------------------------------------------------------
- 8. A program bezárása
+ 9. A program bezárása
 -------------------------------------------------------------------
 
 A CCTrayTool a "Kilépés" menüponttal zárható be. Ez automatikusan
 visszaállítja a Windows normál energiatakarékossági viselkedését,
 és elmenti az aktuális konfigurációt.
 
+Azok az ablakok, amelyek bezárás gombját a CloseGuard zárolta,
+ilyenkor visszakapják a bezárás gombjukat.
+
 
 -------------------------------------------------------------------
- 9. Névjegy / Kapcsolat
+ 10. Névjegy / Kapcsolat
 -------------------------------------------------------------------
 
 A jelenleg telepített verzió bármikor megtekinthető a "Névjegy"
@@ -2474,7 +4680,7 @@ a LICENSE és a NOTICE fájlt.
 
 CCTrayTool - это небольшая утилита для Windows, которая работает
 в виде значка в области уведомлений (внизу справа, рядом с часами).
-Она объединяет три полезные функции в одной программе:
+Она объединяет четыре полезные функции в одной программе:
 
   1. KeepAwake              - не позволяет ПК переходить в режим
                                энергосбережения или отключать экран
@@ -2483,6 +4689,9 @@ CCTrayTool - это небольшая утилита для Windows, котор
   3. Быстрый запуск инструментов - запускает часто используемые
                                программы прямо из меню области
                                уведомлений
+  4. CloseGuard              - блокирует кнопку закрытия (X)
+                               выбранных окон с помощью сочетания
+                               клавиш или правил
 
 Все функции управляются через меню, открываемое щелчком правой
 кнопкой мыши по значку в области уведомлений. Установка не
@@ -2547,9 +4756,10 @@ KeepAwake:
       CCTrayTool не вмешивается; действует обычное поведение
       энергосбережения Windows.
 
-Пункт меню "Сохранить состояние" заставляет CCTrayTool запоминать
-последнюю выбранную настройку KeepAwake и автоматически
-восстанавливать её при следующем запуске.
+Пункт меню "Сохранить состояние" в подменю "Настройки" раздела
+KeepAwake заставляет CCTrayTool запоминать последнюю выбранную
+настройку KeepAwake и автоматически восстанавливать её при
+следующем запуске.
 
 При закрытии CCTrayTool обычное поведение энергосбережения Windows
 восстанавливается автоматически.
@@ -2571,15 +4781,18 @@ KeepAwake:
 В меню "AlwaysOnTop" доступны следующие параметры:
 
   - Горячая клавиша активна   Полностью включает или отключает
-                               сочетание клавиш
-  - Изменить горячую клавишу   Открывает диалоговое окно, в котором
-                               можно задать собственное сочетание
-                               клавиш (комбинация Ctrl, Alt, Shift,
-                               Win и буквы, цифры или функциональной
-                               клавиши F1-F12)
-  - Показывать подсказку       Включает или отключает короткое
-                               уведомление на экране при
-                               переключении
+                              сочетание клавиш
+  - Настройки                 Подменю (значок шестерёнки) со
+                              следующими пунктами:
+      - Изменить горячую клавишу   Открывает диалоговое окно, в
+                                   котором можно задать собственное
+                                   сочетание клавиш (комбинация
+                                   Ctrl, Alt, Shift, Win и буквы,
+                                   цифры или функциональной клавиши
+                                   F1-F12)
+      - Показывать подсказку       Включает или отключает короткое
+                                   уведомление на экране при
+                                   переключении
 
 Примечание: Сам рабочий стол Windows ("Program Manager") нельзя
 установить в режим "поверх всех окон". Не каждое сочетание клавиш
@@ -2589,12 +4802,296 @@ KeepAwake:
 
 
 -------------------------------------------------------------------
- 4. Меню быстрого запуска собственных программ
+ 4. CloseGuard - блокировка кнопки закрытия
+-------------------------------------------------------------------
+
+CloseGuard защищает окна от случайного закрытия. Для выбранных окон
+он блокирует кнопку закрытия (значок "X" в правом верхнем углу
+окна): кнопка становится серой, а щелчок по ней ничего не делает.
+Это удобно для программ, которые должны работать постоянно, и для
+окон, которые то и дело закрывают по ошибке.
+
+Окно можно заблокировать двумя способами:
+
+  - Вручную, с помощью сочетания клавиш
+      Щёлкните окно и нажмите CTRL + ALT + X (по умолчанию). Кнопка
+      закрытия этого окна заблокирована. Повторное нажатие
+      сочетания разблокирует её. Окно, разблокированное таким
+      образом, остаётся свободным, даже если подходит под правило,
+      пока его не закроют. Короткое уведомление подтверждает каждое
+      изменение. Блокировка действует, пока окно не будет закрыто
+      или разблокировано.
+
+  - Автоматически, с помощью правил
+      Щёлкните окно и нажмите CTRL + ALT + SHIFT + X (по
+      умолчанию). CCTrayTool сохраняет в файле правил правило из
+      заголовка и класса окна и блокирует окно. С этого момента
+      каждое окно, подходящее под правило, блокируется
+      автоматически, как только появляется, - в том числе после
+      перезапуска программы или CCTrayTool.
+
+В меню области уведомлений раздел "CloseGuard" содержит следующие
+пункты:
+
+  - Заблокировать/разблокировать кнопку закрытия активного окна
+      Делает то же, что и первое сочетание клавиш. Пока меню
+      области уведомлений открыто, фокус находится у самого меню;
+      поэтому CloseGuard использует окно, которое было активным
+      непосредственно перед этим.
+
+  - Создать правило для активного окна
+      Делает то же, что и второе сочетание клавиш.
+
+  - Показать заблокированные окна
+      Показывает, какие окна заблокированы в данный момент (по
+      правилу или вручную, с классом окна в квадратных скобках), и
+      сколько существует правил.
+
+Под ними находится подменю "Настройки" (значок шестерёнки), которое
+содержит:
+
+  - Автоматически проверять новые окна
+      Включено: CloseGuard постоянно наблюдает и блокирует каждое
+      новое окно, подходящее под правило. Выключено: новые окна
+      автоматически не блокируются.
+
+  - Проверять окна, открытые при запуске
+      Включено: окна, уже открытые при запуске CCTrayTool, сразу
+      сравниваются с правилами. Выключено: эти окна не
+      затрагиваются; проверяются только окна, открытые позже.
+
+  - Сворачивать окно при щелчке по заблокированному X
+      Включено: щелчок по затемнённой кнопке закрытия сворачивает
+      окно вместо того, чтобы ничего не делать. Как и с настоящей
+      кнопкой, окно сворачивается, только если кнопка мыши отпущена
+      тоже над X; если нажать кнопку и отвести курсор, щелчок
+      отменяется. Выключено (по умолчанию): щелчок ничего не
+      делает.
+
+  - Изменить горячую клавишу: блокировка/разблокировка
+    Изменить горячую клавишу: создание правила
+      Открывает то же диалоговое окно, что и для AlwaysOnTop, чтобы
+      задать другое сочетание клавиш. Сочетание, которое уже
+      использует другая функция CCTrayTool, отклоняется.
+
+  - Редактировать правила...
+      Открывает файл правил в Блокноте (см. ниже). После сохранения
+      и закрытия Блокнота изменённые правила применяются сразу:
+      окна, заблокированные правилом, которое больше не подходит,
+      разблокируются, а новые правила сразу действуют для открытых
+      окон.
+
+CloseGuard в целом включается и отключается пунктом "Включить
+CloseGuard" в меню "Настройки" раздела "CCTrayTool" (см. раздел 7).
+
+Правила (отдельный файл CloseGuardRules.ini, раздел [Rules]):
+
+Правила хранятся не в файле настроек, а в отдельном файле:
+%LocalAppData%\CCTrayTool\CloseGuardRules.ini. Он создаётся
+автоматически. Это файл Unicode, поэтому работают заголовки окон с
+любыми специальными символами. Блокнот сохраняет этот формат; если
+файл редактируется другой программой, сохраните его тоже как
+Unicode (UTF-16), иначе специальные символы могут быть потеряны.
+Правила перечитываются после закрытия Блокнота, открытого через
+"Редактировать правила...", и при каждом запуске CCTrayTool.
+
+Каждая строка - это одно правило вида  номер=заголовок|класс.
+Заголовок - текст, который должен встречаться где-либо в заголовке
+окна. Класс - техническое имя типа окна; он должен совпадать точно.
+Регистр букв не учитывается. Одна из двух частей может быть пустой
+(знак "|" должен остаться); если заполнены обе, должны совпадать
+обе. Примеры:
+
+  1=Calculator|       любое окно со словом "Calculator" в заголовке
+  2=|Notepad          любое окно класса "Notepad"
+  3=Untitled|Notepad  окна класса "Notepad" со словом "Untitled" в
+                      заголовке
+
+Сочетание клавиш "создать правило" использует полный текущий
+заголовок окна. Если заголовок меняется (например, из-за имени
+открытого документа), позже сократите его через "Редактировать
+правила..." до неизменной части либо оставьте заголовок пустым и
+сохраните только класс. Класс заблокированного окна показывает
+пункт "Показать заблокированные окна". Правило с пустым заголовком
+и пустым классом игнорируется; используется не более 200 правил.
+
+Параметры в файле настроек (раздел [CloseGuard]):
+
+  [CloseGuard]
+  Enabled=1
+  HotkeyToggle=^!x
+  HotkeyAddRule=^!+x
+  ApplyOnStartup=1
+  AutoApply=1
+  PollInterval=500
+  MinimizeOnClick=0
+  ClickPollInterval=30
+  ClickGeometryFallback=1
+  ClickGeometryExtendLeft=0
+  ClickGeometryExtendDown=87
+  ClickDebugOverlay=0
+  ClickShieldClasses=Chrome_WidgetWin_1,MozillaWindowClass
+
+  Enabled                  1 = CloseGuard включён, 0 = выключен
+                           (как пункт меню "Включить CloseGuard").
+  HotkeyToggle             Сочетание клавиш для
+                           блокировки/разблокировки. ^ = Ctrl,
+                           ! = Alt, + = Shift, # = Win, затем
+                           клавиша. Проще изменить его через пункт
+                           меню "Изменить горячую клавишу".
+  HotkeyAddRule            Сочетание клавиш для "создать правило".
+  ApplyOnStartup           1 = окна, открытые при запуске
+                           программы, сравниваются с правилами,
+                           0 = не затрагиваются.
+  AutoApply                1 = новые окна проверяются
+                           автоматически, 0 = нет.
+  PollInterval             Как часто проверяются окна, в
+                           миллисекундах: от 250 до 5000 (по
+                           умолчанию: 500). Другие значения
+                           исправляются автоматически.
+  MinimizeOnClick          1 = щелчок по заблокированной кнопке
+                           закрытия сворачивает окно, 0 = ничего не
+                           происходит (по умолчанию). Соответствует
+                           пункту меню.
+  ClickPollInterval        Как часто для этого проверяется кнопка
+                           мыши, в миллисекундах: от 10 до 100 (по
+                           умолчанию: 30). Меньшее значение
+                           надёжнее распознаёт очень короткие
+                           щелчки, большее требует меньше
+                           вычислительного времени. Другие значения
+                           исправляются автоматически. Для этого
+                           параметра пункта меню нет.
+  ClickGeometryFallback    1 = если окно с собственной строкой
+                           заголовка (например, Outlook) не
+                           сообщает Windows о своей кнопке X, она
+                           распознаётся по положению (по
+                           умолчанию). 0 = распознаётся только та
+                           кнопка X, о которой окно сообщает само.
+  ClickGeometryExtendLeft  Насколько далеко влево простирается
+                           область, в которой X распознаётся по
+                           положению, в процентах от ширины X: от 0
+                           до 100 (по умолчанию: 0). Некоторые
+                           программы рисуют X левее, чем сообщает
+                           Windows. Слишком большое значение
+                           заходит на соседнюю кнопку
+                           развёртывания.
+  ClickGeometryExtendDown  Насколько далеко вниз простирается эта
+                           область, в процентах от высоты X: от 0
+                           до 100 (по умолчанию: 87). Некоторые
+                           программы рисуют X ниже, чем сообщает
+                           Windows. Та же цель и те же пределы, что
+                           у ClickGeometryExtendLeft.
+  ClickDebugOverlay        1 = показывает на экране в виде цветных
+                           прозрачных прямоугольников области, по
+                           которым распознаётся X:
+                           красный = область, в которой щелчок
+                           считается щелчком по X, синий = область
+                           кнопки закрытия, о которой сообщает
+                           Windows (или, если Windows её не
+                           сообщает, область X, найденная опросом
+                           окна), зелёный = щит над X (см.
+                           ClickShieldClasses). Только для поиска
+                           ошибок. 0 = выключено (по умолчанию).
+  ClickShieldClasses       Классы окон (через запятую) программ,
+                           которые сами закрываются при отпускании
+                           кнопки мыши, например Edge и Chrome
+                           (Chrome_WidgetWin_1) и Firefox
+                           (MozillaWindowClass); по умолчанию оба.
+                           Кнопка X такого окна закрывается почти
+                           невидимым окном, которое перехватывает
+                           щелчок, поэтому окно больше нельзя
+                           закрыть кнопкой X. Пусто = нет.
+
+Два сочетания клавиш CloseGuard и сочетание AlwaysOnTop должны
+отличаться друг от друга. Иначе вместо них используются сочетания
+по умолчанию.
+
+Полезно знать:
+
+  - Блокировка защищает от случайного щелчка по X. В зависимости от
+    программы окно по-прежнему можно закрыть другими способами: с
+    помощью ALT + F4, командой "Закрыть окно" на панели задач,
+    командой выхода в меню самой программы или через диспетчер
+    задач.
+
+  - Заблокировать можно только окна с обычной строкой заголовка и
+    системным меню. Программы, которые рисуют собственную строку
+    заголовка (многие современные приложения, некоторые браузеры,
+    приложения из Microsoft Store), могут сохранить рабочий значок
+    X, даже если CloseGuard сообщает, что окно заблокировано. Если
+    у окна вообще нет системного меню, появляется уведомление.
+
+  - Сворачивание щелчком: CCTrayTool кратко и регулярно проверяет
+    кнопку мыши (по умолчанию каждые 30 мс), и только пока видно
+    хотя бы одно заблокированное окно. Хук мыши не используется,
+    поэтому мышь и систему замедлить невозможно. В маловероятном
+    случае, когда очень короткий щелчок приходится на момент, когда
+    CCTrayTool занят, он просто не замечается: окно остаётся как
+    есть, а его X остаётся заблокированным.
+
+  - Сворачивание щелчком реагирует на основную кнопку мыши (правую,
+    если в Windows кнопки поменяны местами) и только на X
+    заблокированных окон. Сенсорный ввод и ввод пером не
+    распознаются. Если программа игнорирует команду сворачивания,
+    CCTrayTool сворачивает окно напрямую.
+
+  - Некоторые программы рисуют строку заголовка сами (например,
+    Outlook). Они не сообщают Windows, где находится их кнопка X,
+    поэтому для распознавания щелчка CCTrayTool вычисляет положение
+    X в правом верхнем углу окна (ключ INI ClickGeometryFallback).
+    В файле журнала тогда появляется "recognized by its position".
+
+  - Edge, Chrome и другие программы на основе Chromium, а также
+    Firefox сами рисуют кнопку X и сами закрывают окно, когда
+    кнопка мыши отпускается, поэтому заблокированное системное меню
+    их не останавливает. Над кнопкой X таких окон (ключ INI
+    ClickShieldClasses, по умолчанию
+    Chrome_WidgetWin_1,MozillaWindowClass) CCTrayTool размещает
+    почти невидимое окно, щит. Щелчок попадает в щит, и программа
+    его никогда не видит: ничего не происходит, или окно
+    сворачивается, если включено сворачивание по щелчку. Щит
+    следует за окном и исчезает, пока окно свёрнуто,
+    разблокировано, развёрнуто на весь экран или перекрыто другим
+    окном в месте кнопки X. При ClickDebugOverlay=1 он показывается
+    зелёным. Пока окно такого класса видно, кнопка мыши проверяется
+    каждые 10 мс, даже если сворачивание по щелчку выключено.
+    Firefox сам рисует строку заголовка, и Windows не сообщает
+    положение его кнопки X; тогда CCTrayTool находит X, опрашивая
+    окно (файл журнала: "found by asking the window"). Запасное
+    распознавание по положению (ClickGeometryFallback) используется
+    только для окон, которые не сообщают Windows о своей кнопке X,
+    например Outlook и Word; CCTrayTool один раз опрашивает каждое
+    окно и записывает результат в файл журнала ("probe of the X").
+
+  - Окна программ, запущенных от имени администратора, нельзя
+    заблокировать, пока сам CCTrayTool не запущен от имени
+    администратора (правило безопасности Windows). Появляется
+    уведомление.
+
+  - Рабочий стол, панель задач и окна самого CCTrayTool никогда не
+    блокируются.
+
+  - При разблокировке системное меню окна возвращается к
+    стандартному виду Windows. Пункты, которые программа сама
+    добавила в это меню, могут отсутствовать до перезапуска
+    программы.
+
+  - Блокировка действует только пока работает CCTrayTool: при
+    закрытии программы или отключении CloseGuard все окна получают
+    кнопку закрытия обратно. Если CCTrayTool завершён принудительно
+    (например, через диспетчер задач), заблокированные окна
+    остаются заблокированными. Тогда нажмите в таком окне сочетание
+    для блокировки/разблокировки (CCTrayTool должен снова работать)
+    либо закройте окно и откройте его заново.
+
+
+-------------------------------------------------------------------
+ 5. Меню быстрого запуска собственных программ
 -------------------------------------------------------------------
 
 Над разделом KeepAwake меню в области уведомлений показывает раздел
 "ToolTime": список программ, которые можно запустить одним щелчком.
-Записи берутся из папки на вашем компьютере (см. раздел 5): каждый
+Записи берутся из папки на вашем компьютере (см. раздел 6): каждый
 ярлык (файл .lnk) в этой папке становится пунктом меню, а каждая
 вложенная папка - подменю.
 
@@ -2618,7 +5115,7 @@ Windows, в том числе:
 
 
 -------------------------------------------------------------------
- 5. Добавление собственных инструментов и папок
+ 6. Добавление собственных инструментов и папок
 -------------------------------------------------------------------
 
 Инструменты в меню быстрого запуска - это просто ярлыки в папке.
@@ -2717,20 +5214,20 @@ CCTrayTool заново читает файл, сразу применяет в�
 
 
 -------------------------------------------------------------------
- 6. Дополнительные настройки
+ 7. Дополнительные настройки
 -------------------------------------------------------------------
 
 В подменю "Настройки" также доступны:
 
   - Включить ToolTime
       Полностью включает или отключает весь раздел быстрого запуска
-      инструментов (см. раздел 4). При отключении ни одна из его
+      инструментов (см. раздел 5). При отключении ни одна из его
       записей не отображается в меню области уведомлений, независимо
       от того, что находится в папке ToolTime.
 
   - Открыть папку ToolTime
       Открывает папку ToolTime в проводнике Windows, чтобы
-      добавлять, переименовывать или удалять ярлыки (см. раздел 5).
+      добавлять, переименовывать или удалять ярлыки (см. раздел 6).
 
   - Перезагрузить инструменты
       Заново читает папку ToolTime и перестраивает меню. Обычно не
@@ -2747,6 +5244,12 @@ CCTrayTool заново читает файл, сразу применяет в�
       Полностью включает или отключает весь раздел AlwaysOnTop (см.
       раздел 3). При отключении его записи исчезают из меню области
       уведомлений, а сочетание клавиш отключается.
+
+  - Включить CloseGuard
+      Полностью включает или отключает весь раздел CloseGuard (см.
+      раздел 4). При отключении его записи исчезают из меню области
+      уведомлений, сочетания клавиш отключаются, а все
+      заблокированные окна получают кнопку закрытия обратно.
 
   - Запускать автоматически
       CCTrayTool будет теперь автоматически запускаться при входе
@@ -2769,11 +5272,11 @@ CCTrayTool заново читает файл, сразу применяет в�
 
   - Редактировать файл настроек
       Открывает файл конфигурации напрямую для редактирования (см.
-      раздел 5).
+      раздел 6).
 
 
 -------------------------------------------------------------------
- 7. Расположение файлов
+ 8. Расположение файлов
 -------------------------------------------------------------------
 
 CCTrayTool сохраняет свои файлы в профиле пользователя:
@@ -2782,21 +5285,28 @@ CCTrayTool сохраняет свои файлы в профиле пользо
   Файл журнала:    %LocalAppData%\CCTrayTool\CCTrayTool.log
   Папка ToolTime:  %LocalAppData%\CCTrayTool\ToolTime\
 
+Правила CloseGuard хранятся в отдельном файле:
+
+  %LocalAppData%\CCTrayTool\CloseGuardRules.ini
+
 (Путь можно вставить в адресную строку проводника Windows, чтобы
 перейти прямо в папку.)
 
 
 -------------------------------------------------------------------
- 8. Завершение работы программы
+ 9. Завершение работы программы
 -------------------------------------------------------------------
 
 CCTrayTool закрывается через пункт меню "Выход". При этом
 автоматически восстанавливается обычное поведение
 энергосбережения Windows и сохраняется текущая конфигурация.
 
+Все окна, у которых кнопка закрытия заблокирована CloseGuard, при
+этом снова получают свою кнопку закрытия.
+
 
 -------------------------------------------------------------------
- 9. О программе / Контакты
+ 10. О программе / Контакты
 -------------------------------------------------------------------
 
 Текущую установленную версию можно в любой момент посмотреть через

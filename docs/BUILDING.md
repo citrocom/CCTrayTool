@@ -23,6 +23,7 @@ from the resources. The following files must exist in the folder `icons` before 
 | `WhiteBox.ico`, `RedBox.ico`, `GreenBox.ico`, `BlueBox.ico` | KeepAwake menu items (off) |
 | `WhiteBoxChecked.ico`, `RedBoxChecked.ico`, `GreenBoxChecked.ico`, `BlueBoxChecked.ico` | KeepAwake menu items (on) |
 | `About.ico`, `Exit.ico`, `Keyboard.ico`, `Settings.ico`, `GreenCheck.ico`, `Empty.ico` | other menu items |
+| `CloseGuardLock.ico`, `CloseGuardRule.ico`, `CloseGuardList.ico` | CloseGuard menu items (lock/unlock, create rule, show locked windows) |
 
 The order of the `#AutoIt3Wrapper_Res_Icon_Add` lines in `CCTrayTool.au3` determines the resource numbers
 that the program uses. Do not reorder or insert lines there without changing the code that uses the numbers.
