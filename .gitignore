@@ -1,0 +1,19 @@
+# Compiled programs and checksums: published as GitHub Release assets, never committed
+*.exe
+*.sha256
+
+# AutoIt / SciTE helper files
+*_Obfuscated.au3
+*_old.au3
+*.au3.bak
+*.tmp
+
+# Log files (in case the program is started from a development folder)
+*.log
+
+# Windows / editors
+Thumbs.db
+Desktop.ini
+.vscode/
+.idea/
+*.swp

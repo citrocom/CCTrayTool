@@ -1,0 +1,16 @@
+# Normalize line endings in the repository (LF); the AutoIt source is checked out with CRLF.
+* text=auto
+
+*.au3   text eol=crlf
+*.md    text eol=lf
+*.txt   text
+LICENSE text eol=lf
+NOTICE  text eol=lf
+.gitignore     text eol=lf
+.gitattributes text eol=lf
+
+# Binary files
+*.ico binary
+*.exe binary
+*.lnk binary
+*.png binary

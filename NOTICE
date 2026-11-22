@@ -1,0 +1,70 @@
+CCTrayTool
+Copyright (C) 2026 Markus Debus <info@markus-debus.de>
+
+CCTrayTool is free software. It is licensed under the GNU General Public
+License, version 3, or (at your option) any later version
+(SPDX identifier: GPL-3.0-or-later). The full license text is in the
+file LICENSE.
+
+
+ADDITIONAL TERM (GNU GPL version 3, section 7(b))
+-------------------------------------------------
+
+As permitted by section 7(b) of the GNU General Public License,
+version 3, the following additional term applies to CCTrayTool and to
+every work that is based on it or contains it:
+
+    Whoever conveys CCTrayTool or a modified version of it - in source
+    code form or as a compiled program - must preserve
+      (1) the copyright notice "Copyright (C) 2026 Markus Debus" and
+          the license notice in the source files, and
+      (2) a visible attribution that names the project and its author,
+          for example "Based on CCTrayTool by Markus Debus", in the
+          Appropriate Legal Notices that the program displays (for
+          CCTrayTool this is the "About" dialog) and in the
+          documentation that accompanies the program.
+
+In plain words: everybody may use, study, change and share CCTrayTool
+for any purpose. A work that is based on CCTrayTool must be licensed as
+a whole under the GNU General Public License (section 5(c) of the GPL),
+the source code must be made available, and the project and its author
+must be named. This additional term stays attached to the parts that
+come from CCTrayTool.
+
+This file is not part of the GNU General Public License. It states the
+additional term in one place so that it is easy to find. If something
+is unclear, the license text in the file LICENSE (especially section 7)
+is authoritative.
+
+
+ADDITIONAL PERMISSION (GNU GPL version 3, section 7)
+----------------------------------------------------
+
+As permitted by section 7 of the GNU General Public License,
+version 3, the following additional permission applies to CCTrayTool:
+
+    If you convey a compiled form of CCTrayTool that contains the
+    AutoIt runtime and the AutoIt standard include files (copyright
+    by the AutoIt Team, distributed under the AutoIt license), you
+    may do so without licensing those components under the GNU
+    General Public License. This permission does not extend to any
+    other work.
+
+
+ICONS
+-----
+
+The icon files in the folder "icons" were created for this project by
+Markus Debus with the help of an AI assistant. They are part of the
+project and are covered by the same license as the rest of the project,
+including the additional term above.
+
+
+THIRD-PARTY COMPONENTS
+----------------------
+
+AutoIt - https://www.autoitscript.com
+    CCTrayTool is written in AutoIt. The compiled program contains the
+    AutoIt runtime. The AutoIt runtime is not part of this project; it
+    is distributed under the license of the AutoIt project. See the
+    additional permission above.
