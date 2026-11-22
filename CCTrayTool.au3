@@ -1,7 +1,7 @@
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
 #AutoIt3Wrapper_Icon=icons\TrayWhite.ico
-#AutoIt3Wrapper_Res_Fileversion=2026.0.0.109
-#AutoIt3Wrapper_Res_Fileversion_AutoIncrement=y
+#AutoIt3Wrapper_Res_Fileversion=2026.0.0.110
+#AutoIt3Wrapper_Res_Fileversion_AutoIncrement=n
 #AutoIt3Wrapper_Res_Description=CCTrayTool - KeepAwake, AlwaysOnTop, CloseGuard and quick start tray tool
 #AutoIt3Wrapper_Res_LegalCopyright=Copyright (C) 2026 Markus Debus - GPL-3.0-or-later
 #AutoIt3Wrapper_Res_Icon_Add=icons\TrayWhite.ico
