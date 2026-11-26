@@ -43,6 +43,18 @@ directive `#AutoIt3Wrapper_Res_Fileversion_AutoIncrement` is set to `n` on purpo
 change the version: the number in the source file is always the number of the compiled program. Raise the last
 number before a release; the tag of the release is `v` plus this version.
 
+The same header block sets the other version information of the program, so that the file properties, the Task
+Manager and the Windows Firewall prompt show the data of CCTrayTool instead of the AutoIt defaults:
+
+- `#AutoIt3Wrapper_Res_ProductVersion` is always identical to `#AutoIt3Wrapper_Res_Fileversion`. Raise both
+  together with every new version. (With `AutoIncrement=y` the compiler would raise only the file version and the
+  product version would fall behind; this is one more reason for `n`.)
+- `#AutoIt3Wrapper_Res_Description`, `_Res_ProductName`, `_Res_CompanyName` and `_Res_LegalCopyright` contain the
+  description, the name, the company (CITRO Computer) and the copyright line (year and author).
+- `#AutoIt3Wrapper_Res_Language` is `1033` (English, US), the base language of the program texts.
+
+The comment that explains this stays below the `#Region` block: the AutoIt3Wrapper GUI rewrites the block itself.
+
 One directive at the top of the file changes the source code itself when the program is compiled:
 
 - `#AutoIt3Wrapper_Run_Tidy=y` reformats the source code. Review the result before committing, so that
@@ -81,9 +93,9 @@ The ZIP file is named `CCTrayTool_<version>.zip`, for example `CCTrayTool_2026.0
 when the documentation changes.
 
 1. Commit and push all changes to the `main` branch. Make sure the version in `#AutoIt3Wrapper_Res_Fileversion`
-   is the version that you want to release.
-2. Compile and sign the program (see above). Check that the signature is valid and that the file version of
-   `CCTrayTool.exe` (*Properties > Details*) is the version of the release.
+   (and the identical `#AutoIt3Wrapper_Res_ProductVersion`) is the version that you want to release.
+2. Compile and sign the program (see above). Check that the signature is valid and that the file version and the
+   product version of `CCTrayTool.exe` (*Properties > Details*) are the version of the release.
 3. Create the ZIP file (PowerShell, in the folder of the repository):
 
    ```powershell

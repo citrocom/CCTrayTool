@@ -1,9 +1,13 @@
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
 #AutoIt3Wrapper_Icon=icons\TrayWhite.ico
-#AutoIt3Wrapper_Res_Fileversion=2026.0.0.110
+#AutoIt3Wrapper_Res_Fileversion=2026.0.0.111
+#AutoIt3Wrapper_Res_ProductVersion=2026.0.0.111
 #AutoIt3Wrapper_Res_Fileversion_AutoIncrement=n
 #AutoIt3Wrapper_Res_Description=CCTrayTool - KeepAwake, AlwaysOnTop, CloseGuard and quick start tray tool
-#AutoIt3Wrapper_Res_LegalCopyright=Copyright (C) 2026 Markus Debus - GPL-3.0-or-later
+#AutoIt3Wrapper_Res_ProductName=CCTrayTool
+#AutoIt3Wrapper_Res_CompanyName=CITRO Computer
+#AutoIt3Wrapper_Res_LegalCopyright=(c) 2026 Markus Debus, CITRO Computer
+#AutoIt3Wrapper_Res_Language=1033
 #AutoIt3Wrapper_Res_Icon_Add=icons\TrayWhite.ico
 #AutoIt3Wrapper_Res_Icon_Add=icons\TrayRed.ico
 #AutoIt3Wrapper_Res_Icon_Add=icons\TrayGreen.ico
@@ -28,6 +32,12 @@
 #AutoIt3Wrapper_UseX64=y
 #AutoIt3Wrapper_Run_Tidy=y
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
+; Version resources of the compiled EXE (file properties, Task Manager, Windows Firewall prompt):
+; - Res_ProductVersion is always identical to Res_Fileversion; raise both together with every new version.
+; - Res_Fileversion_AutoIncrement stays n on purpose: with =y the compiler would raise only the file
+;   version and the product version would fall behind.
+; - Res_Language 1033 = English (US), the base language of the program texts (German would be 1031).
+; This comment stays below the #Region block, because the AutoIt3Wrapper GUI rewrites the block itself.
 
 ; ====================================================================================================
 ; CCTrayTool
