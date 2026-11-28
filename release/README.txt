@@ -207,7 +207,9 @@ Below them, the submenu "Settings" (gear icon) contains:
 
 CloseGuard as a whole can be turned on and off with "Enable
 CloseGuard" in the "Settings" menu of the "CCTrayTool" section (see
-Section 7).
+Section 7). After a new installation CloseGuard is switched off.
+When it is switched on for the first time, a one-time notice
+explains which windows cannot be locked.
 
 Rules (own file CloseGuardRules.ini, section [Rules]):
 
@@ -243,7 +245,7 @@ at most 200 rules are used.
 Settings in the settings file (section [CloseGuard]):
 
   [CloseGuard]
-  Enabled=1
+  Enabled=0
   HotkeyToggle=^!x
   HotkeyAddRule=^!+x
   ApplyOnStartup=1
@@ -259,6 +261,7 @@ Settings in the settings file (section [CloseGuard]):
 
   Enabled                  1 = CloseGuard on, 0 = off (same as the
                            menu item "Enable CloseGuard").
+                           Default: 0.
   HotkeyToggle             Keyboard shortcut for lock/unlock.
                            ^ = Ctrl, ! = Alt, + = Shift, # = Win,
                            followed by the key. It is easier to
@@ -343,6 +346,11 @@ Good to know:
     apps, some browsers, apps from the Microsoft Store) may keep a
     working X even though CloseGuard reports the window as locked.
     If a window has no system menu at all, a notice appears.
+
+  - When CloseGuard is switched on for the first time, a one-time
+    notice points this out. That it was shown is noted in the
+    settings file ("NoticeShown=1" in the [CloseGuard] section);
+    delete the entry to see the notice again.
 
   - Minimize on click: CCTrayTool checks the mouse button briefly
     and regularly (default: every 30 ms), and only while at least
@@ -565,6 +573,19 @@ The "Settings" submenu also offers:
       off. When turned off, its entries disappear from the tray
       menu, its keyboard shortcuts are deactivated and all locked
       windows get their close button back.
+
+  - <Function> as submenu
+      Available for ToolTime, KeepAwake, AlwaysOnTop and
+      CloseGuard, each directly below the entry that turns the
+      function on or off. Shows the section in the tray menu as a
+      submenu with the name of the function instead of a list of
+      entries, which makes the menu shorter. The function keeps
+      working unchanged. The tray menu closes when the setting is
+      changed; simply open it again. The entry is grayed out while
+      the function itself is turned off. In the settings file this
+      is the entry "AsSubmenu" in the section of the function
+      ([ToolTime], [KeepAwake], [AlwaysOnTop], [CloseGuard]):
+      1 = submenu, 0 = normal (default).
 
   - Start Automatically
       CCTrayTool will start automatically at Windows logon in the
@@ -841,7 +862,9 @@ Darunter enthält das Untermenü "Einstellungen" (Zahnrad-Symbol):
 
 CloseGuard insgesamt lässt sich mit "CloseGuard aktivieren" im Menü
 "Einstellungen" des Bereichs "CCTrayTool" ein- und ausschalten
-(siehe Abschnitt 7).
+(siehe Abschnitt 7). Nach einer Neuinstallation ist CloseGuard
+ausgeschaltet. Beim ersten Einschalten erklärt ein einmaliger
+Hinweis, welche Fenster sich nicht sperren lassen.
 
 Regeln (eigene Datei CloseGuardRules.ini, Abschnitt [Rules]):
 
@@ -880,7 +903,7 @@ Regeln werden verwendet.
 Einstellungen in der Einstellungsdatei (Abschnitt [CloseGuard]):
 
   [CloseGuard]
-  Enabled=1
+  Enabled=0
   HotkeyToggle=^!x
   HotkeyAddRule=^!+x
   ApplyOnStartup=1
@@ -896,6 +919,7 @@ Einstellungen in der Einstellungsdatei (Abschnitt [CloseGuard]):
 
   Enabled                  1 = CloseGuard ein, 0 = aus (wie der
                            Menüpunkt "CloseGuard aktivieren").
+                           Standard: 0.
   HotkeyToggle             Tastenkombination für Sperren/Freigeben.
                            ^ = Strg, ! = Alt, + = Umschalt,
                            # = Win, danach die Taste. Einfacher
@@ -984,6 +1008,11 @@ Wissenswertes:
     Store), behalten unter Umständen ein funktionierendes X, obwohl
     CloseGuard das Fenster als gesperrt meldet. Hat ein Fenster gar
     kein Systemmenü, erscheint ein Hinweis.
+
+  - Beim ersten Einschalten von CloseGuard weist ein einmaliger
+    Hinweis darauf hin. Dass er gezeigt wurde, steht in der
+    Einstellungsdatei ("NoticeShown=1" im Abschnitt [CloseGuard]);
+    wird der Eintrag gelöscht, erscheint der Hinweis erneut.
 
   - Minimieren per Klick: CCTrayTool prüft die Maustaste kurz und
     regelmäßig (Standard: alle 30 ms), und nur, solange mindestens
@@ -1236,6 +1265,19 @@ Im Untermenü "Einstellungen" stehen zusätzlich zur Verfügung:
       Einträge aus dem Traymenü, die Tastenkombinationen werden
       deaktiviert, und alle gesperrten Fenster erhalten ihren
       Schließen-Button zurück.
+
+  - <Funktion> als Untermenü
+      Gibt es für ToolTime, KeepAwake, AlwaysOnTop und CloseGuard,
+      jeweils direkt unter dem Eintrag, der die Funktion ein- und
+      ausschaltet. Zeigt den Bereich im Traymenü als Untermenü mit
+      dem Namen der Funktion statt als Liste von Einträgen; das
+      Menü wird dadurch kürzer. Die Funktion arbeitet unverändert
+      weiter. Beim Umschalten schließt sich das Traymenü; danach
+      einfach neu öffnen. Solange die Funktion selbst ausgeschaltet
+      ist, ist der Eintrag ausgegraut. In der Einstellungsdatei ist
+      das der Eintrag "AsSubmenu" im Abschnitt der Funktion
+      ([ToolTime], [KeepAwake], [AlwaysOnTop], [CloseGuard]):
+      1 = Untermenü, 0 = normal (Standard).
 
   - Automatisch starten
       CCTrayTool startet künftig automatisch bei der Windows-
@@ -1520,7 +1562,9 @@ ingranaggio) contiene:
 
 CloseGuard nel suo complesso si attiva e si disattiva con "Attiva
 CloseGuard" nel menu "Impostazioni" della sezione "CCTrayTool"
-(vedi sezione 7).
+(vedi sezione 7). Dopo una nuova installazione CloseGuard è
+disattivato. Alla prima attivazione un avviso, mostrato una sola
+volta, spiega quali finestre non possono essere bloccate.
 
 Regole (file dedicato CloseGuardRules.ini, sezione [Rules]):
 
@@ -1558,7 +1602,7 @@ classe vuoti viene ignorata; vengono usate al massimo 200 regole.
 Impostazioni nel file di configurazione (sezione [CloseGuard]):
 
   [CloseGuard]
-  Enabled=1
+  Enabled=0
   HotkeyToggle=^!x
   HotkeyAddRule=^!+x
   ApplyOnStartup=1
@@ -1574,7 +1618,7 @@ Impostazioni nel file di configurazione (sezione [CloseGuard]):
 
   Enabled                  1 = CloseGuard attivo, 0 = disattivo
                            (come la voce di menu "Attiva
-                           CloseGuard").
+                           CloseGuard"). Predefinito: 0.
   HotkeyToggle             Combinazione di tasti per
                            bloccare/sbloccare. ^ = Ctrl, ! = Alt,
                            + = Maiusc, # = Win, seguito dal tasto.
@@ -1668,6 +1712,12 @@ Da sapere:
     Microsoft Store) possono mantenere una X funzionante anche se
     CloseGuard segnala la finestra come bloccata. Se una finestra
     non ha affatto un menu di sistema, compare un avviso.
+
+  - Alla prima attivazione di CloseGuard un avviso, mostrato una
+    sola volta, lo ricorda. Che sia stato mostrato è annotato nel
+    file delle impostazioni ("NoticeShown=1" nella sezione
+    [CloseGuard]); eliminando la voce, l'avviso viene mostrato di
+    nuovo.
 
   - Riduzione a icona con un clic: CCTrayTool controlla il pulsante
     del mouse brevemente e a intervalli regolari (predefinito: ogni
@@ -1918,6 +1968,19 @@ Nel sottomenu "Impostazioni" sono inoltre disponibili:
       menu dell'area di notifica, le combinazioni di tasti vengono
       disattivate e tutte le finestre bloccate riottengono il
       pulsante di chiusura.
+
+  - <Funzione> come sottomenu
+      Disponibile per ToolTime, KeepAwake, AlwaysOnTop e
+      CloseGuard, sempre subito sotto la voce che attiva e
+      disattiva la funzione. Mostra la sezione nel menu dell'area
+      di notifica come sottomenu con il nome della funzione invece
+      che come elenco di voci; così il menu diventa più corto. La
+      funzione continua a lavorare come prima. Quando si cambia
+      l'impostazione il menu si chiude; basta riaprirlo. Finché la
+      funzione stessa è disattivata, la voce è grigia. Nel file
+      delle impostazioni è la voce "AsSubmenu" nella sezione della
+      funzione ([ToolTime], [KeepAwake], [AlwaysOnTop],
+      [CloseGuard]): 1 = sottomenu, 0 = normale (predefinito).
 
   - Avvio automatico
       CCTrayTool si avvierà automaticamente in futuro all'accesso a
@@ -2202,7 +2265,9 @@ Debajo, el submenú "Configuración" (icono de engranaje) contiene:
 
 CloseGuard en su conjunto se activa y desactiva con "Activar
 CloseGuard" en el menú "Configuración" de la sección "CCTrayTool"
-(véase la sección 7).
+(véase la sección 7). Tras una instalación nueva, CloseGuard está
+desactivado. La primera vez que se activa, un aviso que solo
+aparece una vez explica qué ventanas no se pueden bloquear.
 
 Reglas (archivo propio CloseGuardRules.ini, sección [Rules]):
 
@@ -2240,7 +2305,7 @@ clase vacíos se ignora; se usan como máximo 200 reglas.
 Ajustes en el archivo de configuración (sección [CloseGuard]):
 
   [CloseGuard]
-  Enabled=1
+  Enabled=0
   HotkeyToggle=^!x
   HotkeyAddRule=^!+x
   ApplyOnStartup=1
@@ -2256,7 +2321,7 @@ Ajustes en el archivo de configuración (sección [CloseGuard]):
 
   Enabled                  1 = CloseGuard activado, 0 = desactivado
                            (igual que la opción de menú "Activar
-                           CloseGuard").
+                           CloseGuard"). Predeterminado: 0.
   HotkeyToggle             Combinación de teclas para
                            bloquear/desbloquear. ^ = Ctrl, ! = Alt,
                            + = Mayús, # = Win, seguido de la tecla.
@@ -2350,6 +2415,12 @@ Conviene saber:
     funciona aunque CloseGuard indique que la ventana está
     bloqueada. Si una ventana no tiene menú del sistema, aparece un
     aviso.
+
+  - La primera vez que se activa CloseGuard, un aviso que solo
+    aparece una vez lo recuerda. Que ya se mostró queda anotado en
+    el archivo de configuración ("NoticeShown=1" en la sección
+    [CloseGuard]); si se borra la entrada, el aviso vuelve a
+    aparecer.
 
   - Minimizar con un clic: CCTrayTool comprueba el botón del ratón
     de forma breve y regular (predeterminado: cada 30 ms), y solo
@@ -2602,6 +2673,20 @@ En el submenú "Configuración" también están disponibles:
       desaparecen del menú de la bandeja, las combinaciones de
       teclas se desactivan y todas las ventanas bloqueadas
       recuperan su botón de cerrar.
+
+  - <Función> como submenú
+      Disponible para ToolTime, KeepAwake, AlwaysOnTop y
+      CloseGuard, siempre justo debajo de la entrada que activa y
+      desactiva la función. Muestra la sección en el menú de la
+      bandeja como un submenú con el nombre de la función en lugar
+      de una lista de entradas, con lo que el menú se acorta. La
+      función sigue trabajando igual. Al cambiar el ajuste, el menú
+      de la bandeja se cierra; basta con abrirlo de nuevo. Mientras
+      la función esté desactivada, la entrada aparece en gris. En
+      el archivo de configuración es la entrada "AsSubmenu" en la
+      sección de la función ([ToolTime], [KeepAwake],
+      [AlwaysOnTop], [CloseGuard]): 1 = submenú, 0 = normal
+      (predeterminado).
 
   - Iniciar automáticamente
       CCTrayTool se iniciará automáticamente al iniciar sesión en
@@ -2891,7 +2976,10 @@ En dessous, le sous-menu "Paramètres" (icône d'engrenage) contient
 
 CloseGuard dans son ensemble s'active et se désactive avec "Activer
 CloseGuard" dans le menu "Paramètres" de la section "CCTrayTool"
-(voir section 7).
+(voir section 7). Après une nouvelle installation, CloseGuard est
+désactivé. Lors de sa première activation, un avis affiché une
+seule fois explique quelles fenêtres ne peuvent pas être
+verrouillées.
 
 Règles (fichier dédié CloseGuardRules.ini, section [Rules]) :
 
@@ -2932,7 +3020,7 @@ Paramètres dans le fichier de configuration (section [CloseGuard])
 :
 
   [CloseGuard]
-  Enabled=1
+  Enabled=0
   HotkeyToggle=^!x
   HotkeyAddRule=^!+x
   ApplyOnStartup=1
@@ -2948,7 +3036,7 @@ Paramètres dans le fichier de configuration (section [CloseGuard])
 
   Enabled                  1 = CloseGuard activé, 0 = désactivé
                            (comme l'option de menu "Activer
-                           CloseGuard").
+                           CloseGuard"). Par défaut : 0.
   HotkeyToggle             Raccourci clavier pour
                            verrouiller/déverrouiller. ^ = Ctrl,
                            ! = Alt, + = Maj, # = Win, suivi de la
@@ -3043,6 +3131,12 @@ Bon à savoir :
     du Microsoft Store) peuvent conserver un X fonctionnel même si
     CloseGuard signale la fenêtre comme verrouillée. Si une fenêtre
     n'a aucun menu système, un avis s'affiche.
+
+  - Lors de la première activation de CloseGuard, un avis affiché
+    une seule fois le rappelle. Le fait qu'il a été affiché est
+    noté dans le fichier de configuration ("NoticeShown=1" dans la
+    section [CloseGuard]) ; si l'on supprime cette entrée, l'avis
+    s'affiche de nouveau.
 
   - Réduction par clic : CCTrayTool vérifie brièvement et
     régulièrement le bouton de la souris (par défaut : toutes les
@@ -3295,6 +3389,21 @@ Le sous-menu "Paramètres" propose également :
       disparaissent du menu de la zone de notification, les
       raccourcis clavier sont désactivés et toutes les fenêtres
       verrouillées retrouvent leur bouton de fermeture.
+
+  - <Fonction> en sous-menu
+      Disponible pour ToolTime, KeepAwake, AlwaysOnTop et
+      CloseGuard, chaque fois juste sous l'entrée qui active ou
+      désactive la fonction. Affiche la section dans le menu de la
+      zone de notification sous forme de sous-menu portant le nom
+      de la fonction au lieu d'une liste d'entrées ; le menu
+      devient ainsi plus court. La fonction continue de travailler
+      sans changement. Le menu se ferme lorsque le réglage est
+      modifié ; il suffit de le rouvrir. Tant que la fonction
+      elle-même est désactivée, l'entrée est grisée. Dans le
+      fichier de configuration, il s'agit de l'entrée "AsSubmenu"
+      dans la section de la fonction ([ToolTime], [KeepAwake],
+      [AlwaysOnTop], [CloseGuard]) : 1 = sous-menu, 0 = normal (par
+      défaut).
 
   - Démarrage automatique
       CCTrayTool démarrera désormais automatiquement à l'ouverture
@@ -3563,7 +3672,9 @@ zawiera:
 
 CloseGuard jako całość włącza się i wyłącza pozycją "Włącz
 CloseGuard" w menu "Ustawienia" sekcji "CCTrayTool" (patrz punkt
-7).
+7). Po nowej instalacji CloseGuard jest wyłączony. Przy pierwszym
+włączeniu jednorazowa informacja wyjaśnia, których okien nie da się
+zablokować.
 
 Reguły (osobny plik CloseGuardRules.ini, sekcja [Rules]):
 
@@ -3599,7 +3710,7 @@ najwyżej 200 reguł.
 Ustawienia w pliku ustawień (sekcja [CloseGuard]):
 
   [CloseGuard]
-  Enabled=1
+  Enabled=0
   HotkeyToggle=^!x
   HotkeyAddRule=^!+x
   ApplyOnStartup=1
@@ -3615,7 +3726,7 @@ Ustawienia w pliku ustawień (sekcja [CloseGuard]):
 
   Enabled                  1 = CloseGuard włączony, 0 = wyłączony
                            (tak jak pozycja menu "Włącz
-                           CloseGuard").
+                           CloseGuard"). Domyślnie: 0.
   HotkeyToggle             Skrót klawiszowy
                            blokowania/odblokowywania. ^ = Ctrl,
                            ! = Alt, + = Shift, # = Win, a po nich
@@ -3701,6 +3812,11 @@ Warto wiedzieć:
     sklepu Microsoft Store) mogą zachować działający przycisk X,
     mimo że CloseGuard zgłasza okno jako zablokowane. Jeśli okno w
     ogóle nie ma menu systemowego, pojawia się komunikat.
+
+  - Przy pierwszym włączeniu CloseGuard jednorazowa informacja
+    zwraca na to uwagę. To, że została pokazana, jest zapisane w
+    pliku ustawień ("NoticeShown=1" w sekcji [CloseGuard]); po
+    usunięciu wpisu informacja pojawi się ponownie.
 
   - Minimalizowanie kliknięciem: CCTrayTool sprawdza przycisk myszy
     krótko i regularnie (domyślnie co 30 ms), i tylko wtedy, gdy
@@ -3933,6 +4049,18 @@ W podmenu "Ustawienia" dostępne są dodatkowo:
       4). Po wyłączeniu jej pozycje znikają z menu zasobnika,
       skróty klawiszowe zostają dezaktywowane, a wszystkie
       zablokowane okna odzyskują przycisk zamykania.
+
+  - <Funkcja> jako podmenu
+      Dostępne dla ToolTime, KeepAwake, AlwaysOnTop i CloseGuard,
+      zawsze bezpośrednio pod pozycją, która włącza i wyłącza daną
+      funkcję. Pokazuje sekcję w menu zasobnika jako podmenu z
+      nazwą funkcji zamiast listy pozycji, dzięki czemu menu jest
+      krótsze. Funkcja działa dalej bez zmian. Po przełączeniu menu
+      zasobnika się zamyka; wystarczy otworzyć je ponownie. Dopóki
+      sama funkcja jest wyłączona, pozycja jest wyszarzona. W pliku
+      ustawień jest to wpis "AsSubmenu" w sekcji danej funkcji
+      ([ToolTime], [KeepAwake], [AlwaysOnTop], [CloseGuard]):
+      1 = podmenu, 0 = normalnie (domyślnie).
 
   - Uruchamiaj automatycznie
       CCTrayTool będzie odtąd uruchamiał się automatycznie przy
@@ -4216,7 +4344,9 @@ következőket tartalmazza:
 
 A CloseGuard egésze a "CCTrayTool" szakasz "Beállítások" menüjének
 "CloseGuard bekapcsolása" pontjával ki- és bekapcsolható (lásd a 7.
-pontot).
+pontot). Új telepítés után a CloseGuard ki van kapcsolva. Az első
+bekapcsoláskor egy egyszeri figyelmeztetés elmagyarázza, mely
+ablakok nem zárolhatók.
 
 Szabályok (külön fájl: CloseGuardRules.ini, [Rules] szakasz):
 
@@ -4256,7 +4386,7 @@ használ.
 Beállítások a beállításfájlban ([CloseGuard] szakasz):
 
   [CloseGuard]
-  Enabled=1
+  Enabled=0
   HotkeyToggle=^!x
   HotkeyAddRule=^!+x
   ApplyOnStartup=1
@@ -4273,6 +4403,7 @@ Beállítások a beállításfájlban ([CloseGuard] szakasz):
   Enabled                  1 = a CloseGuard be van kapcsolva,
                            0 = ki van kapcsolva (megegyezik a
                            "CloseGuard bekapcsolása" menüponttal).
+                           Alapértelmezés: 0.
   HotkeyToggle             A zárolás/feloldás
                            billentyűkombinációja. ^ = Ctrl,
                            ! = Alt, + = Shift, # = Win, utána a
@@ -4363,6 +4494,11 @@ Tudnivalók:
     működő X-et tarthatnak meg akkor is, ha a CloseGuard zároltnak
     jelzi az ablakot. Ha egy ablaknak egyáltalán nincs
     rendszermenüje, értesítés jelenik meg.
+
+  - A CloseGuard első bekapcsolásakor egy egyszeri figyelmeztetés
+    hívja fel erre a figyelmet. Azt, hogy megjelent, a beállítási
+    fájl rögzíti ("NoticeShown=1" a [CloseGuard] szakaszban); a
+    bejegyzés törlése után a figyelmeztetés újra megjelenik.
 
   - Minimalizálás kattintásra: a CCTrayTool röviden és rendszeresen
     ellenőrzi az egérgombot (alapértelmezés: 30 ms-onként), és csak
@@ -4605,6 +4741,20 @@ A "Beállítások" almenüben ezenkívül elérhető:
       (lásd 4. pont). Kikapcsolt állapotban bejegyzései eltűnnek a
       tálcamenüből, a billentyűkombinációk letiltásra kerülnek, és
       minden zárolt ablak visszakapja a bezárás gombját.
+
+  - <Funkció> almenüként
+      A ToolTime, a KeepAwake, az AlwaysOnTop és a CloseGuard
+      esetében is megtalálható, mindig közvetlenül az adott
+      funkciót be- és kikapcsoló bejegyzés alatt. A szakaszt a
+      tálcamenüben a funkció nevét viselő almenüként jeleníti meg a
+      bejegyzések listája helyett, így a menü rövidebb lesz. A
+      funkció változatlanul működik tovább. Átkapcsoláskor a
+      tálcamenü bezárul; egyszerűen nyissa meg újra. Amíg maga a
+      funkció ki van kapcsolva, a bejegyzés szürkén jelenik meg. A
+      beállítási fájlban ez a funkció szakaszában ([ToolTime],
+      [KeepAwake], [AlwaysOnTop], [CloseGuard]) található
+      "AsSubmenu" bejegyzés: 1 = almenü, 0 = normál
+      (alapértelmezett).
 
   - Automatikus indítás
       A CCTrayTool ezentúl automatikusan elindul a Windows
@@ -4883,6 +5033,8 @@ CloseGuard защищает окна от случайного закрытия.
 
 CloseGuard в целом включается и отключается пунктом "Включить
 CloseGuard" в меню "Настройки" раздела "CCTrayTool" (см. раздел 7).
+После новой установки CloseGuard отключён. При первом включении
+одноразовое уведомление объясняет, какие окна заблокировать нельзя.
 
 Правила (отдельный файл CloseGuardRules.ini, раздел [Rules]):
 
@@ -4918,7 +5070,7 @@ Unicode (UTF-16), иначе специальные символы могут б
 Параметры в файле настроек (раздел [CloseGuard]):
 
   [CloseGuard]
-  Enabled=1
+  Enabled=0
   HotkeyToggle=^!x
   HotkeyAddRule=^!+x
   ApplyOnStartup=1
@@ -4934,6 +5086,7 @@ Unicode (UTF-16), иначе специальные символы могут б
 
   Enabled                  1 = CloseGuard включён, 0 = выключен
                            (как пункт меню "Включить CloseGuard").
+                           По умолчанию: 0.
   HotkeyToggle             Сочетание клавиш для
                            блокировки/разблокировки. ^ = Ctrl,
                            ! = Alt, + = Shift, # = Win, затем
@@ -5020,6 +5173,11 @@ Unicode (UTF-16), иначе специальные символы могут б
     приложения из Microsoft Store), могут сохранить рабочий значок
     X, даже если CloseGuard сообщает, что окно заблокировано. Если
     у окна вообще нет системного меню, появляется уведомление.
+
+  - При первом включении CloseGuard об этом один раз сообщает
+    уведомление. То, что оно уже было показано, записывается в файл
+    настроек ("NoticeShown=1" в разделе [CloseGuard]); если удалить
+    эту запись, уведомление появится снова.
 
   - Сворачивание щелчком: CCTrayTool кратко и регулярно проверяет
     кнопку мыши (по умолчанию каждые 30 мс), и только пока видно
@@ -5250,6 +5408,19 @@ CCTrayTool заново читает файл, сразу применяет в�
       раздел 4). При отключении его записи исчезают из меню области
       уведомлений, сочетания клавиш отключаются, а все
       заблокированные окна получают кнопку закрытия обратно.
+
+  - <Функция> как подменю
+      Есть для ToolTime, KeepAwake, AlwaysOnTop и CloseGuard,
+      каждый раз сразу под пунктом, который включает и отключает
+      функцию. Показывает раздел в меню области уведомлений как
+      подменю с названием функции вместо списка пунктов, поэтому
+      меню становится короче. Функция продолжает работать без
+      изменений. При переключении меню области уведомлений
+      закрывается; просто откройте его снова. Пока сама функция
+      отключена, пункт неактивен (серый). В файле настроек это
+      запись "AsSubmenu" в разделе функции ([ToolTime],
+      [KeepAwake], [AlwaysOnTop], [CloseGuard]): 1 = подменю,
+      0 = обычный вид (по умолчанию).
 
   - Запускать автоматически
       CCTrayTool будет теперь автоматически запускаться при входе

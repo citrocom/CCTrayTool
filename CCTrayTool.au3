@@ -1,7 +1,7 @@
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
 #AutoIt3Wrapper_Icon=icons\TrayWhite.ico
-#AutoIt3Wrapper_Res_Fileversion=2026.0.0.111
-#AutoIt3Wrapper_Res_ProductVersion=2026.0.0.111
+#AutoIt3Wrapper_Res_Fileversion=2026.0.0.115
+#AutoIt3Wrapper_Res_ProductVersion=2026.0.0.115
 #AutoIt3Wrapper_Res_Fileversion_AutoIncrement=n
 #AutoIt3Wrapper_Res_Description=CCTrayTool - KeepAwake, AlwaysOnTop, CloseGuard and quick start tray tool
 #AutoIt3Wrapper_Res_ProductName=CCTrayTool
@@ -29,6 +29,10 @@
 #AutoIt3Wrapper_Res_Icon_Add=icons\CloseGuardLock.ico
 #AutoIt3Wrapper_Res_Icon_Add=icons\CloseGuardRule.ico
 #AutoIt3Wrapper_Res_Icon_Add=icons\CloseGuardList.ico
+#AutoIt3Wrapper_Res_Icon_Add=icons\SubmenuToolTime.ico
+#AutoIt3Wrapper_Res_Icon_Add=icons\SubmenuKeepAwake.ico
+#AutoIt3Wrapper_Res_Icon_Add=icons\SubmenuAlwaysOnTop.ico
+#AutoIt3Wrapper_Res_Icon_Add=icons\SubmenuCloseGuard.ico
 #AutoIt3Wrapper_UseX64=y
 #AutoIt3Wrapper_Run_Tidy=y
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
@@ -227,6 +231,11 @@ Global $iIconnumberEmpty = 218
 Global $iIconnumberCloseGuardLock = 219
 Global $iIconnumberCloseGuardRule = 220
 Global $iIconnumberCloseGuardList = 221
+;Icons of the sections shown as submenus
+Global $iIconnumberSubmenuToolTime = 222
+Global $iIconnumberSubmenuKeepAwake = 223
+Global $iIconnumberSubmenuAlwaysOnTop = 224
+Global $iIconnumberSubmenuCloseGuard = 225
 
 ;Translation
 Global $sAppLanguage
@@ -271,6 +280,7 @@ Global $sVersion = GetScriptVersion()
 
 ;ToolTime (built from a folder tree of shortcuts, see the ToolTime section further down)
 Global $bToolTimeEnabledSetting = 1
+Global $bToolTimeSubmenuSetting = 0 ;1 = the section is shown as a submenu of the tray menu ([ToolTime] AsSubmenu)
 Global Const $iToolTimeMaxEntriesMin = 10 ;limit of entries per menu: lowest value that can be set
 Global Const $iToolTimeMaxEntriesMax = 20 ;limit of entries per menu: highest value that can be set
 Global Const $iToolTimeMaxEntriesDefault = 15
@@ -299,6 +309,7 @@ Global $bToolTimeChangePending = False
 
 ;KeepAwake
 Global $bKeepAwakeEnabledSetting = 1
+Global $bKeepAwakeSubmenuSetting = 0 ;1 = the section is shown as a submenu of the tray menu ([KeepAwake] AsSubmenu)
 Global $iKeepAwakeStateSetting = 0
 Global $iKeepAwakeLastState = 0
 Global $bRestoreKeepAwakeStateSetting = 0
@@ -314,12 +325,14 @@ Global $iIconsSize = 16
 
 ;AlwaysOnTop
 Global $bAlwaysOnTopEnabledSetting = 1
+Global $bAlwaysOnTopSubmenuSetting = 0 ;1 = the section is shown as a submenu of the tray menu ([AlwaysOnTop] AsSubmenu)
 Global $bActivateAlwaysOnTopHotKey = 1
 Global $sAlwaysOnTopHotKey = "+!t"
 Global $bAlwaysOnTopShowToolTip = 1
 
 ;CloseGuard (see the CloseGuard section further down)
-Global $bCloseGuardEnabledSetting = 1
+Global $bCloseGuardEnabledSetting = 0 ;off after a new installation; the first switch-on shows a one-time notice
+Global $bCloseGuardSubmenuSetting = 0 ;1 = the section is shown as a submenu of the tray menu ([CloseGuard] AsSubmenu)
 Global Const $sCloseGuardHotkeyToggleDefault = "^!x"
 Global Const $sCloseGuardHotkeyAddRuleDefault = "^!+x"
 Global $sCloseGuardHotkeyToggle = $sCloseGuardHotkeyToggleDefault
@@ -437,17 +450,21 @@ Logfile("Version: " & $sVersion)
 Logfile("INI file: " & $sIniFile)
 Logfile("CloseGuard rules file: " & $sCloseGuardRulesFile)
 Logfile("ToolTime enabled: " & $bToolTimeEnabledSetting, 6)
+Logfile("ToolTime as submenu: " & $bToolTimeSubmenuSetting, 6)
 Logfile("ToolTime entries per menu: " & $iToolTimeMaxEntriesSetting, 6)
 Logfile("KeepAwake enabled: " & $bKeepAwakeEnabledSetting, 6)
+Logfile("KeepAwake as submenu: " & $bKeepAwakeSubmenuSetting, 6)
 Logfile("Save KeepAwake status: " & $bRestoreKeepAwakeStateSetting, 6)
 Logfile("Saved KeepAwake status: " & $iKeepAwakeStateSetting, 6)
 Logfile("Autostart: " & $bAutostartSetting, 6)
 Logfile("Use log file: " & $bUseLogSetting, 6)
 Logfile("AlwaysOnTop enabled: " & $bAlwaysOnTopEnabledSetting, 6)
+Logfile("AlwaysOnTop as submenu: " & $bAlwaysOnTopSubmenuSetting, 6)
 Logfile("Enable AlwaysOnTop hotkey: " & $bActivateAlwaysOnTopHotKey, 6)
 Logfile("AlwaysOnTop hotkey: " & $sAlwaysOnTopHotKey, 6)
 Logfile("Show AlwaysOnTop tooltip: " & $bAlwaysOnTopShowToolTip, 6)
 Logfile("CloseGuard enabled: " & $bCloseGuardEnabledSetting, 6)
+Logfile("CloseGuard as submenu: " & $bCloseGuardSubmenuSetting, 6)
 Logfile("CloseGuard hotkey lock/unlock: " & $sCloseGuardHotkeyToggle, 6)
 Logfile("CloseGuard hotkey create rule: " & $sCloseGuardHotkeyAddRule, 6)
 Logfile("CloseGuard check windows open at start: " & $bCloseGuardApplyOnStartup, 6)
@@ -480,6 +497,7 @@ Global $hMenu
 Global $iTitleToolTime
 Global $iSepToolTime
 Global $iToolTimeReportTrayItem = 0
+Global $iToolTimeRootMenu = 0 ;submenu that holds the ToolTime entries (0 = the tray menu itself)
 ;KeepAwake
 Global $iTitelKeepAwake
 Global $iDisplaySystem
@@ -499,6 +517,11 @@ Global $iSepAlwaysOnTop
 Global $iAlwaysOnTopSettingsMenu = 0 ;submenu "Settings" of AlwaysOnTop
 ;CloseGuard
 Global $iTitelCloseGuard = 0
+;Settings: "<section> as submenu"
+Global $iToolTimeSubmenuTrayItem = 0
+Global $iKeepAwakeSubmenuTrayItem = 0
+Global $iAlwaysOnTopSubmenuTrayItem = 0
+Global $iCloseGuardSubmenuTrayItem = 0
 Global $iCloseGuardToggleTrayItem = 0
 Global $iCloseGuardAddRuleTrayItem = 0
 Global $iCloseGuardListTrayItem = 0
@@ -603,6 +626,18 @@ While 1
 
 		Case $iKeepAwakeEnabledTrayItem
 			CheckKeepAwakeEnabled()
+
+		Case $iToolTimeSubmenuTrayItem
+			CheckSectionSubmenu(0)
+
+		Case $iKeepAwakeSubmenuTrayItem
+			CheckSectionSubmenu(1)
+
+		Case $iAlwaysOnTopSubmenuTrayItem
+			CheckSectionSubmenu(2)
+
+		Case $iCloseGuardSubmenuTrayItem
+			CheckSectionSubmenu(3)
 
 		Case $iAlwaysOnTopEnabledTrayItem
 			CheckAlwaysOnTopEnabled()
@@ -797,22 +832,26 @@ Func CreateIni()
 	FileWrite($sIniFile, @CRLF)
 
 	IniWrite($sIniFile, "KeepAwake", "Enabled", "1")
+	IniWrite($sIniFile, "KeepAwake", "AsSubmenu", "0")
 	IniWrite($sIniFile, "KeepAwake", "KeepState", "1")
 	IniWrite($sIniFile, "KeepAwake", "State", "0")
 	FileWrite($sIniFile, @CRLF)
 
 	IniWrite($sIniFile, "AlwaysOnTop", "Enabled", "1")
+	IniWrite($sIniFile, "AlwaysOnTop", "AsSubmenu", "0")
 	IniWrite($sIniFile, "AlwaysOnTop", "Active", "1")
 	IniWrite($sIniFile, "AlwaysOnTop", "HotKey", "+!t")
 	IniWrite($sIniFile, "AlwaysOnTop", "ShowToolTip", "1")
 	FileWrite($sIniFile, @CRLF)
 
 	IniWrite($sIniFile, "ToolTime", "Enabled", "1")
+	IniWrite($sIniFile, "ToolTime", "AsSubmenu", "0")
 	IniWrite($sIniFile, "ToolTime", "MaxEntries", $iToolTimeMaxEntriesDefault)
 	IniWrite($sIniFile, "ToolTime", "Folder", "")
 	FileWrite($sIniFile, @CRLF)
 
-	IniWrite($sIniFile, "CloseGuard", "Enabled", "1")
+	IniWrite($sIniFile, "CloseGuard", "Enabled", "0") ;off after a new installation
+	IniWrite($sIniFile, "CloseGuard", "AsSubmenu", "0")
 	IniWrite($sIniFile, "CloseGuard", "HotkeyToggle", $sCloseGuardHotkeyToggleDefault)
 	IniWrite($sIniFile, "CloseGuard", "HotkeyAddRule", $sCloseGuardHotkeyAddRuleDefault)
 	IniWrite($sIniFile, "CloseGuard", "ApplyOnStartup", "1")
@@ -848,6 +887,7 @@ Func DeleteTrayMenu()
 	;the Switch above (an earlier Case with a stale-but-matching ID wins over the real one)
 	$iTitleToolTime = 0
 	$iSepToolTime = 0
+	$iToolTimeRootMenu = 0
 
 	;KeepAwake
 	If $bKeepAwakeEnabledSetting = 1 Then
@@ -857,7 +897,7 @@ Func DeleteTrayMenu()
 		TrayItemDelete($iSystem)
 		TrayItemDelete($iDeactivated)
 		TrayItemDelete($iKeepAwakeSettingsMenu) ;also deletes the items in the submenu
-		TrayItemDelete($iSepKeepAwake)
+		If $iSepKeepAwake <> 0 Then TrayItemDelete($iSepKeepAwake) ;no separator between two sections shown as submenus
 	EndIf
 	;Reset to 0 regardless - see comment above
 	$iTitelKeepAwake = 0
@@ -875,7 +915,7 @@ Func DeleteTrayMenu()
 		TrayItemDelete($iTitelAlwaysOnTop)
 		TrayItemDelete($iActivateAOTHotKeyTrayItem)
 		TrayItemDelete($iAlwaysOnTopSettingsMenu) ;also deletes the items in the submenu
-		TrayItemDelete($iSepAlwaysOnTop)
+		If $iSepAlwaysOnTop <> 0 Then TrayItemDelete($iSepAlwaysOnTop) ;no separator between two sections shown as submenus
 	EndIf
 	;Reset to 0 regardless - see comment above
 	$iTitelAlwaysOnTop = 0
@@ -892,7 +932,7 @@ Func DeleteTrayMenu()
 		TrayItemDelete($iCloseGuardAddRuleTrayItem)
 		TrayItemDelete($iCloseGuardListTrayItem)
 		TrayItemDelete($iCloseGuardSettingsMenu) ;also deletes all items in the submenu
-		TrayItemDelete($iSepCloseGuard)
+		If $iSepCloseGuard <> 0 Then TrayItemDelete($iSepCloseGuard) ;no separator between two sections shown as submenus
 	EndIf
 	;Reset ALL CloseGuard IDs to 0 regardless of $bCloseGuardEnabledSetting - see comment above. This includes the
 	;entry in the Settings menu (it is deleted together with the Settings menu below).
@@ -911,6 +951,11 @@ Func DeleteTrayMenu()
 	$iSepCloseGuard = 0
 	$iCloseGuardEnabledTrayItem = 0
 	$iSepCloseGuardEnabled = 0
+	;"<section> as submenu" (deleted together with the Settings menu below)
+	$iToolTimeSubmenuTrayItem = 0
+	$iKeepAwakeSubmenuTrayItem = 0
+	$iAlwaysOnTopSubmenuTrayItem = 0
+	$iCloseGuardSubmenuTrayItem = 0
 
 	TrayItemDelete($iTitelCCTrayTool)
 	TrayItemDelete($iSettings) ;also deletes all items in submenu
@@ -1350,6 +1395,7 @@ EndFunc   ;==>_ToolTimeTrack
 
 Func _ToolTimeNewItem($sText, $idParent = 0)
 	Local $id
+	If $idParent <= 0 Then $idParent = $iToolTimeRootMenu ;top level: the tray menu or the submenu "ToolTime"
 	$sText = StringReplace($sText, "&", "&&") ;show ampersands literally instead of underlining the next letter
 	If $idParent > 0 Then
 		$id = TrayCreateItem($sText, $idParent)
@@ -1361,6 +1407,7 @@ EndFunc   ;==>_ToolTimeNewItem
 
 Func _ToolTimeNewMenu($sText, $idParent = 0)
 	Local $id
+	If $idParent <= 0 Then $idParent = $iToolTimeRootMenu
 	$sText = StringReplace($sText, "&", "&&")
 	If $idParent > 0 Then
 		$id = TrayCreateMenu($sText, $idParent)
@@ -1652,18 +1699,97 @@ Func _TraySetSettingsMenuIcon($iMenuItem)
 EndFunc   ;==>_TraySetSettingsMenuIcon
 
 ; ====================================================================================================
+; Sections of the tray menu as submenus ("<section> as submenu" in the Settings menu)
+;   Section numbers: 0 = ToolTime, 1 = KeepAwake, 2 = AlwaysOnTop, 3 = CloseGuard.
+;   A section that is shown as a submenu has no grayed-out title line: the submenu carries the name of the section
+;   and holds all of its entries (including its own submenu "Settings"). The functions are not affected, only the
+;   menu gets shorter. Sections shown as submenus stand together without separators between them.
+; ====================================================================================================
+
+; Creates the name of a section: a grayed-out title line, or a submenu (returns the ID of the submenu, the entries of
+; the section are then created in it).
+Func _TraySectionTitle($sName, $bAsSubmenu)
+	Local $id
+	If $bAsSubmenu = 1 Then
+		$id = TrayCreateMenu($sName)
+	Else
+		$id = TrayCreateItem($sName)
+		TrayItemSetState($id, $TRAY_DISABLE)
+	EndIf
+	Return $id
+EndFunc   ;==>_TraySectionTitle
+
+; Icon of a section that is shown as a submenu. The grayed-out title line gets no icon. Needs $hMenu.
+Func _TraySectionIcon($id, $bAsSubmenu, $iIconNumber, $sIconFile)
+	If $bAsSubmenu <> 1 Or $id = 0 Then Return
+	_CloseGuardSetActionIcon($id, $iIconNumber, $sIconFile)
+EndFunc   ;==>_TraySectionIcon
+
+; True if no separator is needed after section $iSection: the section is shown as a submenu and so is the next
+; section that is switched on. After the last section there is always a separator (in front of "CCTrayTool").
+Func _TrayNoSeparatorAfter($iSection)
+	Local $aSub[4] = [$bToolTimeSubmenuSetting, $bKeepAwakeSubmenuSetting, $bAlwaysOnTopSubmenuSetting, $bCloseGuardSubmenuSetting]
+	Local $aOn[4] = [$bToolTimeEnabledSetting, $bKeepAwakeEnabledSetting, $bAlwaysOnTopEnabledSetting, $bCloseGuardEnabledSetting]
+	If $aSub[$iSection] <> 1 Then Return False
+	Local $i
+	For $i = $iSection + 1 To 3
+		If $aOn[$i] = 1 Then Return ($aSub[$i] = 1)
+	Next
+	Return False
+EndFunc   ;==>_TrayNoSeparatorAfter
+
+; ====================================================================================================
+; Function: CheckSectionSubmenu
+; Description: Switches "<section> as submenu" for one section on or off. Like CheckKeepAwakeEnabled() this
+;              changes which tray items exist, so the whole tray menu is rebuilt; the menu is deleted BEFORE the
+;              setting is flipped, so DeleteTrayMenu() still sees the menu as it was created. The function of the
+;              section keeps running unchanged.
+; Parameters: $iSection - 0 = ToolTime, 1 = KeepAwake, 2 = AlwaysOnTop, 3 = CloseGuard.
+; Returns: None.
+; ====================================================================================================
+Func CheckSectionSubmenu($iSection)
+	Logfile("CheckSectionSubmenu(" & $iSection & ") start", 6)
+	DeleteTrayMenu()
+	DeleteAllhBitmaps()
+	Switch $iSection
+		Case 0
+			$bToolTimeSubmenuSetting = 1 - $bToolTimeSubmenuSetting
+			Logfile("ToolTime as submenu: " & $bToolTimeSubmenuSetting)
+		Case 1
+			$bKeepAwakeSubmenuSetting = 1 - $bKeepAwakeSubmenuSetting
+			Logfile("KeepAwake as submenu: " & $bKeepAwakeSubmenuSetting)
+		Case 2
+			$bAlwaysOnTopSubmenuSetting = 1 - $bAlwaysOnTopSubmenuSetting
+			Logfile("AlwaysOnTop as submenu: " & $bAlwaysOnTopSubmenuSetting)
+		Case 3
+			$bCloseGuardSubmenuSetting = 1 - $bCloseGuardSubmenuSetting
+			Logfile("CloseGuard as submenu: " & $bCloseGuardSubmenuSetting)
+	EndSwitch
+	SaveSettings()
+	CreateTrayMenu()
+	ApplyTrayMenuSettings()
+	SetIconTooltip()
+	Logfile("CheckSectionSubmenu() end", 6)
+EndFunc   ;==>CheckSectionSubmenu
+
+; ====================================================================================================
 ; Function: CreateTrayMenu
 ; Description: Creates the complete tray menu, including ToolTime (the folders and shortcuts of the
-;              ToolTime folder), KeepAwake, AlwaysOnTop and the application settings.
+;              ToolTime folder), KeepAwake, AlwaysOnTop, CloseGuard and the application settings. Each of the
+;              four sections is shown either with a grayed-out title line or - "<section> as submenu" in the
+;              Settings menu - as a submenu (see _TraySectionTitle()).
 ; Parameters: None.
 ; Returns: None.
 ; ====================================================================================================
 Func CreateTrayMenu()
 	Logfile("CreateTrayMenu() start", 6)
-	$iTitleToolTime = TrayCreateItem(_("ToolTime")) ; Separator
-	TrayItemSetState(-1, $TRAY_DISABLE)
+	;Every section starts with its name: a grayed-out title line, or - with "<section> as submenu" - a submenu that
+	;holds all entries of the section (_TraySectionTitle)
+	$iTitleToolTime = _TraySectionTitle(_("ToolTime"), $bToolTimeSubmenuSetting)
+	$iToolTimeRootMenu = ($bToolTimeSubmenuSetting = 1) ? $iTitleToolTime : 0
 
 	$hMenu = TrayItemGetHandle(0)
+	_TraySectionIcon($iTitleToolTime, $bToolTimeSubmenuSetting, $iIconnumberSubmenuToolTime, "SubmenuToolTime.ico")
 	Local $iToolTimeEntries = 0
 
 	;The folders and shortcuts are only read if ToolTime is enabled; $hMenu above must still be
@@ -1678,37 +1804,39 @@ Func CreateTrayMenu()
 	If $iToolTimeEntries = 0 And $iToolTimeReportTrayItem = 0 Then
 		TrayItemDelete($iTitleToolTime)
 		$iTitleToolTime = 0
+		$iToolTimeRootMenu = 0
 	Else
-		$iSepToolTime = TrayCreateItem("") ; Separator
+		If Not _TrayNoSeparatorAfter(0) Then $iSepToolTime = TrayCreateItem("") ; Separator
 	EndIf
 
 	;KeepAwake
 	If $bKeepAwakeEnabledSetting = 1 Then
-		$iTitelKeepAwake = TrayCreateItem(_("KeepAwake")) ; Separator
-		TrayItemSetState(-1, $TRAY_DISABLE)
+		$iTitelKeepAwake = _TraySectionTitle(_("KeepAwake"), $bKeepAwakeSubmenuSetting)
+		_TraySectionIcon($iTitelKeepAwake, $bKeepAwakeSubmenuSetting, $iIconnumberSubmenuKeepAwake, "SubmenuKeepAwake.ico")
+		Local $iKeepAwakeParent = ($bKeepAwakeSubmenuSetting = 1) ? $iTitelKeepAwake : -1
 
-		$iDisplaySystem = TrayCreateItem(_("Monitors and System"))
+		$iDisplaySystem = TrayCreateItem(_("Monitors and System"), $iKeepAwakeParent)
 		If @Compiled Then
 			TrayItemSetIcon($hMenu, $iDisplaySystem, @ScriptFullPath, 206 - $iIconOffset, $iIconsSize)
 		Else
 			TrayItemSetIcon($hMenu, $iDisplaySystem, @ScriptDir & "\icons\GreenBox.ico", 0, $iIconsSize)
 		EndIf
 
-		$iDisplay = TrayCreateItem(_("Monitors"))
+		$iDisplay = TrayCreateItem(_("Monitors"), $iKeepAwakeParent)
 		If @Compiled Then
 			TrayItemSetIcon($hMenu, $iDisplay, @ScriptFullPath, 205 - $iIconOffset, $iIconsSize)
 		Else
 			TrayItemSetIcon($hMenu, $iDisplay, @ScriptDir & "\icons\RedBox.ico", 0, $iIconsSize)
 		EndIf
 
-		$iSystem = TrayCreateItem(_("System"))
+		$iSystem = TrayCreateItem(_("System"), $iKeepAwakeParent)
 		If @Compiled Then
 			TrayItemSetIcon($hMenu, $iSystem, @ScriptFullPath, 207 - $iIconOffset, $iIconsSize)
 		Else
 			TrayItemSetIcon($hMenu, $iSystem, @ScriptDir & "\icons\BlueBox.ico", 0, $iIconsSize)
 		EndIf
 
-		$iDeactivated = TrayCreateItem(_("Deactivated"))
+		$iDeactivated = TrayCreateItem(_("Deactivated"), $iKeepAwakeParent)
 		If @Compiled Then
 			TrayItemSetIcon($hMenu, $iDeactivated, @ScriptFullPath, 208 - $iIconOffset, $iIconsSize)
 		Else
@@ -1716,7 +1844,7 @@ Func CreateTrayMenu()
 		EndIf
 
 		;Submenu "Settings"
-		$iKeepAwakeSettingsMenu = TrayCreateMenu(_("Settings"))
+		$iKeepAwakeSettingsMenu = TrayCreateMenu(_("Settings"), $iKeepAwakeParent)
 		_TraySetSettingsMenuIcon($iKeepAwakeSettingsMenu)
 
 		$iKeepLastKeepAwakeState = TrayCreateItem(_("Save state"), $iKeepAwakeSettingsMenu)
@@ -1725,16 +1853,17 @@ Func CreateTrayMenu()
 		Else
 			TrayItemSetIcon($hMenu, $iKeepLastKeepAwakeState, @ScriptDir & "\icons\Empty.ico", 0, $iIconsSize)
 		EndIf
-		$iSepKeepAwake = TrayCreateItem("") ; Separator
+		If Not _TrayNoSeparatorAfter(1) Then $iSepKeepAwake = TrayCreateItem("") ; Separator
 	EndIf
 
 	;AlwaysOnTop
 	If $bAlwaysOnTopEnabledSetting = 1 Then
-		$iTitelAlwaysOnTop = TrayCreateItem(_("AlwaysOnTop")) ; Separator
-		TrayItemSetState(-1, $TRAY_DISABLE)
+		$iTitelAlwaysOnTop = _TraySectionTitle(_("AlwaysOnTop"), $bAlwaysOnTopSubmenuSetting)
+		_TraySectionIcon($iTitelAlwaysOnTop, $bAlwaysOnTopSubmenuSetting, $iIconnumberSubmenuAlwaysOnTop, "SubmenuAlwaysOnTop.ico")
+		Local $iAlwaysOnTopParent = ($bAlwaysOnTopSubmenuSetting = 1) ? $iTitelAlwaysOnTop : -1
 
 		;Enable hotkey
-		$iActivateAOTHotKeyTrayItem = TrayCreateItem(_("Hotkey active"))
+		$iActivateAOTHotKeyTrayItem = TrayCreateItem(_("Hotkey active"), $iAlwaysOnTopParent)
 		If @Compiled Then
 			TrayItemSetIcon($hMenu, $iActivateAOTHotKeyTrayItem, @ScriptFullPath, $iIconnumberEmpty - $iIconOffset, $iIconsSize)
 		Else
@@ -1747,7 +1876,7 @@ Func CreateTrayMenu()
 		_GUICtrlMenu_SetItemText($hMenu, $iMenuId_iActivateAOTHotKeyTrayItem, _("Hotkey active ( ") & HotkeyToReadable($sAlwaysOnTopHotKey) & " )", False)
 
 		;Submenu "Settings"
-		$iAlwaysOnTopSettingsMenu = TrayCreateMenu(_("Settings"))
+		$iAlwaysOnTopSettingsMenu = TrayCreateMenu(_("Settings"), $iAlwaysOnTopParent)
 		_TraySetSettingsMenuIcon($iAlwaysOnTopSettingsMenu)
 
 		;Change hotkey
@@ -1765,28 +1894,29 @@ Func CreateTrayMenu()
 		Else
 			TrayItemSetIcon($hMenu, $iAlwaysOnTopShowToolTipTrayItem, @ScriptDir & "\icons\Empty.ico", 0, $iIconsSize)
 		EndIf
-		$iSepAlwaysOnTop = TrayCreateItem("") ; Separator
+		If Not _TrayNoSeparatorAfter(2) Then $iSepAlwaysOnTop = TrayCreateItem("") ; Separator
 	EndIf
 
 	;CloseGuard: title, the three actions on the top level, all options in the submenu "Settings"
 	If $bCloseGuardEnabledSetting = 1 Then
-		$iTitelCloseGuard = TrayCreateItem(_("CloseGuard")) ; Separator
-		TrayItemSetState(-1, $TRAY_DISABLE)
+		$iTitelCloseGuard = _TraySectionTitle(_("CloseGuard"), $bCloseGuardSubmenuSetting)
+		_TraySectionIcon($iTitelCloseGuard, $bCloseGuardSubmenuSetting, $iIconnumberSubmenuCloseGuard, "SubmenuCloseGuard.ico")
+		Local $iCloseGuardParent = ($bCloseGuardSubmenuSetting = 1) ? $iTitelCloseGuard : -1
 
 		;Lock or unlock the close button of the active window
-		$iCloseGuardToggleTrayItem = TrayCreateItem(_("Lock/unlock the close button of the active window") & " ( " & HotkeyToReadable($sCloseGuardHotkeyToggle) & " )")
+		$iCloseGuardToggleTrayItem = TrayCreateItem(_("Lock/unlock the close button of the active window") & " ( " & HotkeyToReadable($sCloseGuardHotkeyToggle) & " )", $iCloseGuardParent)
 		_CloseGuardSetActionIcon($iCloseGuardToggleTrayItem, $iIconnumberCloseGuardLock, "CloseGuardLock.ico")
 
 		;Create a rule for the active window
-		$iCloseGuardAddRuleTrayItem = TrayCreateItem(_("Create rule for the active window") & " ( " & HotkeyToReadable($sCloseGuardHotkeyAddRule) & " )")
+		$iCloseGuardAddRuleTrayItem = TrayCreateItem(_("Create rule for the active window") & " ( " & HotkeyToReadable($sCloseGuardHotkeyAddRule) & " )", $iCloseGuardParent)
 		_CloseGuardSetActionIcon($iCloseGuardAddRuleTrayItem, $iIconnumberCloseGuardRule, "CloseGuardRule.ico")
 
 		;List of the locked windows
-		$iCloseGuardListTrayItem = TrayCreateItem(_("Show locked windows"))
+		$iCloseGuardListTrayItem = TrayCreateItem(_("Show locked windows"), $iCloseGuardParent)
 		_CloseGuardSetActionIcon($iCloseGuardListTrayItem, $iIconnumberCloseGuardList, "CloseGuardList.ico")
 
 		;Submenu "Settings"
-		$iCloseGuardSettingsMenu = TrayCreateMenu(_("Settings"))
+		$iCloseGuardSettingsMenu = TrayCreateMenu(_("Settings"), $iCloseGuardParent)
 		_TraySetSettingsMenuIcon($iCloseGuardSettingsMenu)
 
 		;Automatic check of new windows
@@ -1823,7 +1953,7 @@ Func CreateTrayMenu()
 		Else
 			_CloseGuardSetItemIcon($iCloseGuardEditRulesTrayItem, False)
 		EndIf
-		$iSepCloseGuard = TrayCreateItem("") ; Separator
+		If Not _TrayNoSeparatorAfter(3) Then $iSepCloseGuard = TrayCreateItem("") ; Separator
 	EndIf
 
 	;CCTrayTool
@@ -1844,6 +1974,10 @@ Func CreateTrayMenu()
 	Else
 		TrayItemSetIcon($hMenu, $iToolTimeEnabledTrayItem, @ScriptDir & "\icons\Empty.ico", 0, $iIconsSize)
 	EndIf
+	;Show the section as a submenu (grayed out while the section itself is switched off)
+	$iToolTimeSubmenuTrayItem = TrayCreateItem(_ToolTimeFormat(_("%1 as submenu"), _("ToolTime"), "", "", ""), $iSettings)
+	_CloseGuardSetItemIcon($iToolTimeSubmenuTrayItem, $bToolTimeSubmenuSetting = 1)
+	If $bToolTimeEnabledSetting <> 1 Then TrayItemSetState($iToolTimeSubmenuTrayItem, $TRAY_DISABLE)
 	;Open the ToolTime folder
 	$iOpenToolTimeFolderTrayItem = TrayCreateItem(_("Open ToolTime folder"), $iSettings)
 	If FileExists(@SystemDir & "\shell32.dll") Then
@@ -1871,6 +2005,10 @@ Func CreateTrayMenu()
 	Else
 		TrayItemSetIcon($hMenu, $iKeepAwakeEnabledTrayItem, @ScriptDir & "\icons\Empty.ico", 0, $iIconsSize)
 	EndIf
+	;Show the section as a submenu (grayed out while the section itself is switched off)
+	$iKeepAwakeSubmenuTrayItem = TrayCreateItem(_ToolTimeFormat(_("%1 as submenu"), _("KeepAwake"), "", "", ""), $iSettings)
+	_CloseGuardSetItemIcon($iKeepAwakeSubmenuTrayItem, $bKeepAwakeSubmenuSetting = 1)
+	If $bKeepAwakeEnabledSetting <> 1 Then TrayItemSetState($iKeepAwakeSubmenuTrayItem, $TRAY_DISABLE)
 	$iSepKeepAwakeEnabled = TrayCreateItem("", $iSettings) ; Separator
 
 	;Enable or disable AlwaysOnTop entirely
@@ -1880,11 +2018,19 @@ Func CreateTrayMenu()
 	Else
 		TrayItemSetIcon($hMenu, $iAlwaysOnTopEnabledTrayItem, @ScriptDir & "\icons\Empty.ico", 0, $iIconsSize)
 	EndIf
+	;Show the section as a submenu (grayed out while the section itself is switched off)
+	$iAlwaysOnTopSubmenuTrayItem = TrayCreateItem(_ToolTimeFormat(_("%1 as submenu"), _("AlwaysOnTop"), "", "", ""), $iSettings)
+	_CloseGuardSetItemIcon($iAlwaysOnTopSubmenuTrayItem, $bAlwaysOnTopSubmenuSetting = 1)
+	If $bAlwaysOnTopEnabledSetting <> 1 Then TrayItemSetState($iAlwaysOnTopSubmenuTrayItem, $TRAY_DISABLE)
 	$iSepAlwaysOnTopEnabled = TrayCreateItem("", $iSettings) ; Separator
 
 	;Enable or disable CloseGuard entirely
 	$iCloseGuardEnabledTrayItem = TrayCreateItem(_("Enable CloseGuard"), $iSettings)
 	_CloseGuardSetItemIcon($iCloseGuardEnabledTrayItem, False)
+	;Show the section as a submenu (grayed out while the section itself is switched off)
+	$iCloseGuardSubmenuTrayItem = TrayCreateItem(_ToolTimeFormat(_("%1 as submenu"), _("CloseGuard"), "", "", ""), $iSettings)
+	_CloseGuardSetItemIcon($iCloseGuardSubmenuTrayItem, $bCloseGuardSubmenuSetting = 1)
+	If $bCloseGuardEnabledSetting <> 1 Then TrayItemSetState($iCloseGuardSubmenuTrayItem, $TRAY_DISABLE)
 	$iSepCloseGuardEnabled = TrayCreateItem("", $iSettings) ; Separator
 
 	;Autostart
@@ -2110,6 +2256,7 @@ Func EditINI()
 					CloseGuardReapply()
 				Else
 					CloseGuardStart()
+					_CloseGuardFirstNotice() ;switched on in the INI file: the same one-time notice as in the menu
 				EndIf
 			ElseIf $bOldCloseGuardEnabled = 1 Then
 				CloseGuardStop()
@@ -2597,6 +2744,8 @@ Func LoadSettings()
 	;KeepAwake
 	$bKeepAwakeEnabledSetting = Number(IniRead($sIniFile, "KeepAwake", "Enabled", 1))
 	If $bKeepAwakeEnabledSetting <> 0 And $bKeepAwakeEnabledSetting <> 1 Then $bKeepAwakeEnabledSetting = 1
+	$bKeepAwakeSubmenuSetting = Number(IniRead($sIniFile, "KeepAwake", "AsSubmenu", 0))
+	If $bKeepAwakeSubmenuSetting <> 0 And $bKeepAwakeSubmenuSetting <> 1 Then $bKeepAwakeSubmenuSetting = 0
 
 	$bRestoreKeepAwakeStateSetting = Number(IniRead($sIniFile, "KeepAwake", "KeepState", 1))
 	If $bRestoreKeepAwakeStateSetting <> 0 And $bRestoreKeepAwakeStateSetting <> 1 Then $bRestoreKeepAwakeStateSetting = 1
@@ -2615,6 +2764,8 @@ Func LoadSettings()
 	;ToolTime
 	$bToolTimeEnabledSetting = Number(IniRead($sIniFile, "ToolTime", "Enabled", 1))
 	If $bToolTimeEnabledSetting <> 0 And $bToolTimeEnabledSetting <> 1 Then $bToolTimeEnabledSetting = 1
+	$bToolTimeSubmenuSetting = Number(IniRead($sIniFile, "ToolTime", "AsSubmenu", 0))
+	If $bToolTimeSubmenuSetting <> 0 And $bToolTimeSubmenuSetting <> 1 Then $bToolTimeSubmenuSetting = 0
 
 	;Maximum number of entries per ToolTime menu (10 - 20)
 	$iToolTimeMaxEntriesSetting = Int(Number(IniRead($sIniFile, "ToolTime", "MaxEntries", $iToolTimeMaxEntriesDefault)))
@@ -2642,6 +2793,8 @@ Func LoadSettings()
 	;AlwaysOnTop
 	$bAlwaysOnTopEnabledSetting = Number(IniRead($sIniFile, "AlwaysOnTop", "Enabled", 1))
 	If $bAlwaysOnTopEnabledSetting <> 0 And $bAlwaysOnTopEnabledSetting <> 1 Then $bAlwaysOnTopEnabledSetting = 1
+	$bAlwaysOnTopSubmenuSetting = Number(IniRead($sIniFile, "AlwaysOnTop", "AsSubmenu", 0))
+	If $bAlwaysOnTopSubmenuSetting <> 0 And $bAlwaysOnTopSubmenuSetting <> 1 Then $bAlwaysOnTopSubmenuSetting = 0
 	$bActivateAlwaysOnTopHotKey = Number(IniRead($sIniFile, "AlwaysOnTop", "Active", 1))
 	If $bActivateAlwaysOnTopHotKey <> 0 And $bActivateAlwaysOnTopHotKey <> 1 Then $bActivateAlwaysOnTopHotKey = 1
 	$sAlwaysOnTopHotKey = StringStripWS(IniRead($sIniFile, "AlwaysOnTop", "HotKey", "+!t"), 8)
@@ -2650,8 +2803,10 @@ Func LoadSettings()
 	If $bAlwaysOnTopShowToolTip <> 0 And $bAlwaysOnTopShowToolTip <> 1 Then $bAlwaysOnTopShowToolTip = 1
 
 	;CloseGuard
-	$bCloseGuardEnabledSetting = Number(IniRead($sIniFile, "CloseGuard", "Enabled", 1))
-	If $bCloseGuardEnabledSetting <> 0 And $bCloseGuardEnabledSetting <> 1 Then $bCloseGuardEnabledSetting = 1
+	$bCloseGuardEnabledSetting = Number(IniRead($sIniFile, "CloseGuard", "Enabled", 0))
+	If $bCloseGuardEnabledSetting <> 0 And $bCloseGuardEnabledSetting <> 1 Then $bCloseGuardEnabledSetting = 0
+	$bCloseGuardSubmenuSetting = Number(IniRead($sIniFile, "CloseGuard", "AsSubmenu", 0))
+	If $bCloseGuardSubmenuSetting <> 0 And $bCloseGuardSubmenuSetting <> 1 Then $bCloseGuardSubmenuSetting = 0
 	$sCloseGuardHotkeyToggle = StringStripWS(IniRead($sIniFile, "CloseGuard", "HotkeyToggle", $sCloseGuardHotkeyToggleDefault), 8)
 	If StringLen($sCloseGuardHotkeyToggle) < 1 Or StringLen($sCloseGuardHotkeyToggle) > 9 Then $sCloseGuardHotkeyToggle = $sCloseGuardHotkeyToggleDefault
 	$sCloseGuardHotkeyAddRule = StringStripWS(IniRead($sIniFile, "CloseGuard", "HotkeyAddRule", $sCloseGuardHotkeyAddRuleDefault), 8)
@@ -2717,11 +2872,13 @@ Func SaveSettings()
 	Logfile("SaveSettings() start", 6)
 	;ToolTime
 	IniWrite($sIniFile, "ToolTime", "Enabled", $bToolTimeEnabledSetting)
+	IniWrite($sIniFile, "ToolTime", "AsSubmenu", $bToolTimeSubmenuSetting)
 	IniWrite($sIniFile, "ToolTime", "MaxEntries", $iToolTimeMaxEntriesSetting)
 	IniWrite($sIniFile, "ToolTime", "Folder", $sToolTimeFolderSetting)
 
 	;KeepAwake
 	IniWrite($sIniFile, "KeepAwake", "Enabled", $bKeepAwakeEnabledSetting)
+	IniWrite($sIniFile, "KeepAwake", "AsSubmenu", $bKeepAwakeSubmenuSetting)
 	;KeepAwake state
 	If $bRestoreKeepAwakeStateSetting Then
 		IniWrite($sIniFile, "KeepAwake", "KeepState", 1)
@@ -2742,6 +2899,7 @@ Func SaveSettings()
 
 	;AlwaysOnTop
 	IniWrite($sIniFile, "AlwaysOnTop", "Enabled", $bAlwaysOnTopEnabledSetting)
+	IniWrite($sIniFile, "AlwaysOnTop", "AsSubmenu", $bAlwaysOnTopSubmenuSetting)
 	IniWrite($sIniFile, "AlwaysOnTop", "Active", $bActivateAlwaysOnTopHotKey)
 	IniWrite($sIniFile, "AlwaysOnTop", "HotKey", $sAlwaysOnTopHotKey)
 
@@ -2749,6 +2907,7 @@ Func SaveSettings()
 
 	;CloseGuard (the rules have a file of their own, they are written when a rule is created, not here)
 	IniWrite($sIniFile, "CloseGuard", "Enabled", $bCloseGuardEnabledSetting)
+	IniWrite($sIniFile, "CloseGuard", "AsSubmenu", $bCloseGuardSubmenuSetting)
 	IniWrite($sIniFile, "CloseGuard", "HotkeyToggle", $sCloseGuardHotkeyToggle)
 	IniWrite($sIniFile, "CloseGuard", "HotkeyAddRule", $sCloseGuardHotkeyAddRule)
 	IniWrite($sIniFile, "CloseGuard", "ApplyOnStartup", $bCloseGuardApplyOnStartup)
@@ -3964,6 +4123,28 @@ Func CloseGuardStart()
 	_CloseGuardShowNote()
 	Logfile("CloseGuardStart() end", 6)
 EndFunc   ;==>CloseGuardStart
+
+; ====================================================================================================
+; Function: _CloseGuardFirstNotice
+; Description: Shown once, the first time CloseGuard is switched on: some windows cannot be locked, because their
+;              programs deviate from the usual Windows standards. Not at program start: only when CloseGuard is switched
+;              on in the menu or in the INI file (CloseGuard is off after a new installation). "NoticeShown=1" in the
+;              [CloseGuard] section of the INI file remembers that the notice was shown; deleting the entry shows it
+;              again. While the message box is open, the tray menu is disabled (the main loop is not polled meanwhile, see _TrayMenuDisableAll).
+; Parameters: None.
+; Returns: None.
+; ====================================================================================================
+Func _CloseGuardFirstNotice()
+	If IniRead($sIniFile, "CloseGuard", "NoticeShown", "0") = "1" Then Return
+	Logfile("CloseGuard: showing the one-time notice about windows that cannot be locked", 4)
+	IniWrite($sIniFile, "CloseGuard", "NoticeShown", "1") ;written first: the notice must not come back if the program is ended meanwhile
+	Local $oPrev = 0
+	If $hMenu <> 0 Then $oPrev = _TrayMenuDisableAll($hMenu)
+	MsgBox(64 + 262144, $sAppName & " - " & _("CloseGuard"), _("CloseGuard locks the close button (X) of the windows you choose.") & @CRLF & @CRLF & _
+			_("Please note: some windows cannot be locked because their programs deviate from the usual Windows standards (for example, they draw their own title bar). With such windows the X may still close the window.") & @CRLF & @CRLF & _
+			_("This notice is shown only once. More information: user guide (README.txt), section 4."))
+	If IsObj($oPrev) Then _TrayMenuRestoreDisabled($hMenu, $oPrev)
+EndFunc   ;==>_CloseGuardFirstNotice
 
 ; Gives the X back to all windows that CloseGuard has locked
 Func CloseGuardReleaseAll()
@@ -5231,6 +5412,7 @@ Func CheckCloseGuardEnabled()
 		ApplyTrayMenuSettings() ;registers the hotkeys
 		SetIconTooltip()
 		CloseGuardStart()
+		_CloseGuardFirstNotice() ;once, the first time CloseGuard is switched on
 	Else
 		Logfile("Disabling CloseGuard", 6)
 		CloseGuardStop() ;automatic check off, hotkeys released, all windows get their X back
@@ -5540,6 +5722,10 @@ Func CreateMapEnglishToID()
 	$mEnglishToID.Item("The rules file could not be created.") = 221
 	$mEnglishToID.Item("Minimize window when locked X is clicked") = 222
 	$mEnglishToID.Item("%1 was not found") = 223
+	$mEnglishToID.Item("%1 as submenu") = 224
+	$mEnglishToID.Item("CloseGuard locks the close button (X) of the windows you choose.") = 225
+	$mEnglishToID.Item("Please note: some windows cannot be locked because their programs deviate from the usual Windows standards (for example, they draw their own title bar). With such windows the X may still close the window.") = 226
+	$mEnglishToID.Item("This notice is shown only once. More information: user guide (README.txt), section 4.") = 227
 
 EndFunc   ;==>CreateMapEnglishToID
 
@@ -5666,6 +5852,10 @@ Func CreateMapIDToGerman()
 	$mIDToGerman.Item(221) = "Die Regeldatei konnte nicht angelegt werden."
 	$mIDToGerman.Item(222) = "Fenster minimieren bei Klick auf gesperrtes X"
 	$mIDToGerman.Item(223) = "%1 wurde nicht gefunden"
+	$mIDToGerman.Item(224) = "%1 als Untermenü"
+	$mIDToGerman.Item(225) = "CloseGuard sperrt den Schließen-Button (X) der Fenster, die Sie auswählen."
+	$mIDToGerman.Item(226) = "Bitte beachten: Manche Fenster lassen sich nicht sperren, weil ihre Programme von den üblichen Windows-Standards abweichen (zum Beispiel, weil sie ihre Titelleiste selbst zeichnen). Bei solchen Fenstern kann das X das Fenster trotzdem schließen."
+	$mIDToGerman.Item(227) = "Dieser Hinweis erscheint nur einmal. Mehr dazu: Anleitung (README.txt), Abschnitt 4."
 
 EndFunc   ;==>CreateMapIDToGerman
 
@@ -5792,6 +5982,10 @@ Func CreateMapIDToSpanish()
 	$mIDToSpanish.Item(221) = "No se pudo crear el archivo de reglas."
 	$mIDToSpanish.Item(222) = "Minimizar la ventana al hacer clic en la X bloqueada"
 	$mIDToSpanish.Item(223) = "No se encontró %1"
+	$mIDToSpanish.Item(224) = "%1 como submenú"
+	$mIDToSpanish.Item(225) = "CloseGuard bloquea el botón de cerrar (X) de las ventanas que elija."
+	$mIDToSpanish.Item(226) = "Tenga en cuenta: algunas ventanas no se pueden bloquear porque sus programas se apartan de los estándares habituales de Windows (por ejemplo, porque dibujan su propia barra de título). En esas ventanas, la X puede seguir cerrando la ventana."
+	$mIDToSpanish.Item(227) = "Este aviso solo se muestra una vez. Más información: guía (README.txt), sección 4."
 
 EndFunc   ;==>CreateMapIDToSpanish
 
@@ -5918,6 +6112,10 @@ Func CreateMapIDToFrench()
 	$mIDToFrench.Item(221) = "Le fichier de règles n'a pas pu être créé."
 	$mIDToFrench.Item(222) = "Réduire la fenêtre au clic sur le X verrouillé"
 	$mIDToFrench.Item(223) = "%1 est introuvable"
+	$mIDToFrench.Item(224) = "%1 en sous-menu"
+	$mIDToFrench.Item(225) = "CloseGuard verrouille le bouton de fermeture (X) des fenêtres que vous choisissez."
+	$mIDToFrench.Item(226) = "Remarque : certaines fenêtres ne peuvent pas être verrouillées, car leurs programmes s'écartent des standards Windows habituels (par exemple parce qu'ils dessinent eux-mêmes leur barre de titre). Pour ces fenêtres, le X peut tout de même fermer la fenêtre."
+	$mIDToFrench.Item(227) = "Cet avis ne s'affiche qu'une seule fois. Plus d'informations : guide (README.txt), section 4."
 
 EndFunc   ;==>CreateMapIDToFrench
 
@@ -6044,6 +6242,10 @@ Func CreateMapIDToPolish()
 	$mIDToPolish.Item(221) = "Nie udało się utworzyć pliku reguł."
 	$mIDToPolish.Item(222) = "Minimalizuj okno po kliknięciu zablokowanego X"
 	$mIDToPolish.Item(223) = "Nie znaleziono: %1"
+	$mIDToPolish.Item(224) = "%1 jako podmenu"
+	$mIDToPolish.Item(225) = "CloseGuard blokuje przycisk zamykania (X) wybranych okien."
+	$mIDToPolish.Item(226) = "Uwaga: niektórych okien nie da się zablokować, ponieważ ich programy odbiegają od typowych standardów Windows (na przykład same rysują pasek tytułu). W takich oknach X może nadal zamknąć okno."
+	$mIDToPolish.Item(227) = "Ta informacja pojawia się tylko raz. Więcej: instrukcja (README.txt), punkt 4."
 
 EndFunc   ;==>CreateMapIDToPolish
 
@@ -6170,6 +6372,10 @@ Func CreateMapIDToItalian()
 	$mIDToItalian.Item(221) = "Impossibile creare il file delle regole."
 	$mIDToItalian.Item(222) = "Riduci a icona la finestra al clic sulla X bloccata"
 	$mIDToItalian.Item(223) = "%1 non trovato"
+	$mIDToItalian.Item(224) = "%1 come sottomenu"
+	$mIDToItalian.Item(225) = "CloseGuard blocca il pulsante di chiusura (X) delle finestre scelte."
+	$mIDToItalian.Item(226) = "Nota: alcune finestre non possono essere bloccate perché i loro programmi si discostano dagli standard abituali di Windows (ad esempio perché disegnano da sé la barra del titolo). In queste finestre la X può comunque chiudere la finestra."
+	$mIDToItalian.Item(227) = "Questo avviso viene mostrato una sola volta. Maggiori informazioni: guida (README.txt), sezione 4."
 
 EndFunc   ;==>CreateMapIDToItalian
 
@@ -6296,6 +6502,10 @@ Func CreateMapIDToRussian()
 	$mIDToRussian.Item(221) = "Не удалось создать файл правил."
 	$mIDToRussian.Item(222) = "Сворачивать окно при щелчке по заблокированному X"
 	$mIDToRussian.Item(223) = "Не найдено: %1"
+	$mIDToRussian.Item(224) = "%1 как подменю"
+	$mIDToRussian.Item(225) = "CloseGuard блокирует кнопку закрытия (X) выбранных окон."
+	$mIDToRussian.Item(226) = "Обратите внимание: некоторые окна заблокировать нельзя, потому что их программы отступают от обычных стандартов Windows (например, сами рисуют строку заголовка). В таких окнах крестик (X) всё равно может закрыть окно."
+	$mIDToRussian.Item(227) = "Это уведомление показывается только один раз. Подробнее: руководство (README.txt), раздел 4."
 EndFunc   ;==>CreateMapIDToRussian
 
 Func CreateMapIDToHungarian()
@@ -6421,6 +6631,10 @@ Func CreateMapIDToHungarian()
 	$mIDToHungarian.Item(221) = "A szabályfájlt nem sikerült létrehozni."
 	$mIDToHungarian.Item(222) = "Ablak minimalizálása a zárolt X-re kattintáskor"
 	$mIDToHungarian.Item(223) = "Nem található: %1"
+	$mIDToHungarian.Item(224) = "%1 almenüként"
+	$mIDToHungarian.Item(225) = "A CloseGuard zárolja a kiválasztott ablakok bezárás gombját (X)."
+	$mIDToHungarian.Item(226) = "Figyelem: egyes ablakok nem zárolhatók, mert programjaik eltérnek a szokásos Windows-szabványoktól (például saját maguk rajzolják a címsorukat). Ilyen ablakoknál az X ennek ellenére bezárhatja az ablakot."
+	$mIDToHungarian.Item(227) = "Ez a figyelmeztetés csak egyszer jelenik meg. További információ: útmutató (README.txt), 4. pont."
 
 EndFunc   ;==>CreateMapIDToHungarian
 

@@ -79,7 +79,7 @@ Darunter enthält das Untermenü "Einstellungen" (Zahnrad-Symbol):
 - **Hotkey ändern: Sperren/Freigeben** / **Hotkey ändern: Regel anlegen**: Öffnet denselben Dialog wie bei AlwaysOnTop, um eine andere Tastenkombination festzulegen. Eine Kombination, die eine andere Funktion von CCTrayTool bereits verwendet, wird abgelehnt.
 - **Regeln bearbeiten...**: Öffnet die Regeldatei in Notepad (siehe unten). Nach dem Speichern und Schließen von Notepad werden die geänderten Regeln sofort angewendet: Fenster, die wegen einer nicht mehr passenden Regel gesperrt waren, werden freigegeben, neue Regeln gelten sofort für die offenen Fenster.
 
-CloseGuard insgesamt lässt sich mit "CloseGuard aktivieren" im Menü "Einstellungen" des Bereichs "CCTrayTool" ein- und ausschalten (siehe Abschnitt 7).
+CloseGuard insgesamt lässt sich mit "CloseGuard aktivieren" im Menü "Einstellungen" des Bereichs "CCTrayTool" ein- und ausschalten (siehe Abschnitt 7). Nach einer Neuinstallation ist CloseGuard ausgeschaltet. Beim ersten Einschalten erklärt ein einmaliger Hinweis, welche Fenster sich nicht sperren lassen.
 
 Regeln (eigene Datei `CloseGuardRules.ini`, Abschnitt `[Rules]`):
 
@@ -97,7 +97,7 @@ Einstellungen in der Einstellungsdatei (Abschnitt `[CloseGuard]`):
 
 ```ini
 [CloseGuard]
-Enabled=1
+Enabled=0
 HotkeyToggle=^!x
 HotkeyAddRule=^!+x
 ApplyOnStartup=1
@@ -112,7 +112,7 @@ ClickDebugOverlay=0
 ClickShieldClasses=Chrome_WidgetWin_1,MozillaWindowClass
 ```
 
-- `Enabled`: 1 = CloseGuard ein, 0 = aus (wie der Menüpunkt "CloseGuard aktivieren").
+- `Enabled`: 1 = CloseGuard ein, 0 = aus (wie der Menüpunkt "CloseGuard aktivieren"). Standard: 0.
 - `HotkeyToggle`: Tastenkombination für Sperren/Freigeben. `^` = Strg, `!` = Alt, `+` = Umschalt, `#` = Win, danach die Taste. Einfacher geht es mit dem Menüpunkt "Hotkey ändern".
 - `HotkeyAddRule`: Tastenkombination für "Regel anlegen".
 - `ApplyOnStartup`: 1 = Fenster, die beim Programmstart offen sind, werden mit den Regeln verglichen, 0 = sie bleiben unberührt.
@@ -132,6 +132,7 @@ Wissenswertes:
 
 - Die Sperre schützt vor einem versehentlichen Klick auf das X. Je nach Programm lässt sich ein Fenster weiterhin auf anderen Wegen schließen: mit ALT + F4, mit "Fenster schließen" in der Taskleiste, mit einem Beenden-Befehl im Menü des Programms oder über den Task-Manager.
 - Gesperrt werden können nur Fenster mit normaler Titelleiste und Systemmenü. Programme, die ihre Titelleiste selbst zeichnen (viele moderne Apps, einige Browser, Apps aus dem Microsoft Store), behalten unter Umständen ein funktionierendes X, obwohl CloseGuard das Fenster als gesperrt meldet. Hat ein Fenster gar kein Systemmenü, erscheint ein Hinweis.
+- Beim ersten Einschalten von CloseGuard weist ein einmaliger Hinweis darauf hin. Dass er gezeigt wurde, steht in der Einstellungsdatei ("NoticeShown=1" im Abschnitt `[CloseGuard]`); wird der Eintrag gelöscht, erscheint der Hinweis erneut.
 - Minimieren per Klick: CCTrayTool prüft die Maustaste kurz und regelmäßig (Standard: alle 30 ms), und nur, solange mindestens ein gesperrtes Fenster sichtbar ist. Es wird kein Maus-Hook verwendet, die Maus und das System können dadurch nicht ausgebremst werden. Fällt ein sehr kurzer Klick ausnahmsweise in einen Moment, in dem CCTrayTool beschäftigt ist, wird er einfach nicht bemerkt: Das Fenster bleibt unverändert und sein X gesperrt.
 - Minimieren per Klick reagiert auf die primäre Maustaste (die rechte, wenn die Tasten in Windows vertauscht sind) und nur auf das X gesperrter Fenster. Eingaben per Touch und Stift werden nicht erkannt. Ignoriert ein Programm den Minimieren-Befehl, minimiert CCTrayTool das Fenster direkt.
 - Manche Programme zeichnen ihre Titelleiste selbst (zum Beispiel Outlook). Sie sagen Windows nicht, wo ihr X liegt; deshalb berechnet CCTrayTool für die Klick-Erkennung die Position des X in der oberen rechten Ecke des Fensters (INI-Schlüssel `ClickGeometryFallback`). In der Log-Datei steht dann "recognized by its position".
@@ -216,6 +217,7 @@ Im Untermenü "Einstellungen" stehen zusätzlich zur Verfügung:
 - **KeepAwake aktivieren**: Schaltet den gesamten KeepAwake-Bereich (siehe Abschnitt 2) komplett ein oder aus. Bei Deaktivierung verschwinden seine Einträge aus dem Traymenü, und es gilt das normale Energiesparverhalten von Windows.
 - **AlwaysOnTop aktivieren**: Schaltet den gesamten AlwaysOnTop-Bereich (siehe Abschnitt 3) komplett ein oder aus. Bei Deaktivierung verschwinden seine Einträge aus dem Traymenü, und die Tastenkombination wird deaktiviert.
 - **CloseGuard aktivieren**: Schaltet den gesamten CloseGuard-Bereich (siehe Abschnitt 4) komplett ein oder aus. Bei Deaktivierung verschwinden seine Einträge aus dem Traymenü, die Tastenkombinationen werden deaktiviert, und alle gesperrten Fenster erhalten ihren Schließen-Button zurück.
+- **\<Funktion\> als Untermenü**: Gibt es für ToolTime, KeepAwake, AlwaysOnTop und CloseGuard, jeweils direkt unter dem Eintrag, der die Funktion ein- und ausschaltet. Zeigt den Bereich im Traymenü als Untermenü mit dem Namen der Funktion statt als Liste von Einträgen; das Menü wird dadurch kürzer. Die Funktion arbeitet unverändert weiter. Beim Umschalten schließt sich das Traymenü; danach einfach neu öffnen. Solange die Funktion selbst ausgeschaltet ist, ist der Eintrag ausgegraut. In der Einstellungsdatei ist das der Eintrag "AsSubmenu" im Abschnitt der Funktion (`[ToolTime]`, `[KeepAwake]`, `[AlwaysOnTop]`, `[CloseGuard]`): 1 = Untermenü, 0 = normal (Standard).
 - **Automatisch starten**: CCTrayTool startet künftig automatisch bei der Windows-Anmeldung.
 - **Logfile erstellen**: Schreibt ein detailliertes Protokoll aller Aktionen in eine Log-Datei. Hilfreich zur Fehlersuche, im Normalbetrieb nicht erforderlich. In der Einstellungsdatei ist das der Eintrag "`UseLog`" im Abschnitt `[Main]`: 1 = ein; 0, ein leerer oder fehlender Eintrag oder jeder andere Wert = aus.
 - **Logfile ansehen**: Öffnet die aktuelle Log-Datei in Notepad.

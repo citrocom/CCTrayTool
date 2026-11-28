@@ -79,7 +79,7 @@ Debajo, el submenú "Configuración" (icono de engranaje) contiene:
 - **Cambiar hotkey: bloquear/desbloquear** / **Cambiar hotkey: crear regla**: Abre el mismo cuadro de diálogo que en AlwaysOnTop para definir otra combinación de teclas. Se rechaza una combinación que ya use otra función de CCTrayTool.
 - **Editar reglas...**: Abre el archivo de reglas en el Bloc de notas (véase más abajo). Tras guardar y cerrar el Bloc de notas, las reglas modificadas se aplican de inmediato: las ventanas bloqueadas por una regla que ya no coincide se desbloquean y las reglas nuevas se aplican enseguida a las ventanas abiertas.
 
-CloseGuard en su conjunto se activa y desactiva con "Activar CloseGuard" en el menú "Configuración" de la sección "CCTrayTool" (véase la sección 7).
+CloseGuard en su conjunto se activa y desactiva con "Activar CloseGuard" en el menú "Configuración" de la sección "CCTrayTool" (véase la sección 7). Tras una instalación nueva, CloseGuard está desactivado. La primera vez que se activa, un aviso que solo aparece una vez explica qué ventanas no se pueden bloquear.
 
 Reglas (archivo propio `CloseGuardRules.ini`, sección `[Rules]`):
 
@@ -97,7 +97,7 @@ Ajustes en el archivo de configuración (sección `[CloseGuard]`):
 
 ```ini
 [CloseGuard]
-Enabled=1
+Enabled=0
 HotkeyToggle=^!x
 HotkeyAddRule=^!+x
 ApplyOnStartup=1
@@ -112,7 +112,7 @@ ClickDebugOverlay=0
 ClickShieldClasses=Chrome_WidgetWin_1,MozillaWindowClass
 ```
 
-- `Enabled`: 1 = CloseGuard activado, 0 = desactivado (igual que la opción de menú "Activar CloseGuard").
+- `Enabled`: 1 = CloseGuard activado, 0 = desactivado (igual que la opción de menú "Activar CloseGuard"). Predeterminado: 0.
 - `HotkeyToggle`: Combinación de teclas para bloquear/desbloquear. `^` = Ctrl, `!` = Alt, `+` = Mayús, `#` = Win, seguido de la tecla. Es más fácil cambiarla con la opción de menú "Cambiar hotkey".
 - `HotkeyAddRule`: Combinación de teclas para "crear regla".
 - `ApplyOnStartup`: 1 = las ventanas abiertas al iniciar el programa se comparan con las reglas, 0 = no se tocan.
@@ -132,6 +132,7 @@ Conviene saber:
 
 - El bloqueo protege de un clic accidental en la X. Según el programa, una ventana aún puede cerrarse por otras vías: con ALT + F4, con "Cerrar ventana" en la barra de tareas, con una orden Salir del menú del propio programa o con el Administrador de tareas.
 - Solo se pueden bloquear ventanas con una barra de título normal y menú del sistema. Los programas que dibujan su propia barra de título (muchas aplicaciones modernas, algunos navegadores, aplicaciones de Microsoft Store) pueden conservar una X que funciona aunque CloseGuard indique que la ventana está bloqueada. Si una ventana no tiene menú del sistema, aparece un aviso.
+- La primera vez que se activa CloseGuard, un aviso que solo aparece una vez lo recuerda. Que ya se mostró queda anotado en el archivo de configuración ("NoticeShown=1" en la sección `[CloseGuard]`); si se borra la entrada, el aviso vuelve a aparecer.
 - Minimizar con un clic: CCTrayTool comprueba el botón del ratón de forma breve y regular (predeterminado: cada 30 ms), y solo mientras haya al menos una ventana bloqueada visible. No utiliza ningún gancho (hook) del ratón, por lo que no puede ralentizar el ratón ni el sistema. En el improbable caso de que un clic muy breve coincida con un momento en que CCTrayTool está ocupado, simplemente no se detecta: la ventana queda como está y su X sigue bloqueada.
 - Minimizar con un clic responde al botón principal del ratón (el derecho, si los botones están intercambiados en Windows) y solo a la X de las ventanas bloqueadas. La entrada táctil y con lápiz no se detecta. Si un programa ignora la orden de minimizar, CCTrayTool minimiza la ventana directamente.
 - Algunos programas dibujan su propia barra de título (por ejemplo, Outlook). No le indican a Windows dónde está su X, por lo que, para detectar el clic, CCTrayTool calcula la posición de la X en la esquina superior derecha de la ventana (clave INI `ClickGeometryFallback`). En el archivo de registro aparece entonces "recognized by its position".
@@ -216,6 +217,7 @@ En el submenú "Configuración" también están disponibles:
 - **Activar KeepAwake**: Activa o desactiva por completo toda la sección KeepAwake (véase la sección 2). Si se desactiva, sus entradas desaparecen del menú de la bandeja y se aplica el comportamiento normal de ahorro de energía de Windows.
 - **Activar AlwaysOnTop**: Activa o desactiva por completo toda la sección AlwaysOnTop (véase la sección 3). Si se desactiva, sus entradas desaparecen del menú de la bandeja y la combinación de teclas se desactiva.
 - **Activar CloseGuard**: Activa o desactiva por completo toda la sección CloseGuard (véase la sección 4). Si se desactiva, sus entradas desaparecen del menú de la bandeja, las combinaciones de teclas se desactivan y todas las ventanas bloqueadas recuperan su botón de cerrar.
+- **\<Función\> como submenú**: Disponible para ToolTime, KeepAwake, AlwaysOnTop y CloseGuard, siempre justo debajo de la entrada que activa y desactiva la función. Muestra la sección en el menú de la bandeja como un submenú con el nombre de la función en lugar de una lista de entradas, con lo que el menú se acorta. La función sigue trabajando igual. Al cambiar el ajuste, el menú de la bandeja se cierra; basta con abrirlo de nuevo. Mientras la función esté desactivada, la entrada aparece en gris. En el archivo de configuración es la entrada "AsSubmenu" en la sección de la función (`[ToolTime]`, `[KeepAwake]`, `[AlwaysOnTop]`, `[CloseGuard]`): 1 = submenú, 0 = normal (predeterminado).
 - **Iniciar automáticamente**: CCTrayTool se iniciará automáticamente al iniciar sesión en Windows a partir de ahora.
 - **Crear archivo de registro**: Escribe un registro detallado de todas las acciones en un archivo de registro. Útil para la resolución de problemas, no es necesario en el funcionamiento normal. En el archivo de configuración es la entrada "`UseLog`" de la sección `[Main]`: 1 = activado; 0, una entrada vacía o inexistente o cualquier otro valor = desactivado.
 - **Ver archivo de registro**: Abre el archivo de registro actual en el Bloc de notas.

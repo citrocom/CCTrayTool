@@ -79,7 +79,7 @@ Pod nimi znajduje się podmenu "Ustawienia" (ikona zębatki), które zawiera:
 - **Zmień skrót: zablokuj/odblokuj** / **Zmień skrót: utwórz regułę**: Otwiera to samo okno dialogowe co w AlwaysOnTop, aby ustawić inny skrót klawiszowy. Kombinacja, której używa już inna funkcja CCTrayTool, zostaje odrzucona.
 - **Edytuj reguły...**: Otwiera plik reguł w Notatniku (patrz niżej). Po zapisaniu i zamknięciu Notatnika zmienione reguły są stosowane od razu: okna zablokowane przez regułę, która już nie pasuje, zostają odblokowane, a nowe reguły obowiązują natychmiast dla otwartych okien.
 
-CloseGuard jako całość włącza się i wyłącza pozycją "Włącz CloseGuard" w menu "Ustawienia" sekcji "CCTrayTool" (patrz punkt 7).
+CloseGuard jako całość włącza się i wyłącza pozycją "Włącz CloseGuard" w menu "Ustawienia" sekcji "CCTrayTool" (patrz punkt 7). Po nowej instalacji CloseGuard jest wyłączony. Przy pierwszym włączeniu jednorazowa informacja wyjaśnia, których okien nie da się zablokować.
 
 Reguły (osobny plik `CloseGuardRules.ini`, sekcja `[Rules]`):
 
@@ -97,7 +97,7 @@ Ustawienia w pliku ustawień (sekcja `[CloseGuard]`):
 
 ```ini
 [CloseGuard]
-Enabled=1
+Enabled=0
 HotkeyToggle=^!x
 HotkeyAddRule=^!+x
 ApplyOnStartup=1
@@ -112,7 +112,7 @@ ClickDebugOverlay=0
 ClickShieldClasses=Chrome_WidgetWin_1,MozillaWindowClass
 ```
 
-- `Enabled`: 1 = CloseGuard włączony, 0 = wyłączony (tak jak pozycja menu "Włącz CloseGuard").
+- `Enabled`: 1 = CloseGuard włączony, 0 = wyłączony (tak jak pozycja menu "Włącz CloseGuard"). Domyślnie: 0.
 - `HotkeyToggle`: Skrót klawiszowy blokowania/odblokowywania. `^` = Ctrl, `!` = Alt, `+` = Shift, `#` = Win, a po nich klawisz. Łatwiej zmienić go pozycją menu "Zmień skrót".
 - `HotkeyAddRule`: Skrót klawiszowy dla "utwórz regułę".
 - `ApplyOnStartup`: 1 = okna otwarte przy uruchomieniu programu są porównywane z regułami, 0 = pozostają nietknięte.
@@ -132,6 +132,7 @@ Warto wiedzieć:
 
 - Blokada chroni przed przypadkowym kliknięciem X. W zależności od programu okno nadal można zamknąć w inny sposób: za pomocą ALT + F4, poleceniem "Zamknij okno" na pasku zadań, poleceniem Zakończ w menu samego programu lub w Menedżerze zadań.
 - Zablokować można tylko okna ze zwykłym paskiem tytułu i menu systemowym. Programy rysujące własny pasek tytułu (wiele nowoczesnych aplikacji, niektóre przeglądarki, aplikacje ze sklepu Microsoft Store) mogą zachować działający przycisk X, mimo że CloseGuard zgłasza okno jako zablokowane. Jeśli okno w ogóle nie ma menu systemowego, pojawia się komunikat.
+- Przy pierwszym włączeniu CloseGuard jednorazowa informacja zwraca na to uwagę. To, że została pokazana, jest zapisane w pliku ustawień ("NoticeShown=1" w sekcji `[CloseGuard]`); po usunięciu wpisu informacja pojawi się ponownie.
 - Minimalizowanie kliknięciem: CCTrayTool sprawdza przycisk myszy krótko i regularnie (domyślnie co 30 ms), i tylko wtedy, gdy widoczne jest co najmniej jedno zablokowane okno. Nie używa haka myszy, więc nie może spowolnić myszy ani systemu. W mało prawdopodobnym przypadku, gdy bardzo krótkie kliknięcie przypadnie na moment, w którym CCTrayTool jest zajęty, po prostu nie zostanie zauważone: okno pozostaje bez zmian, a jego X nadal jest zablokowany.
 - Minimalizowanie kliknięciem reaguje na główny przycisk myszy (prawy, jeśli w Windows zamieniono przyciski) i tylko na X zablokowanych okien. Dotyk i pióro nie są wykrywane. Jeśli program ignoruje polecenie minimalizacji, CCTrayTool minimalizuje okno bezpośrednio.
 - Niektóre programy rysują własny pasek tytułu (na przykład Outlook). Nie informują systemu Windows, gdzie znajduje się ich X, dlatego do wykrywania kliknięcia CCTrayTool oblicza położenie X w prawym górnym rogu okna (klucz INI `ClickGeometryFallback`). W pliku dziennika pojawia się wtedy "recognized by its position".
@@ -216,6 +217,7 @@ W podmenu "Ustawienia" dostępne są dodatkowo:
 - **Włącz KeepAwake**: Całkowicie włącza lub wyłącza sekcję KeepAwake (patrz punkt 2). Po wyłączeniu jej pozycje znikają z menu zasobnika i obowiązuje normalne zachowanie oszczędzania energii Windows.
 - **Włącz AlwaysOnTop**: Całkowicie włącza lub wyłącza sekcję AlwaysOnTop (patrz punkt 3). Po wyłączeniu jej pozycje znikają z menu zasobnika, a skrót klawiszowy zostaje dezaktywowany.
 - **Włącz CloseGuard**: Całkowicie włącza lub wyłącza sekcję CloseGuard (patrz punkt 4). Po wyłączeniu jej pozycje znikają z menu zasobnika, skróty klawiszowe zostają dezaktywowane, a wszystkie zablokowane okna odzyskują przycisk zamykania.
+- **\<Funkcja\> jako podmenu**: Dostępne dla ToolTime, KeepAwake, AlwaysOnTop i CloseGuard, zawsze bezpośrednio pod pozycją, która włącza i wyłącza daną funkcję. Pokazuje sekcję w menu zasobnika jako podmenu z nazwą funkcji zamiast listy pozycji, dzięki czemu menu jest krótsze. Funkcja działa dalej bez zmian. Po przełączeniu menu zasobnika się zamyka; wystarczy otworzyć je ponownie. Dopóki sama funkcja jest wyłączona, pozycja jest wyszarzona. W pliku ustawień jest to wpis "AsSubmenu" w sekcji danej funkcji (`[ToolTime]`, `[KeepAwake]`, `[AlwaysOnTop]`, `[CloseGuard]`): 1 = podmenu, 0 = normalnie (domyślnie).
 - **Uruchamiaj automatycznie**: CCTrayTool będzie odtąd uruchamiał się automatycznie przy logowaniu do Windows.
 - **Utwórz plik dziennika**: Zapisuje szczegółowy dziennik wszystkich działań w pliku dziennika. Przydatne przy rozwiązywaniu problemów, niepotrzebne w normalnej pracy. W pliku ustawień jest to wpis "`UseLog`" w sekcji `[Main]`: 1 = włączone; 0, pusty lub brakujący wpis albo dowolna inna wartość = wyłączone.
 - **Pokaż plik dziennika**: Otwiera bieżący plik dziennika w Notatniku.

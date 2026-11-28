@@ -79,7 +79,7 @@ En dessous, le sous-menu "Paramètres" (icône d'engrenage) contient :
 - **Modifier le raccourci : verrouiller/déverrouiller** / **Modifier le raccourci : créer une règle**: Ouvre la même boîte de dialogue que pour AlwaysOnTop afin de définir un autre raccourci clavier. Une combinaison déjà utilisée par une autre fonction de CCTrayTool est refusée.
 - **Modifier les règles...**: Ouvre le fichier de règles dans le Bloc-notes (voir ci-dessous). Après l'enregistrement et la fermeture du Bloc-notes, les règles modifiées sont appliquées aussitôt : les fenêtres verrouillées par une règle qui ne correspond plus sont déverrouillées, et les nouvelles règles s'appliquent tout de suite aux fenêtres ouvertes.
 
-CloseGuard dans son ensemble s'active et se désactive avec "Activer CloseGuard" dans le menu "Paramètres" de la section "CCTrayTool" (voir section 7).
+CloseGuard dans son ensemble s'active et se désactive avec "Activer CloseGuard" dans le menu "Paramètres" de la section "CCTrayTool" (voir section 7). Après une nouvelle installation, CloseGuard est désactivé. Lors de sa première activation, un avis affiché une seule fois explique quelles fenêtres ne peuvent pas être verrouillées.
 
 Règles (fichier dédié `CloseGuardRules.ini`, section `[Rules]`) :
 
@@ -97,7 +97,7 @@ Paramètres dans le fichier de configuration (section `[CloseGuard]`) :
 
 ```ini
 [CloseGuard]
-Enabled=1
+Enabled=0
 HotkeyToggle=^!x
 HotkeyAddRule=^!+x
 ApplyOnStartup=1
@@ -112,7 +112,7 @@ ClickDebugOverlay=0
 ClickShieldClasses=Chrome_WidgetWin_1,MozillaWindowClass
 ```
 
-- `Enabled`: 1 = CloseGuard activé, 0 = désactivé (comme l'option de menu "Activer CloseGuard").
+- `Enabled`: 1 = CloseGuard activé, 0 = désactivé (comme l'option de menu "Activer CloseGuard"). Par défaut : 0.
 - `HotkeyToggle`: Raccourci clavier pour verrouiller/déverrouiller. `^` = Ctrl, `!` = Alt, `+` = Maj, `#` = Win, suivi de la touche. Il est plus simple de le modifier avec l'option de menu "Modifier le raccourci".
 - `HotkeyAddRule`: Raccourci clavier pour "créer une règle".
 - `ApplyOnStartup`: 1 = les fenêtres ouvertes au démarrage du programme sont comparées aux règles, 0 = elles sont laissées telles quelles.
@@ -132,6 +132,7 @@ Bon à savoir :
 
 - Le verrouillage protège contre un clic accidentel sur le X. Selon le programme, une fenêtre peut encore être fermée d'autres façons : avec ALT + F4, avec "Fermer la fenêtre" dans la barre des tâches, avec une commande Quitter dans le menu du programme ou avec le Gestionnaire des tâches.
 - Seules les fenêtres dotées d'une barre de titre normale et d'un menu système peuvent être verrouillées. Les programmes qui dessinent eux-mêmes leur barre de titre (de nombreuses applications modernes, certains navigateurs, les applications du Microsoft Store) peuvent conserver un X fonctionnel même si CloseGuard signale la fenêtre comme verrouillée. Si une fenêtre n'a aucun menu système, un avis s'affiche.
+- Lors de la première activation de CloseGuard, un avis affiché une seule fois le rappelle. Le fait qu'il a été affiché est noté dans le fichier de configuration ("NoticeShown=1" dans la section `[CloseGuard]`) ; si l'on supprime cette entrée, l'avis s'affiche de nouveau.
 - Réduction par clic : CCTrayTool vérifie brièvement et régulièrement le bouton de la souris (par défaut : toutes les 30 ms), et seulement tant qu'au moins une fenêtre verrouillée est visible. Il n'utilise aucun hook de souris et ne peut donc ralentir ni la souris ni le système. Dans le cas improbable où un clic très bref tombe à un moment où CCTrayTool est occupé, il n'est simplement pas détecté : la fenêtre reste telle quelle et son X reste verrouillé.
 - La réduction par clic réagit au bouton principal de la souris (le droit si les boutons sont inversés dans Windows) et uniquement au X des fenêtres verrouillées. La saisie tactile et au stylet n'est pas détectée. Si un programme ignore la commande de réduction, CCTrayTool réduit la fenêtre directement.
 - Certains programmes dessinent eux-mêmes leur barre de titre (par exemple Outlook). Ils n'indiquent pas à Windows où se trouve leur X ; pour la détection du clic, CCTrayTool calcule donc la position du X dans le coin supérieur droit de la fenêtre (clé INI `ClickGeometryFallback`). Le fichier journal indique alors "recognized by its position".
@@ -216,6 +217,7 @@ Le sous-menu "Paramètres" propose également :
 - **Activer KeepAwake**: Active ou désactive entièrement la section KeepAwake (voir section 2). Si désactivée, ses entrées disparaissent du menu de la zone de notification et le comportement normal d'économie d'énergie de Windows s'applique.
 - **Activer AlwaysOnTop**: Active ou désactive entièrement la section AlwaysOnTop (voir section 3). Si désactivée, ses entrées disparaissent du menu de la zone de notification et le raccourci clavier est désactivé.
 - **Activer CloseGuard**: Active ou désactive entièrement toute la section CloseGuard (voir section 4). Si elle est désactivée, ses entrées disparaissent du menu de la zone de notification, les raccourcis clavier sont désactivés et toutes les fenêtres verrouillées retrouvent leur bouton de fermeture.
+- **\<Fonction\> en sous-menu**: Disponible pour ToolTime, KeepAwake, AlwaysOnTop et CloseGuard, chaque fois juste sous l'entrée qui active ou désactive la fonction. Affiche la section dans le menu de la zone de notification sous forme de sous-menu portant le nom de la fonction au lieu d'une liste d'entrées ; le menu devient ainsi plus court. La fonction continue de travailler sans changement. Le menu se ferme lorsque le réglage est modifié ; il suffit de le rouvrir. Tant que la fonction elle-même est désactivée, l'entrée est grisée. Dans le fichier de configuration, il s'agit de l'entrée "AsSubmenu" dans la section de la fonction (`[ToolTime]`, `[KeepAwake]`, `[AlwaysOnTop]`, `[CloseGuard]`) : 1 = sous-menu, 0 = normal (par défaut).
 - **Démarrage automatique**: CCTrayTool démarrera désormais automatiquement à l'ouverture de session Windows.
 - **Créer un fichier journal**: Écrit un journal détaillé de toutes les actions dans un fichier journal. Utile pour le dépannage, non nécessaire en fonctionnement normal. Dans le fichier de paramètres, il s'agit de l'entrée "`UseLog`" de la section `[Main]` : 1 = activé ; 0, une entrée vide ou absente ou toute autre valeur = désactivé.
 - **Afficher le fichier journal**: Ouvre le fichier journal actuel dans le Bloc-notes.

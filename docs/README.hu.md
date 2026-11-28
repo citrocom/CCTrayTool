@@ -79,7 +79,7 @@ Alattuk a "Beállítások" almenü (fogaskerék ikon) található, amely a köve
 - **Gyorsbillentyű módosítása: zárolás/feloldás** / **Gyorsbillentyű módosítása: szabály létrehozása**: Ugyanazt a párbeszédablakot nyitja meg, mint az AlwaysOnTop, egy másik billentyűkombináció megadásához. Az olyan kombinációt, amelyet a CCTrayTool egy másik funkciója már használ, elutasítja.
 - **Szabályok szerkesztése...**: Megnyitja a szabályfájlt a Jegyzettömbben (lásd alább). A Jegyzettömb mentése és bezárása után a módosított szabályok azonnal érvénybe lépnek: azok az ablakok, amelyeket egy már nem illő szabály zárolt, feloldódnak, az új szabályok pedig azonnal vonatkoznak a megnyitott ablakokra.
 
-A CloseGuard egésze a "CCTrayTool" szakasz "Beállítások" menüjének "CloseGuard bekapcsolása" pontjával ki- és bekapcsolható (lásd a 7. pontot).
+A CloseGuard egésze a "CCTrayTool" szakasz "Beállítások" menüjének "CloseGuard bekapcsolása" pontjával ki- és bekapcsolható (lásd a 7. pontot). Új telepítés után a CloseGuard ki van kapcsolva. Az első bekapcsoláskor egy egyszeri figyelmeztetés elmagyarázza, mely ablakok nem zárolhatók.
 
 Szabályok (külön fájl: `CloseGuardRules.ini`, `[Rules]` szakasz):
 
@@ -97,7 +97,7 @@ Beállítások a beállításfájlban (`[CloseGuard]` szakasz):
 
 ```ini
 [CloseGuard]
-Enabled=1
+Enabled=0
 HotkeyToggle=^!x
 HotkeyAddRule=^!+x
 ApplyOnStartup=1
@@ -112,7 +112,7 @@ ClickDebugOverlay=0
 ClickShieldClasses=Chrome_WidgetWin_1,MozillaWindowClass
 ```
 
-- `Enabled`: 1 = a CloseGuard be van kapcsolva, 0 = ki van kapcsolva (megegyezik a "CloseGuard bekapcsolása" menüponttal).
+- `Enabled`: 1 = a CloseGuard be van kapcsolva, 0 = ki van kapcsolva (megegyezik a "CloseGuard bekapcsolása" menüponttal). Alapértelmezés: 0.
 - `HotkeyToggle`: A zárolás/feloldás billentyűkombinációja. `^` = Ctrl, `!` = Alt, `+` = Shift, `#` = Win, utána a billentyű. Egyszerűbb a "Gyorsbillentyű módosítása" menüponttal megváltoztatni.
 - `HotkeyAddRule`: A "szabály létrehozása" billentyűkombinációja.
 - `ApplyOnStartup`: 1 = a program indulásakor nyitott ablakokat összeveti a szabályokkal, 0 = békén hagyja őket.
@@ -132,6 +132,7 @@ Tudnivalók:
 
 - A zárolás a véletlen X-kattintástól véd. A programtól függően az ablak más módon továbbra is bezárható: az ALT + F4 kombinációval, a tálca "Ablak bezárása" parancsával, a program saját menüjének Kilépés parancsával vagy a Feladatkezelővel.
 - Csak a hagyományos címsorú és rendszermenüs ablakok zárolhatók. Azok a programok, amelyek saját címsort rajzolnak (sok modern alkalmazás, egyes böngészők, a Microsoft Store alkalmazásai), működő X-et tarthatnak meg akkor is, ha a CloseGuard zároltnak jelzi az ablakot. Ha egy ablaknak egyáltalán nincs rendszermenüje, értesítés jelenik meg.
+- A CloseGuard első bekapcsolásakor egy egyszeri figyelmeztetés hívja fel erre a figyelmet. Azt, hogy megjelent, a beállítási fájl rögzíti ("NoticeShown=1" a `[CloseGuard]` szakaszban); a bejegyzés törlése után a figyelmeztetés újra megjelenik.
 - Minimalizálás kattintásra: a CCTrayTool röviden és rendszeresen ellenőrzi az egérgombot (alapértelmezés: 30 ms-onként), és csak akkor, amíg legalább egy zárolt ablak látható. Nem használ egérhookot, ezért nem lassíthatja le az egeret vagy a rendszert. Abban a valószínűtlen esetben, ha egy nagyon rövid kattintás éppen akkor történik, amikor a CCTrayTool elfoglalt, a program egyszerűen nem veszi észre: az ablak változatlan marad, az X-e pedig zárolt.
 - A kattintásra történő minimalizálás az elsődleges egérgombra reagál (a jobbra, ha a Windowsban felcserélték a gombokat), és csak a zárolt ablakok X-ére. Az érintéses és tollas bevitelt nem érzékeli. Ha egy program figyelmen kívül hagyja a minimalizálási parancsot, a CCTrayTool közvetlenül minimalizálja az ablakot.
 - Néhány program saját maga rajzolja a címsorát (például az Outlook). Ezek nem mondják meg a Windowsnak, hol van az X-ük, ezért a kattintás felismeréséhez a CCTrayTool kiszámítja az X helyét az ablak jobb felső sarkában (`ClickGeometryFallback` INI-kulcs). A naplófájlban ilyenkor a "recognized by its position" szöveg jelenik meg.
@@ -216,6 +217,7 @@ A "Beállítások" almenüben ezenkívül elérhető:
 - **KeepAwake bekapcsolása**: Teljesen be- vagy kikapcsolja a KeepAwake szakaszt (lásd 2. pont). Kikapcsolt állapotban bejegyzései eltűnnek a tálcamenüből, és a Windows normál energiatakarékossági viselkedése érvényes.
 - **AlwaysOnTop bekapcsolása**: Teljesen be- vagy kikapcsolja az AlwaysOnTop szakaszt (lásd 3. pont). Kikapcsolt állapotban bejegyzései eltűnnek a tálcamenüből, és a billentyűkombináció letiltásra kerül.
 - **CloseGuard bekapcsolása**: Teljesen be- vagy kikapcsolja a CloseGuard egész szakaszát (lásd 4. pont). Kikapcsolt állapotban bejegyzései eltűnnek a tálcamenüből, a billentyűkombinációk letiltásra kerülnek, és minden zárolt ablak visszakapja a bezárás gombját.
+- **\<Funkció\> almenüként**: A ToolTime, a KeepAwake, az AlwaysOnTop és a CloseGuard esetében is megtalálható, mindig közvetlenül az adott funkciót be- és kikapcsoló bejegyzés alatt. A szakaszt a tálcamenüben a funkció nevét viselő almenüként jeleníti meg a bejegyzések listája helyett, így a menü rövidebb lesz. A funkció változatlanul működik tovább. Átkapcsoláskor a tálcamenü bezárul; egyszerűen nyissa meg újra. Amíg maga a funkció ki van kapcsolva, a bejegyzés szürkén jelenik meg. A beállítási fájlban ez a funkció szakaszában (`[ToolTime]`, `[KeepAwake]`, `[AlwaysOnTop]`, `[CloseGuard]`) található "AsSubmenu" bejegyzés: 1 = almenü, 0 = normál (alapértelmezett).
 - **Automatikus indítás**: A CCTrayTool ezentúl automatikusan elindul a Windows bejelentkezéskor.
 - **Naplófájl létrehozása**: Részletes naplót ír az összes műveletről egy naplófájlba. Hasznos hibakereséshez, normál üzemben nem szükséges. A beállításfájlban ez a `[Main]` szakasz "`UseLog`" bejegyzése: 1 = be; 0, üres vagy hiányzó bejegyzés, illetve bármilyen más érték = ki.
 - **Naplófájl megtekintése**: Megnyitja az aktuális naplófájlt a Jegyzettömbben.

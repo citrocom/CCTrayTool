@@ -79,7 +79,7 @@ Sotto di esse, il sottomenu "Impostazioni" (icona a forma di ingranaggio) contie
 - **Cambia hotkey: blocca/sblocca** / **Cambia hotkey: crea regola**: Apre la stessa finestra di dialogo di AlwaysOnTop per definire un'altra combinazione di tasti. Una combinazione già usata da un'altra funzione di CCTrayTool viene rifiutata.
 - **Modifica regole...**: Apre il file delle regole in Blocco note (vedi sotto). Dopo aver salvato e chiuso Blocco note, le regole modificate vengono applicate subito: le finestre bloccate da una regola che non corrisponde più vengono sbloccate e le nuove regole valgono subito per le finestre aperte.
 
-CloseGuard nel suo complesso si attiva e si disattiva con "Attiva CloseGuard" nel menu "Impostazioni" della sezione "CCTrayTool" (vedi sezione 7).
+CloseGuard nel suo complesso si attiva e si disattiva con "Attiva CloseGuard" nel menu "Impostazioni" della sezione "CCTrayTool" (vedi sezione 7). Dopo una nuova installazione CloseGuard è disattivato. Alla prima attivazione un avviso, mostrato una sola volta, spiega quali finestre non possono essere bloccate.
 
 Regole (file dedicato `CloseGuardRules.ini`, sezione `[Rules]`):
 
@@ -97,7 +97,7 @@ Impostazioni nel file di configurazione (sezione `[CloseGuard]`):
 
 ```ini
 [CloseGuard]
-Enabled=1
+Enabled=0
 HotkeyToggle=^!x
 HotkeyAddRule=^!+x
 ApplyOnStartup=1
@@ -112,7 +112,7 @@ ClickDebugOverlay=0
 ClickShieldClasses=Chrome_WidgetWin_1,MozillaWindowClass
 ```
 
-- `Enabled`: 1 = CloseGuard attivo, 0 = disattivo (come la voce di menu "Attiva CloseGuard").
+- `Enabled`: 1 = CloseGuard attivo, 0 = disattivo (come la voce di menu "Attiva CloseGuard"). Predefinito: 0.
 - `HotkeyToggle`: Combinazione di tasti per bloccare/sbloccare. `^` = Ctrl, `!` = Alt, `+` = Maiusc, `#` = Win, seguito dal tasto. È più semplice cambiarla con la voce di menu "Cambia hotkey".
 - `HotkeyAddRule`: Combinazione di tasti per "crea regola".
 - `ApplyOnStartup`: 1 = le finestre aperte all'avvio del programma vengono confrontate con le regole, 0 = restano intatte.
@@ -132,6 +132,7 @@ Da sapere:
 
 - Il blocco protegge da un clic accidentale sulla X. A seconda del programma, una finestra può comunque essere chiusa in altri modi: con ALT + F4, con "Chiudi finestra" nella barra delle applicazioni, con un comando Esci nel menu del programma o con Gestione attività.
 - Si possono bloccare solo le finestre con una normale barra del titolo e un menu di sistema. I programmi che disegnano da soli la barra del titolo (molte app moderne, alcuni browser, app del Microsoft Store) possono mantenere una X funzionante anche se CloseGuard segnala la finestra come bloccata. Se una finestra non ha affatto un menu di sistema, compare un avviso.
+- Alla prima attivazione di CloseGuard un avviso, mostrato una sola volta, lo ricorda. Che sia stato mostrato è annotato nel file delle impostazioni ("NoticeShown=1" nella sezione `[CloseGuard]`); eliminando la voce, l'avviso viene mostrato di nuovo.
 - Riduzione a icona con un clic: CCTrayTool controlla il pulsante del mouse brevemente e a intervalli regolari (predefinito: ogni 30 ms), e solo finché è visibile almeno una finestra bloccata. Non usa alcun hook del mouse, quindi non può rallentare né il mouse né il sistema. Nel caso improbabile in cui un clic molto breve cada in un momento in cui CCTrayTool è occupato, semplicemente non viene rilevato: la finestra resta com'è e la sua X resta bloccata.
 - La riduzione a icona con un clic reagisce al pulsante primario del mouse (quello destro, se in Windows i pulsanti sono invertiti) e solo alla X delle finestre bloccate. L'input tattile e con penna non viene rilevato. Se un programma ignora il comando di riduzione a icona, CCTrayTool riduce a icona la finestra direttamente.
 - Alcuni programmi disegnano da sé la propria barra del titolo (per esempio Outlook). Non comunicano a Windows dove si trova la loro X, quindi per il rilevamento del clic CCTrayTool calcola la posizione della X nell'angolo in alto a destra della finestra (chiave INI `ClickGeometryFallback`). Nel file di log compare allora "recognized by its position".
@@ -216,6 +217,7 @@ Nel sottomenu "Impostazioni" sono inoltre disponibili:
 - **Attiva KeepAwake**: Attiva o disattiva completamente l'intera sezione KeepAwake (vedi sezione 2). Se disattivata, le sue voci scompaiono dal menu dell'area di notifica e si applica il normale comportamento di risparmio energetico di Windows.
 - **Attiva AlwaysOnTop**: Attiva o disattiva completamente l'intera sezione AlwaysOnTop (vedi sezione 3). Se disattivata, le sue voci scompaiono dal menu dell'area di notifica e la combinazione di tasti viene disattivata.
 - **Attiva CloseGuard**: Attiva o disattiva completamente l'intera sezione CloseGuard (vedi sezione 4). Se disattivata, le sue voci scompaiono dal menu dell'area di notifica, le combinazioni di tasti vengono disattivate e tutte le finestre bloccate riottengono il pulsante di chiusura.
+- **\<Funzione\> come sottomenu**: Disponibile per ToolTime, KeepAwake, AlwaysOnTop e CloseGuard, sempre subito sotto la voce che attiva e disattiva la funzione. Mostra la sezione nel menu dell'area di notifica come sottomenu con il nome della funzione invece che come elenco di voci; così il menu diventa più corto. La funzione continua a lavorare come prima. Quando si cambia l'impostazione il menu si chiude; basta riaprirlo. Finché la funzione stessa è disattivata, la voce è grigia. Nel file delle impostazioni è la voce "AsSubmenu" nella sezione della funzione (`[ToolTime]`, `[KeepAwake]`, `[AlwaysOnTop]`, `[CloseGuard]`): 1 = sottomenu, 0 = normale (predefinito).
 - **Avvio automatico**: CCTrayTool si avvierà automaticamente in futuro all'accesso a Windows.
 - **Crea file di log**: Scrive un registro dettagliato di tutte le azioni in un file di log. Utile per la risoluzione dei problemi, non necessario nel funzionamento normale. Nel file di configurazione è la voce "`UseLog`" nella sezione `[Main]`: 1 = attivo; 0, una voce vuota o mancante o qualsiasi altro valore = disattivato.
 - **Visualizza file di log**: Apre il file di log corrente in Blocco note.

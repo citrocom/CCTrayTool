@@ -22,12 +22,12 @@ System requirement: A 64-bit version of Windows 10 or newer is required. The pro
 ## Download
 
 Compiled and code-signed versions are published on the [Releases](../../releases/latest) page of this
-repository. Download the ZIP file (for example `CCTrayTool_2026.0.0.110.zip`), unpack it into any folder and
+repository. Download the ZIP file (for example `CCTrayTool_2026.0.0.115.zip`), unpack it into any folder and
 start `CCTrayTool.exe` – there is nothing to install. The ZIP file contains the program, the user guide
 (`README.txt`), the license (`LICENSE`, `NOTICE`) and a note about the source code.
 
 The SHA256 checksum of the ZIP file is part of the release notes (GitHub also shows it next to the file). To
-check your download, compare it with the result of `Get-FileHash .\CCTrayTool_2026.0.0.110.zip` in PowerShell.
+check your download, compare it with the result of `Get-FileHash .\CCTrayTool_2026.0.0.115.zip` in PowerShell.
 
 CCTrayTool keeps its settings, the log file and the ToolTime folder in `%LocalAppData%\CCTrayTool`
 (see section 8 of the user guide). The program does not write anywhere else.
@@ -98,7 +98,7 @@ Below them, the submenu "Settings" (gear icon) contains:
 - **Change hotkey: lock/unlock** / **Change hotkey: create rule**: Opens the same dialog as for AlwaysOnTop, to define another keyboard shortcut. A combination that another function of CCTrayTool already uses is refused.
 - **Edit rules...**: Opens the rules file in Notepad (see below). After saving and closing Notepad, the changed rules are applied at once: windows locked by a rule that no longer matches are released, and new rules are applied to the open windows.
 
-CloseGuard as a whole can be turned on and off with "Enable CloseGuard" in the "Settings" menu of the "CCTrayTool" section (see Section 7).
+CloseGuard as a whole can be turned on and off with "Enable CloseGuard" in the "Settings" menu of the "CCTrayTool" section (see Section 7). After a new installation CloseGuard is switched off. When it is switched on for the first time, a one-time notice explains which windows cannot be locked.
 
 Rules (own file `CloseGuardRules.ini`, section `[Rules]`):
 
@@ -116,7 +116,7 @@ Settings in the settings file (section `[CloseGuard]`):
 
 ```ini
 [CloseGuard]
-Enabled=1
+Enabled=0
 HotkeyToggle=^!x
 HotkeyAddRule=^!+x
 ApplyOnStartup=1
@@ -131,7 +131,7 @@ ClickDebugOverlay=0
 ClickShieldClasses=Chrome_WidgetWin_1,MozillaWindowClass
 ```
 
-- `Enabled`: 1 = CloseGuard on, 0 = off (same as the menu item "Enable CloseGuard").
+- `Enabled`: 1 = CloseGuard on, 0 = off (same as the menu item "Enable CloseGuard"). Default: 0.
 - `HotkeyToggle`: Keyboard shortcut for lock/unlock. `^` = Ctrl, `!` = Alt, `+` = Shift, `#` = Win, followed by the key. It is easier to change it with the menu item "Change hotkey".
 - `HotkeyAddRule`: Keyboard shortcut for "create rule".
 - `ApplyOnStartup`: 1 = windows that are open at program start are checked against the rules, 0 = they are left alone.
@@ -151,6 +151,7 @@ Good to know:
 
 - The lock protects against clicking the X by mistake. Depending on the program, a window can still be closed in other ways: with ALT + F4, with "Close window" in the taskbar, with an Exit command in the program's own menu or with the Task Manager.
 - Only windows with a normal title bar and system menu can be locked. Programs that draw their own title bar (many modern apps, some browsers, apps from the Microsoft Store) may keep a working X even though CloseGuard reports the window as locked. If a window has no system menu at all, a notice appears.
+- When CloseGuard is switched on for the first time, a one-time notice points this out. That it was shown is noted in the settings file ("NoticeShown=1" in the `[CloseGuard]` section); delete the entry to see the notice again.
 - Minimize on click: CCTrayTool checks the mouse button briefly and regularly (default: every 30 ms), and only while at least one locked window is visible. It does not use a mouse hook, so it cannot slow down the mouse or the system. In the unlikely case that a very short click falls into a moment in which CCTrayTool is busy, it is simply not noticed: the window stays as it is and its X stays locked.
 - Minimize on click reacts to the primary mouse button (the right one if the buttons are swapped in Windows) and only to the X of locked windows. Touch and pen input are not detected. If a program ignores the minimize command, CCTrayTool minimizes the window directly.
 - Some programs draw their own title bar (for example Outlook). They do not tell Windows where their X is, so for the click detection CCTrayTool works out the position of the X in the top right corner of the window (INI key `ClickGeometryFallback`). The log file then says "recognized by its position".
@@ -235,6 +236,7 @@ The "Settings" submenu also offers:
 - **Enable KeepAwake**: Turns the entire KeepAwake section (see Section 2) on or off. When turned off, its entries disappear from the tray menu and normal Windows power-saving behavior applies.
 - **Enable AlwaysOnTop**: Turns the entire AlwaysOnTop section (see Section 3) on or off. When turned off, its entries disappear from the tray menu and the keyboard shortcut is deactivated.
 - **Enable CloseGuard**: Turns the entire CloseGuard section (see Section 4) on or off. When turned off, its entries disappear from the tray menu, its keyboard shortcuts are deactivated and all locked windows get their close button back.
+- **\<Function\> as submenu**: Available for ToolTime, KeepAwake, AlwaysOnTop and CloseGuard, each directly below the entry that turns the function on or off. Shows the section in the tray menu as a submenu with the name of the function instead of a list of entries, which makes the menu shorter. The function keeps working unchanged. The tray menu closes when the setting is changed; simply open it again. The entry is grayed out while the function itself is turned off. In the settings file this is the entry "AsSubmenu" in the section of the function (`[ToolTime]`, `[KeepAwake]`, `[AlwaysOnTop]`, `[CloseGuard]`): 1 = submenu, 0 = normal (default).
 - **Start Automatically**: CCTrayTool will start automatically at Windows logon in the future.
 - **Create Logfile**: Writes a detailed log of all actions to a log file. Helpful for troubleshooting, not required during normal operation. In the settings file this is the entry "`UseLog`" in the `[Main]` section: 1 = on; 0, an empty or missing entry, or any other value = off.
 - **View Logfile**: Opens the current log file in Notepad.
